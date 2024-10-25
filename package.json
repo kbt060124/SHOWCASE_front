@@ -14,6 +14,11 @@
   "dependencies": {
     "@babylonjs/core": "^7.30.1",
     "@babylonjs/gui": "^7.30.1",
+    "@emotion/cache": "^11.13.1",
+    "@emotion/react": "^11.13.3",
+    "@emotion/styled": "^11.13.0",
+    "@mui/material": "^6.1.5",
+    "@mui/material-nextjs": "^6.1.5",
     "next": "14.2.16",
     "react": "^18",
     "react-babylonjs": "^3.2.1",
