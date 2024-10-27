@@ -7,5 +7,11 @@ WORKDIR /app
 # パッケージファイルをコピー
 COPY package.json package-lock.json ./
 
-# 開発用サーバの起動前にnpm installを実行
-CMD npm install && npm run dev
+# パッケージをインストール
+RUN npm install
+
+# アプリケーションのソースコードをコピー
+COPY . .
+
+# 開発用サーバを起動
+CMD ["npm", "run", "dev"]
