@@ -15,6 +15,9 @@ function Home() {
                     <li>
                         <Link to="/warehouse">Warehouse</Link>
                     </li>
+                    <li>
+                        <Link to="/babylon">Babylon</Link>
+                    </li>
                 </ul>
             </nav>
         </div>
