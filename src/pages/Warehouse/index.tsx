@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import Modal from "../../components/Modal";
 
 interface Warehouse {
     id: number;
@@ -55,30 +56,18 @@ function Warehouse() {
                             alt={warehouse.name}
                             className="w-full h-24 sm:h-32 object-cover"
                         />
-                        {/*<div className="p-2 sm:p-3">
+                        <div className="p-2 sm:p-3">
                             <h2 className="text-sm sm:text-base font-semibold truncate">{warehouse.name}</h2>
-                        </div>*/}
+                        </div>
                     </div>
                 ))}
             </div>
 
             {selectedWarehouse && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                    <div className="bg-white p-4 rounded-lg max-w-lg w-full">
-                        <h2 className="text-xl font-bold mb-2">{selectedWarehouse.name}</h2>
-                        <img
-                            src={`https://test-fbx-upload.s3.ap-southeast-2.amazonaws.com/${selectedWarehouse.thumbnail}`}
-                            alt={selectedWarehouse.name}
-                            className="w-full h-64 object-cover mb-4"
-                        />
-                        <button
-                            onClick={closeModal}
-                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-                        >
-                            閉じる
-                        </button>
-                    </div>
-                </div>
+                <Modal
+                    warehouse={selectedWarehouse}
+                    onClose={closeModal}
+                />
             )}
         </div>
     );
