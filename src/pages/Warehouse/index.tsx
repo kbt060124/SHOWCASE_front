@@ -6,6 +6,7 @@ interface Warehouse {
     id: number;
     name: string;
     thumbnail: string;
+    item_id: number;
 }
 
 function Warehouse() {

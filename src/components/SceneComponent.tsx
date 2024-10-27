@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Engine, Scene, EngineOptions, SceneOptions } from "@babylonjs/core";
+import { Engine, Scene, EngineOptions, SceneOptions, Color4 } from "@babylonjs/core";
 
 interface SceneComponentProps {
   antialias?: boolean;
@@ -9,6 +9,7 @@ interface SceneComponentProps {
   onRender?: (scene: Scene) => void;
   onSceneReady: (scene: Scene) => void;
   id: string;
+  className?: string;
 }
 
 const SceneComponent: React.FC<SceneComponentProps> = ({
@@ -18,6 +19,7 @@ const SceneComponent: React.FC<SceneComponentProps> = ({
   sceneOptions,
   onRender,
   onSceneReady,
+  className,
   ...rest
 }) => {
   const reactCanvas = useRef<HTMLCanvasElement>(null);
@@ -34,6 +36,9 @@ const SceneComponent: React.FC<SceneComponentProps> = ({
       adaptToDeviceRatio
     );
     const scene = new Scene(engine, sceneOptions);
+    // 背景色をより薄い灰色に設定
+    scene.clearColor = new Color4(0.9, 0.9, 0.9, 1); // より薄い灰色の背景
+
     if (scene.isReady()) {
       onSceneReady(scene);
     } else {
@@ -62,7 +67,9 @@ const SceneComponent: React.FC<SceneComponentProps> = ({
     };
   }, [antialias, engineOptions, adaptToDeviceRatio, sceneOptions, onRender, onSceneReady]);
 
-  return <canvas ref={reactCanvas} {...rest} />;
+  return (
+    <canvas ref={reactCanvas} className={className} {...rest} />
+  );
 };
 
 export default SceneComponent;
