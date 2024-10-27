@@ -55,9 +55,9 @@ function Warehouse() {
                             alt={warehouse.name}
                             className="w-full h-24 sm:h-32 object-cover"
                         />
-                        {/*<div className="p-2 sm:p-3">
+                        <div className="p-2 sm:p-3">
                             <h2 className="text-sm sm:text-base font-semibold truncate">{warehouse.name}</h2>
-                        </div>*/}
+                        </div>
                     </div>
                 ))}
             </div>
