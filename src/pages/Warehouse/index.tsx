@@ -3,10 +3,15 @@ import axios from "axios";
 import Modal from "../../components/Modal";
 
 interface Warehouse {
-    id: number;
+    id: bigint;
+    user_id: bigint;
+    item_id: bigint;
     name: string;
     thumbnail: string;
-    item_id: number;
+    favorite: boolean;
+    memo: string | null;
+    created_at: string | null;
+    updated_at: string | null;
 }
 
 function Warehouse() {
