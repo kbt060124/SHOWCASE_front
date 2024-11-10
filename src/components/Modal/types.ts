@@ -13,5 +13,4 @@ export interface Warehouse {
 export interface ModalProps {
     warehouse: Warehouse;
     onClose: () => void;
-    onUpdate?: (updatedWarehouse: Warehouse) => void;
 }
