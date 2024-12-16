@@ -1,14 +1,12 @@
 import axios from "axios";
 
-axios.defaults.withCredentials = true;
-axios.defaults.headers.common["X-Requested-With"] = "XMLHttpRequest";
+const api = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || "http://localhost", // Docker環境のバックエンドURL
+    headers: {
+        "X-Requested-With": "XMLHttpRequest",
+        "Content-Type": "application/json",
+    },
+    withCredentials: true, // クロスドメインでのクッキー送信を有効化
+});
 
-// CSRFトークンを設定
-const token = document.head.querySelector('meta[name="csrf-token"]');
-if (token) {
-    axios.defaults.headers.common["X-CSRF-TOKEN"] = (
-        token as HTMLMetaElement
-    ).content;
-}
-
-export default axios;
+export default api;
