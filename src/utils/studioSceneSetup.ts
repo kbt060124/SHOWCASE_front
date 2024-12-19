@@ -9,7 +9,6 @@ import {
     Color4,
     PointLight,
     SceneLoader,
-    AbstractMesh,
     ActionManager,
     Mesh
 } from "@babylonjs/core";
