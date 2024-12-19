@@ -1,11 +1,10 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, FC } from "react";
 import SceneComponent from "../../components/SceneComponent";
 import { studioSceneSetup } from "../../utils/studioSceneSetup";
 import { Scene } from "@babylonjs/core";
 import WarehousePanel from "./WarehousePanel";
 
-function Studio() {
-    const [selectedModel, setSelectedModel] = useState<string | null>(null);
+const Studio: FC = () => {
     const [sceneRef, setSceneRef] = useState<Scene | null>(null);
     const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(false);
 
@@ -15,8 +14,6 @@ function Studio() {
     }, []);
 
     const handleModelSelect = (modelPath: string) => {
-        setSelectedModel(modelPath);
-        
         if (sceneRef) {
             studioSceneSetup(sceneRef, modelPath);
         }
@@ -31,10 +28,13 @@ function Studio() {
     return (
         <div className="h-screen w-screen flex">
             {isWarehousePanelOpen && (
-                <div className="fixed inset-0 z-10" onClick={handleClickOutside}>
+                <div
+                    className="fixed inset-0 z-10"
+                    onClick={handleClickOutside}
+                >
                     <div className="absolute left-0 top-0 w-1/3 h-full bg-white border-r border-gray-200 overflow-y-auto">
-                        <WarehousePanel 
-                            onModelSelect={handleModelSelect} 
+                        <WarehousePanel
+                            onModelSelect={handleModelSelect}
                             onClose={() => setIsWarehousePanelOpen(false)}
                         />
                     </div>
@@ -48,9 +48,9 @@ function Studio() {
                             className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
                             aria-label="倉庫を開く"
                         >
-                            <img 
-                                src="/images/warehouse-icon.png" 
-                                alt="" 
+                            <img
+                                src="/images/warehouse-icon.png"
+                                alt=""
                                 className="w-6 h-6"
                             />
                         </button>
@@ -65,6 +65,6 @@ function Studio() {
             </div>
         </div>
     );
-}
+};
 
 export default Studio;
