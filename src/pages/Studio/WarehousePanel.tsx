@@ -21,7 +21,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({ onModelSelect, onClose 
             try {
                 const userId = 1;
                 const response = await axios.get<Warehouse[]>(
-                    `http://localhost/api/warehouses/user/${userId}`
+                    `http://localhost/api/item/user/${userId}`
                 );
                 setWarehouses(response.data);
             } catch (error) {
