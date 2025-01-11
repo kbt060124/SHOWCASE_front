@@ -11,7 +11,7 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
                 <CloseButton onClose={onClose} />
                 <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
                     <ModelViewer
-                        itemId={warehouse.item_id}
+                        itemId={warehouse.id}
                         warehouseId={warehouse.id}
                     />
                     <InfoPanel warehouse={warehouse} />

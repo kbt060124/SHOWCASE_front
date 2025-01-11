@@ -35,7 +35,7 @@ function Warehouse() {
                 // ユーザーIDを適切な方法で取得してください
                 const userId = 1;
                 const response = await axios.get<Warehouse[]>(
-                    `http://localhost/api/item/user/${userId}`
+                    `http://localhost/api/item/${userId}`
                 );
                 setWarehouses(response.data);
                 console.log("取得した倉庫データ:", response.data);
