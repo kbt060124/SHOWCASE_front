@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import api from "../../axios";
 import Modal from "../../components/Modal";
 
 interface Warehouse {
@@ -14,9 +15,19 @@ interface Warehouse {
     updated_at: string | null;
 }
 
+function getCookie(name: string): string {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) {
+        return parts.pop()?.split(";").shift() || "";
+    }
+    return "";
+}
+
 function Warehouse() {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
-    const [selectedWarehouse, setSelectedWarehouse] = useState<Warehouse | null>(null);
+    const [selectedWarehouse, setSelectedWarehouse] =
+        useState<Warehouse | null>(null);
 
     useEffect(() => {
         const fetchWarehouses = async () => {
@@ -24,7 +35,7 @@ function Warehouse() {
                 // ユーザーIDを適切な方法で取得してください
                 const userId = 1;
                 const response = await axios.get<Warehouse[]>(
-                    `http://localhost/api/warehouses/user/${userId}`
+                    `http://localhost/api/item/user/${userId}`
                 );
                 setWarehouses(response.data);
                 console.log("取得した倉庫データ:", response.data);
@@ -47,9 +58,57 @@ function Warehouse() {
         setSelectedWarehouse(null);
     };
 
+    const handleFileUpload = async (
+        event: React.ChangeEvent<HTMLInputElement>
+    ) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("user_id", "1");
+        formData.append("name", file.name.replace(".glb", ""));
+
+        try {
+            // CSRFトークンを取得
+            await api.get("/sanctum/csrf-cookie");
+
+            // X-XSRF-TOKENヘッダーを設定
+            const token = getCookie("XSRF-TOKEN");
+            if (!token) {
+                throw new Error("CSRFトークンが取得できませんでした");
+            }
+
+            const response = await api.post("/api/item/upload", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                    Accept: "application/json",
+                    "X-XSRF-TOKEN": decodeURIComponent(token),
+                },
+            });
+
+            if (response.data.item) {
+                setWarehouses((prev) => [...prev, response.data.item]);
+            }
+        } catch (error) {
+            console.error("アップロードエラー:", error);
+        }
+    };
+
     return (
         <div className="container mx-auto px-4">
-            <h1 className="text-2xl font-bold mb-4">Warehouse</h1>
+            <div className="flex justify-between item-center mb-4">
+                <h1 className="text-2xl font-bold">Warehouse</h1>
+                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full">
+                    <input
+                        type="file"
+                        className="hidden"
+                        accept=".glb"
+                        onChange={handleFileUpload}
+                    />
+                    <span className="text-xl">+</span>
+                </label>
+            </div>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-4">
                 {warehouses.map((warehouse) => (
                     <div
@@ -63,17 +122,16 @@ function Warehouse() {
                             className="w-full h-24 sm:h-32 object-cover"
                         />
                         <div className="p-2 sm:p-3">
-                            <h2 className="text-sm sm:text-base font-semibold truncate">{warehouse.name}</h2>
+                            <h2 className="text-sm sm:text-base font-semibold truncate">
+                                {warehouse.name}
+                            </h2>
                         </div>
                     </div>
                 ))}
             </div>
 
             {selectedWarehouse && (
-                <Modal
-                    warehouse={selectedWarehouse}
-                    onClose={closeModal}
-                />
+                <Modal warehouse={selectedWarehouse} onClose={closeModal} />
             )}
         </div>
     );
