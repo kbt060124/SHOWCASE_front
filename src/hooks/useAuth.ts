@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../axios";
-import Cookies from 'js-cookie';
+import Cookies from "js-cookie";
 
 interface User {
     id: number;
@@ -26,18 +26,14 @@ export const useAuth = () => {
 
     const checkAuth = async () => {
         try {
-            const token = Cookies.get("XSRF-TOKEN");
-            if (token) {
-                const response = await api.get("/api/user");
-                setUser(response.data);
-                setIsAuthenticated(true);
-            } else {
-                setUser(null);
-                setIsAuthenticated(false);
-            }
+            await getCsrfToken();
+            const response = await api.get("/api/user");
+            setUser(response.data);
+            setIsAuthenticated(true);
         } catch (err) {
             setUser(null);
             setIsAuthenticated(false);
+            console.error("認証チェックエラー:", err);
         } finally {
             setLoading(false);
         }
@@ -49,9 +45,10 @@ export const useAuth = () => {
 
     const getCsrfToken = async () => {
         await api.get("/sanctum/csrf-cookie");
-        const token = Cookies.get('XSRF-TOKEN');
+        const token = Cookies.get("XSRF-TOKEN");
         if (token) {
-            api.defaults.headers.common['X-XSRF-TOKEN'] = decodeURIComponent(token);
+            api.defaults.headers.common["X-XSRF-TOKEN"] =
+                decodeURIComponent(token);
         }
     };
 
@@ -70,7 +67,7 @@ export const useAuth = () => {
             }
             return false;
         } catch (err: any) {
-            console.error('Login error:', err);
+            console.error("Login error:", err);
             setError(err.response?.data?.message || "ログインに失敗しました");
             setUser(null);
             setIsAuthenticated(false);
@@ -106,11 +103,11 @@ export const useAuth = () => {
             await checkAuth();
             return true;
         } catch (err: any) {
-            console.error('Registration error:', err);
+            console.error("Registration error:", err);
             if (err.response?.data?.errors) {
                 const errorMessages = Object.values(err.response.data.errors)
                     .flat()
-                    .join('\n');
+                    .join("\n");
                 setError(errorMessages);
             } else {
                 setError("登録に失敗しました");
