@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import api from "../../axios";
 import Modal from "../../components/Modal";
+import { useAuth } from "../../hooks/useAuth";
 
 interface Warehouse {
     id: bigint;
@@ -28,15 +28,14 @@ function Warehouse() {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchWarehouses = async () => {
+            if (!user) return;
+
             try {
-                // ユーザーIDを適切な方法で取得してください
-                const userId = 1;
-                const response = await axios.get<Warehouse[]>(
-                    `http://localhost/api/item/${userId}`
-                );
+                const response = await api.get(`/api/item/${user.id}`);
                 setWarehouses(response.data);
                 console.log("取得した倉庫データ:", response.data);
             } catch (error) {
@@ -48,7 +47,7 @@ function Warehouse() {
         };
 
         fetchWarehouses();
-    }, []);
+    }, [user]);
 
     const openModal = (warehouse: Warehouse) => {
         setSelectedWarehouse(warehouse);
