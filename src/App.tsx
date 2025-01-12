@@ -8,6 +8,7 @@ import {
 import Home from "./pages/Home";
 import Studio from "./pages/Studio";
 import Warehouse from "./pages/Warehouse";
+import Profile from "./pages/Profile";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import { useAuth } from "./hooks/useAuth";
@@ -73,6 +74,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Warehouse />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profile/:user_id"
+                    element={
+                        <ProtectedRoute>
+                            <Profile />
                         </ProtectedRoute>
                     }
                 />
