@@ -3,6 +3,7 @@ import { UploadModalProps, UploadFormData } from "./types";
 import CloseButton from "../CloseButton";
 import Preview from "./Preview";
 import Form from "./Form";
+import { useAuth } from "../../../hooks/useAuth";
 
 const UploadModal: React.FC<UploadModalProps> = ({
     file,
@@ -10,12 +11,14 @@ const UploadModal: React.FC<UploadModalProps> = ({
     onSubmit,
     isOpen,
 }) => {
+    const { user } = useAuth(); 
     if (!isOpen) return null;
 
     const handleSubmit = (formData: UploadFormData) => {
+        if (!user) return;
         const submitData = new FormData();
         submitData.append("file", file);
-        submitData.append("user_id", "1");
+        submitData.append("user_id", user.id.toString());
         submitData.append("name", formData.name);
         submitData.append("memo", formData.memo);
         if (formData.thumbnail) {
