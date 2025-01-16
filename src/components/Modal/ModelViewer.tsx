@@ -14,7 +14,7 @@ const ModelViewer: React.FC<ModelViewerProps> = ({ itemId, warehouseId }) => (
             onSceneReady={(scene) =>
                 setupWarehouseScene(
                     scene,
-                    `https://test-fbx-upload.s3.ap-southeast-2.amazonaws.com/${itemId}.glb`
+                    `https://3d-item-storage.s3.ap-northeast-1.amazonaws.com/${itemId}.glb`
                 )
             }
             id={`canvas-${warehouseId}`}

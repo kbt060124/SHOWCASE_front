@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import api from "../../axios";
 import Modal from "../../components/Modal";
+import UploadModal from "../../components/Modal/Upload";
 
 interface Warehouse {
     id: bigint;
@@ -28,6 +29,8 @@ function Warehouse() {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
+    const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [isUploadPreviewOpen, setIsUploadPreviewOpen] = useState(false);
 
     useEffect(() => {
         const fetchWarehouses = async () => {
@@ -63,12 +66,11 @@ function Warehouse() {
     ) => {
         const file = event.target.files?.[0];
         if (!file) return;
+        setUploadFile(file);
+        setIsUploadPreviewOpen(true);
+    };
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("user_id", "1");
-        formData.append("name", file.name.replace(".glb", ""));
-
+    const handleUploadSubmit = async (formData: FormData) => {
         try {
             // CSRFトークンを取得
             await api.get("/sanctum/csrf-cookie");
@@ -90,6 +92,7 @@ function Warehouse() {
             if (response.data.item) {
                 setWarehouses((prev) => [...prev, response.data.item]);
             }
+            setUploadFile(null);
         } catch (error) {
             console.error("アップロードエラー:", error);
         }
@@ -117,7 +120,7 @@ function Warehouse() {
                         onClick={() => openModal(warehouse)}
                     >
                         <img
-                            src={`https://test-fbx-upload.s3.ap-southeast-2.amazonaws.com/${warehouse.thumbnail}`}
+                            src={`https://3d-item-storage.s3.ap-northeast-1.amazonaws.com/${warehouse.thumbnail}`}
                             alt={warehouse.name}
                             className="w-full h-24 sm:h-32 object-cover"
                         />
@@ -132,6 +135,15 @@ function Warehouse() {
 
             {selectedWarehouse && (
                 <Modal warehouse={selectedWarehouse} onClose={closeModal} />
+            )}
+
+            {uploadFile && (
+                <UploadModal
+                    isOpen={isUploadPreviewOpen}
+                    onClose={() => setIsUploadPreviewOpen(false)}
+                    file={uploadFile}
+                    onSubmit={handleUploadSubmit}
+                />
             )}
         </div>
     );
