@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../axios";
 import { type Warehouse } from "../../components/Modal/types";
 
 interface WarehousePanelProps {
@@ -17,8 +17,8 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
         const fetchWarehouses = async () => {
             try {
                 const userId = 1;
-                const response = await axios.get<Warehouse[]>(
-                    `http://localhost/api/item/user/${userId}`
+                const response = await api.get<Warehouse[]>(
+                    `http://localhost/api/item/${userId}`
                 );
                 setWarehouses(response.data);
             } catch (error) {
