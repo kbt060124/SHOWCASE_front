@@ -33,9 +33,9 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     }, []);
 
     const handleThumbnailClick = (warehouse: Warehouse) => {
-        const modelPath = `${import.meta.env.VITE_S3_URL}/${
-            warehouse.item_id
-        }.glb`;
+        const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
+            warehouse.user_id
+        }/${warehouse.id}/${warehouse.filename}`;
         onModelSelect(modelPath);
     };
 
