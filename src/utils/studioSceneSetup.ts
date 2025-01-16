@@ -15,7 +15,7 @@ import {
 import "@babylonjs/loaders/glTF";
 import { setupModelOutline } from "./modelOutline";
 
-export const studioSceneSetup = (scene: Scene, modelPath?: string) => {
+export const studioSceneSetup = (scene: Scene, isItem:boolean, modelPath?: string) => {
     // 部屋のサイズ
     const roomSize = {
         width: 20,
@@ -75,12 +75,56 @@ export const studioSceneSetup = (scene: Scene, modelPath?: string) => {
         setupRoom(scene, roomSize);
     }
 
+    //itemのリストを元にモデルを配置する処理
+
     // モデルのロード処理
-    if (modelPath) {
+    if (isItem) {
         const camera = scene.cameras[0] as ArcRotateCamera;
         SceneLoader.ImportMeshAsync("", "", modelPath, scene)
             .then((result) => {
                 console.log("モデルが読み込まれました");
+                const rootMesh = result.meshes[0];
+
+                // モデルのバウンディングボックスを計算
+                const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
+                const modelSize = boundingInfo.max.subtract(boundingInfo.min);
+
+                // カメラの現在の位置と向きからモデルの配置位置を計算
+                const forward = camera
+                    .getTarget()
+                    .subtract(camera.position)
+                    .normalize();
+                const distance = 5;
+                const targetPosition = camera.position.add(
+                    forward.scale(distance)
+                );
+
+                // モデルをカメラの前に配置
+                rootMesh.position = targetPosition;
+
+                // モデルのサイズを適切に調整
+                const scale =
+                    1 / Math.max(modelSize.x, modelSize.y, modelSize.z);
+                rootMesh.scaling = new Vector3(scale, scale, scale);
+
+                // モデルのすべてのメッシュに対して設定
+                result.meshes.forEach((mesh) => {
+                    mesh.checkCollisions = false;
+                    mesh.isPickable = true;
+                    if (mesh instanceof Mesh) {
+                        mesh.actionManager = new ActionManager(scene);
+                    }
+                });
+
+                // アウトライン機能を設定
+                setupModelOutline(scene, result.meshes);
+            })
+            .catch(console.error);
+    }else{
+        const camera = scene.cameras[0] as ArcRotateCamera;
+        SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+            .then((result) => {
+                console.log("モデルが読み込まれました:"+modelPath);
                 const rootMesh = result.meshes[0];
 
                 // モデルのバウンディングボックスを計算
