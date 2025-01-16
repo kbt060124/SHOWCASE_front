@@ -1,20 +1,9 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
 import api from "../../axios";
 import Modal from "../../components/Modal";
 import UploadModal from "../../components/Modal/Upload";
-
-interface Warehouse {
-    id: bigint;
-    user_id: bigint;
-    item_id: bigint;
-    name: string;
-    thumbnail: string;
-    favorite: boolean;
-    memo: string | null;
-    created_at: string | null;
-    updated_at: string | null;
-}
+import { useAuth } from "../../hooks/useAuth";
+import { type Warehouse } from "../../components/Modal/types";
 
 function getCookie(name: string): string {
     const value = `; ${document.cookie}`;
@@ -29,17 +18,15 @@ function Warehouse() {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
+    const { user } = useAuth();
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isUploadPreviewOpen, setIsUploadPreviewOpen] = useState(false);
 
     useEffect(() => {
         const fetchWarehouses = async () => {
+            if (!user) return;
             try {
-                // ユーザーIDを適切な方法で取得してください
-                const userId = 1;
-                const response = await axios.get<Warehouse[]>(
-                    `http://localhost/api/item/${userId}`
-                );
+                const response = await api.get(`/api/item/${user.id}`);
                 setWarehouses(response.data);
                 console.log("取得した倉庫データ:", response.data);
             } catch (error) {
@@ -51,7 +38,7 @@ function Warehouse() {
         };
 
         fetchWarehouses();
-    }, []);
+    }, [user]);
 
     const openModal = (warehouse: Warehouse) => {
         setSelectedWarehouse(warehouse);
@@ -120,7 +107,9 @@ function Warehouse() {
                         onClick={() => openModal(warehouse)}
                     >
                         <img
-                            src={`https://3d-item-storage.s3.ap-northeast-1.amazonaws.com/${warehouse.thumbnail}`}
+                            src={`${import.meta.env.VITE_S3_URL}/warehouse/${
+                                warehouse.user_id
+                            }/${warehouse.id}/${warehouse.thumbnail}`}
                             alt={warehouse.name}
                             className="w-full h-24 sm:h-32 object-cover"
                         />

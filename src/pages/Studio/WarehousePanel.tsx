@@ -1,12 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-interface Warehouse {
-    id: number;
-    name: string;
-    thumbnail: string;
-    item_id: number;
-}
+import { type Warehouse } from "../../components/Modal/types";
 
 interface WarehousePanelProps {
     onModelSelect: (modelPath: string) => void;
@@ -39,7 +33,9 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     }, []);
 
     const handleThumbnailClick = (warehouse: Warehouse) => {
-        const modelPath = `https://3d-item-storage.s3.ap-northeast-1.amazonaws.com/${warehouse.item_id}.glb`;
+        const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
+            warehouse.user_id
+        }/${warehouse.id}/${warehouse.filename}`;
         onModelSelect(modelPath);
     };
 
@@ -76,7 +72,9 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                     >
                         <img
-                            src={`https://3d-item-storage.s3.ap-northeast-1.amazonaws.com/${warehouse.thumbnail}`}
+                            src={`${import.meta.env.VITE_S3_URL}/warehouse/${
+                                warehouse.user_id
+                            }/${warehouse.id}/${warehouse.thumbnail}`}
                             alt={warehouse.name}
                             className="w-full object-cover rounded-lg shadow-md"
                         />

@@ -21,7 +21,12 @@ function Home() {
                         ダッシュボード
                     </h1>
                     <div className="flex items-center gap-4">
-                        <span className="text-gray-600">{user?.name}</span>
+                        <Link
+                            to={`/profile/${user?.id}`}
+                            className="text-gray-600 hover:text-gray-900 transition-colors"
+                        >
+                            {user?.name}
+                        </Link>
                         <button
                             onClick={handleLogout}
                             className="text-sm text-red-600 hover:text-red-800"
