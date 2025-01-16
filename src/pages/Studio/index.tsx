@@ -33,8 +33,8 @@ const Studio: FC = () => {
                     onClick={handleClickOutside}
                 >
                     <div className="absolute left-0 top-0 w-1/3 h-full bg-white border-r border-gray-200 overflow-y-auto">
-                        <WarehousePanel 
-                            onModelSelect={handleModelSelect} 
+                        <WarehousePanel
+                            onModelSelect={handleModelSelect}
                             onClose={() => setIsWarehousePanelOpen(false)}
                         />
                     </div>
@@ -48,9 +48,9 @@ const Studio: FC = () => {
                             className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
                             aria-label="倉庫を開く"
                         >
-                            <img 
-                                src="/images/warehouse-icon.png" 
-                                alt="" 
+                            <img
+                                src="/images/warehouse-icon.png"
+                                alt=""
                                 className="w-6 h-6"
                             />
                         </button>

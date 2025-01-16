@@ -2,18 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../axios";
 import Modal from "../../components/Modal";
 import { useAuth } from "../../hooks/useAuth";
-
-interface Warehouse {
-    id: bigint;
-    user_id: bigint;
-    item_id: bigint;
-    name: string;
-    thumbnail: string;
-    favorite: boolean;
-    memo: string | null;
-    created_at: string | null;
-    updated_at: string | null;
-}
+import { type Warehouse } from "../../components/Modal/types";
 
 function getCookie(name: string): string {
     const value = `; ${document.cookie}`;
@@ -33,7 +22,6 @@ function Warehouse() {
     useEffect(() => {
         const fetchWarehouses = async () => {
             if (!user) return;
-
             try {
                 const response = await api.get(`/api/item/${user.id}`);
                 setWarehouses(response.data);
@@ -116,7 +104,9 @@ function Warehouse() {
                         onClick={() => openModal(warehouse)}
                     >
                         <img
-                            src={`https://test-fbx-upload.s3.ap-southeast-2.amazonaws.com/${warehouse.thumbnail}`}
+                            src={`${import.meta.env.VITE_S3_URL}/warehouse/${
+                                warehouse.user_id
+                            }/${warehouse.id}/${warehouse.thumbnail}`}
                             alt={warehouse.name}
                             className="w-full h-24 sm:h-32 object-cover"
                         />

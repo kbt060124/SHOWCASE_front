@@ -1,19 +1,16 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-
-interface Warehouse {
-    id: number;
-    name: string;
-    thumbnail: string;
-    item_id: number;
-}
+import { type Warehouse } from "../../components/Modal/types";
 
 interface WarehousePanelProps {
     onModelSelect: (modelPath: string) => void;
     onClose: () => void;
 }
 
-const WarehousePanel: React.FC<WarehousePanelProps> = ({ onModelSelect, onClose }) => {
+const WarehousePanel: React.FC<WarehousePanelProps> = ({
+    onModelSelect,
+    onClose,
+}) => {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
     useEffect(() => {
@@ -25,7 +22,10 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({ onModelSelect, onClose 
                 );
                 setWarehouses(response.data);
             } catch (error) {
-                console.error("倉庫データの取得中にエラーが発生しました:", error);
+                console.error(
+                    "倉庫データの取得中にエラーが発生しました:",
+                    error
+                );
             }
         };
 
@@ -33,7 +33,9 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({ onModelSelect, onClose 
     }, []);
 
     const handleThumbnailClick = (warehouse: Warehouse) => {
-        const modelPath = `https://test-fbx-upload.s3.ap-southeast-2.amazonaws.com/${warehouse.item_id}.glb`;
+        const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
+            warehouse.user_id
+        }/${warehouse.id}/${warehouse.filename}`;
         onModelSelect(modelPath);
     };
 
@@ -46,8 +48,19 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({ onModelSelect, onClose 
                     className="text-gray-500 hover:text-gray-700"
                     aria-label="閉じる"
                 >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-6 w-6"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                    >
+                        <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M6 18L18 6M6 6l12 12"
+                        />
                     </svg>
                 </button>
             </div>
@@ -59,11 +72,15 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({ onModelSelect, onClose 
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                     >
                         <img
-                            src={`https://test-fbx-upload.s3.ap-southeast-2.amazonaws.com/${warehouse.thumbnail}`}
+                            src={`${import.meta.env.VITE_S3_URL}/warehouse/${
+                                warehouse.user_id
+                            }/${warehouse.id}/${warehouse.thumbnail}`}
                             alt={warehouse.name}
                             className="w-full object-cover rounded-lg shadow-md"
                         />
-                        <p className="mt-2 text-sm font-medium">{warehouse.name}</p>
+                        <p className="mt-2 text-sm font-medium">
+                            {warehouse.name}
+                        </p>
                     </div>
                 ))}
             </div>
