@@ -10,10 +10,10 @@ import {
     PointLight,
     SceneLoader,
     ActionManager,
-    Mesh
+    Mesh,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-import { setupModelOutline } from './modelOutline';
+import { setupModelOutline } from "./modelOutline";
 
 export const studioSceneSetup = (scene: Scene, modelPath?: string) => {
     // 部屋のサイズ
@@ -21,7 +21,7 @@ export const studioSceneSetup = (scene: Scene, modelPath?: string) => {
         width: 20,
         height: 12,
         depth: 20,
-        thickness: 0.3
+        thickness: 0.3,
     };
 
     // シーンが初期化されていない場合のみ、部屋とカメラをセットアップ
@@ -46,7 +46,9 @@ export const studioSceneSetup = (scene: Scene, modelPath?: string) => {
         camera.checkCollisions = false;
 
         // カメラの位置を部屋の中に設定
-        camera.setPosition(new Vector3(0, roomSize.height / 2, -roomSize.depth / 2 + 0.1));
+        camera.setPosition(
+            new Vector3(0, roomSize.height / 2, -roomSize.depth / 2 + 0.1)
+        );
         camera.setTarget(new Vector3(0, roomSize.height / 3, 0));
 
         // カメラの制限を設定
@@ -55,11 +57,17 @@ export const studioSceneSetup = (scene: Scene, modelPath?: string) => {
         camera.upperAlphaLimit = null;
         camera.lowerAlphaLimit = null;
         camera.lowerRadiusLimit = 1.5;
-        camera.upperRadiusLimit = Math.min(roomSize.width / 2 - 0.1, roomSize.depth / 2 - 0.1);
+        camera.upperRadiusLimit = Math.min(
+            roomSize.width / 2 - 0.1,
+            roomSize.depth / 2 - 0.1
+        );
 
         // カメラの移動設定
         camera.panningAxis = new Vector3(1, 0, 1);
-        camera.panningDistanceLimit = Math.min(roomSize.width / 2 - 0.1, roomSize.depth / 2 - 0.1);
+        camera.panningDistanceLimit = Math.min(
+            roomSize.width / 2 - 0.1,
+            roomSize.depth / 2 - 0.1
+        );
         camera.angularSensibilityX = 500;
         camera.angularSensibilityY = 500;
         camera.panningSensibility = 50;
@@ -79,20 +87,21 @@ export const studioSceneSetup = (scene: Scene, modelPath?: string) => {
                 const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
                 const modelSize = boundingInfo.max.subtract(boundingInfo.min);
 
-                // カメラの現在の位置と向きからモデルの配置位置を計算
-                const forward = camera.getTarget().subtract(camera.position).normalize();
-                const distance = 5;
-                const targetPosition = camera.position.add(forward.scale(distance));
-
-                // モデルをカメラの前に配置
-                rootMesh.position = targetPosition;
-
-                // モデルのサイズを適切に調整
-                const scale = 1 / Math.max(modelSize.x, modelSize.y, modelSize.z);
+                // 部屋の高さの半分程度になるようにスケールを計算
+                const targetHeight = roomSize.height * 0.5;
+                const scale = targetHeight / modelSize.y;
                 rootMesh.scaling = new Vector3(scale, scale, scale);
 
+                // スケーリング後のバウンディングボックスを再計算
+                const scaledBoundingInfo =
+                    rootMesh.getHierarchyBoundingVectors(true);
+
+                // モデルの底面が床（Y=0）に来るように位置を設定
+                const bottomY = scaledBoundingInfo.min.y;
+                rootMesh.position = new Vector3(0, -bottomY, 0);
+
                 // モデルのすべてのメッシュに対して設定
-                result.meshes.forEach(mesh => {
+                result.meshes.forEach((mesh) => {
                     mesh.checkCollisions = false;
                     mesh.isPickable = true;
                     if (mesh instanceof Mesh) {
@@ -117,21 +126,45 @@ const setupRoom = (scene: Scene, roomSize: any) => {
 
 // ライティングのセットアップ
 const setupLighting = (scene: Scene, roomSize: any) => {
-    const mainLight = new HemisphericLight("mainLight", new Vector3(0, 1, 0), scene);
+    const mainLight = new HemisphericLight(
+        "mainLight",
+        new Vector3(0, 1, 0),
+        scene
+    );
     mainLight.intensity = 1;
     mainLight.groundColor = new Color3(0.3, 0.3, 0.3);
 
-    const ceilingLight = new HemisphericLight("ceilingLight", new Vector3(0, -1, 0), scene);
+    const ceilingLight = new HemisphericLight(
+        "ceilingLight",
+        new Vector3(0, -1, 0),
+        scene
+    );
     ceilingLight.intensity = 0.1;
     ceilingLight.specular = new Color3(0.05, 0.05, 0.05);
     ceilingLight.groundColor = new Color3(0.05, 0.05, 0.05);
 
     const cornerOffset = 0.2;
     const cornerPositions = [
-        new Vector3(roomSize.width / 3, roomSize.height - cornerOffset, roomSize.depth / 3),
-        new Vector3(-roomSize.width / 3, roomSize.height - cornerOffset, roomSize.depth / 3),
-        new Vector3(roomSize.width / 3, roomSize.height - cornerOffset, -roomSize.depth / 3),
-        new Vector3(-roomSize.width / 3, roomSize.height - cornerOffset, -roomSize.depth / 3)
+        new Vector3(
+            roomSize.width / 3,
+            roomSize.height - cornerOffset,
+            roomSize.depth / 3
+        ),
+        new Vector3(
+            -roomSize.width / 3,
+            roomSize.height - cornerOffset,
+            roomSize.depth / 3
+        ),
+        new Vector3(
+            roomSize.width / 3,
+            roomSize.height - cornerOffset,
+            -roomSize.depth / 3
+        ),
+        new Vector3(
+            -roomSize.width / 3,
+            roomSize.height - cornerOffset,
+            -roomSize.depth / 3
+        ),
     ];
 
     cornerPositions.forEach((position, index) => {
@@ -143,10 +176,14 @@ const setupLighting = (scene: Scene, roomSize: any) => {
 
 // 天井の作成
 const createCeiling = (scene: Scene, roomSize: any) => {
-    const ceiling = MeshBuilder.CreatePlane("ceiling", { 
-        width: roomSize.width, 
-        height: roomSize.depth 
-    }, scene);
+    const ceiling = MeshBuilder.CreatePlane(
+        "ceiling",
+        {
+            width: roomSize.width,
+            height: roomSize.depth,
+        },
+        scene
+    );
     ceiling.position = new Vector3(0, roomSize.height, 0);
     ceiling.rotation = new Vector3(-Math.PI / 2, 0, 0);
     const ceilingMaterial = new StandardMaterial("ceilingMaterial", scene);
@@ -158,11 +195,15 @@ const createCeiling = (scene: Scene, roomSize: any) => {
 
 // 床の作成
 const createFloor = (scene: Scene, roomSize: any) => {
-    const floor = MeshBuilder.CreateBox("floor", { 
-        width: roomSize.width, 
-        height: roomSize.thickness, 
-        depth: roomSize.depth 
-    }, scene);
+    const floor = MeshBuilder.CreateBox(
+        "floor",
+        {
+            width: roomSize.width,
+            height: roomSize.thickness,
+            depth: roomSize.depth,
+        },
+        scene
+    );
     floor.position.y = -roomSize.thickness / 2;
     const floorMaterial = new StandardMaterial("floorMaterial", scene);
     floorMaterial.diffuseColor = new Color3(0.9, 0.9, 0.9);
@@ -171,12 +212,22 @@ const createFloor = (scene: Scene, roomSize: any) => {
 
 // 壁の作成
 const createWalls = (scene: Scene, roomSize: any) => {
-    const createWall = (name: string, position: Vector3, rotation: Vector3, width: number, height: number) => {
-        const wall = MeshBuilder.CreateBox(name, { 
-            width: width, 
-            height: height, 
-            depth: roomSize.thickness 
-        }, scene);
+    const createWall = (
+        name: string,
+        position: Vector3,
+        rotation: Vector3,
+        width: number,
+        height: number
+    ) => {
+        const wall = MeshBuilder.CreateBox(
+            name,
+            {
+                width: width,
+                height: height,
+                depth: roomSize.thickness,
+            },
+            scene
+        );
         wall.position = position;
         wall.rotation = rotation;
         const wallMaterial = new StandardMaterial(`${name}Material`, scene);

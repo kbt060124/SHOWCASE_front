@@ -10,7 +10,7 @@ const Studio: FC = () => {
 
     const handleSceneReady = useCallback((scene: Scene) => {
         setSceneRef(scene);
-        studioSceneSetup(scene);
+        studioSceneSetup(scene, "/models/museum_case.glb");
     }, []);
 
     const handleModelSelect = (modelPath: string) => {
