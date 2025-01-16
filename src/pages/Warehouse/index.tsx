@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../axios";
 import Modal from "../../components/Modal";
+import UploadModal from "../../components/Modal/Upload";
 import { useAuth } from "../../hooks/useAuth";
 import { type Warehouse } from "../../components/Modal/types";
 
@@ -18,6 +19,8 @@ function Warehouse() {
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
     const { user } = useAuth();
+    const [uploadFile, setUploadFile] = useState<File | null>(null);
+    const [isUploadPreviewOpen, setIsUploadPreviewOpen] = useState(false);
 
     useEffect(() => {
         const fetchWarehouses = async () => {
@@ -50,12 +53,11 @@ function Warehouse() {
     ) => {
         const file = event.target.files?.[0];
         if (!file) return;
+        setUploadFile(file);
+        setIsUploadPreviewOpen(true);
+    };
 
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("user_id", "1");
-        formData.append("name", file.name.replace(".glb", ""));
-
+    const handleUploadSubmit = async (formData: FormData) => {
         try {
             // CSRFトークンを取得
             await api.get("/sanctum/csrf-cookie");
@@ -77,6 +79,7 @@ function Warehouse() {
             if (response.data.item) {
                 setWarehouses((prev) => [...prev, response.data.item]);
             }
+            setUploadFile(null);
         } catch (error) {
             console.error("アップロードエラー:", error);
         }
@@ -121,6 +124,15 @@ function Warehouse() {
 
             {selectedWarehouse && (
                 <Modal warehouse={selectedWarehouse} onClose={closeModal} />
+            )}
+
+            {uploadFile && (
+                <UploadModal
+                    isOpen={isUploadPreviewOpen}
+                    onClose={() => setIsUploadPreviewOpen(false)}
+                    file={uploadFile}
+                    onSubmit={handleUploadSubmit}
+                />
             )}
         </div>
     );
