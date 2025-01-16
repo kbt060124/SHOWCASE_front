@@ -7,15 +7,21 @@ import WarehousePanel from "./WarehousePanel";
 const Studio: FC = () => {
     const [sceneRef, setSceneRef] = useState<Scene | null>(null);
     const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(false);
+    const [isRoom, setIsRoom] = useState(false);
 
     const handleSceneReady = useCallback((scene: Scene) => {
-        setSceneRef(scene);
-        studioSceneSetup(scene, "/models/museum_case.glb");
+        if (isRoom) {
+            //保存した部屋を再現する処理
+        }else{
+            //api/room/createのAjaxリクエスト
+            setSceneRef(scene);
+            studioSceneSetup(scene, false, "/models/museum_case.glb");
+        }
     }, []);
 
     const handleModelSelect = (modelPath: string) => {
         if (sceneRef) {
-            studioSceneSetup(sceneRef, modelPath);
+            studioSceneSetup(sceneRef, true, modelPath);
         }
     };
 
