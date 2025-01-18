@@ -1,8 +1,9 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useEffect } from "react";
 
 function Home() {
-    const { user, logout } = useAuth();
+    const { user, logout, rooms } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
@@ -11,7 +12,6 @@ function Home() {
             navigate("/login");
         }
     };
-
     return (
         <div className="min-h-screen bg-gray-50">
             {/* ヘッダー */}
@@ -42,7 +42,7 @@ function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Studioカード */}
                     <Link
-                        to="/studio"
+                        to={`/studio/${rooms[0]?.id}`}
                         className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
                     >
                         <div className="flex items-center gap-4">
