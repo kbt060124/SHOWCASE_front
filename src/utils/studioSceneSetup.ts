@@ -85,6 +85,41 @@ export const studioSceneSetup = (
     // モデルのロード処理
     if (isItem) {
         const camera = scene.cameras[0] as ArcRotateCamera;
+
+        // キャビネットのメッシュをタグで探す
+        const cabinet = scene.meshes.find((mesh) =>
+            Tags.MatchesQuery(mesh, "cabinet")
+        );
+
+        if (!cabinet) {
+            console.error("ディスプレイキャビネットが見つかりません");
+            return;
+        }
+
+        // キャビネットの子メッシュをすべて取得
+        const allChildren = cabinet.getChildren(
+            (node) => node instanceof Mesh,
+            false
+        );
+
+        // 低い位置にある子メッシュを探す
+        const displayPart = allChildren.reduce((lowest, current) => {
+            if (!(current instanceof Mesh)) return lowest;
+            if (!lowest) return current;
+
+            const currentTop =
+                current.getBoundingInfo().boundingBox.maximumWorld.y;
+            const lowestTop =
+                lowest.getBoundingInfo().boundingBox.maximumWorld.y;
+
+            return currentTop < lowestTop ? current : lowest;
+        }, null as Mesh | null);
+
+        if (!displayPart) {
+            console.error("キャビネットの表示部分が見つかりません");
+            return;
+        }
+
         SceneLoader.ImportMeshAsync("", "", modelPath, scene)
             .then((result) => {
                 console.log("モデルが読み込まれました");
@@ -97,22 +132,23 @@ export const studioSceneSetup = (
                 const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
                 const modelSize = boundingInfo.max.subtract(boundingInfo.min);
 
-                // カメラの現在の位置と向きからモデルの配置位置を計算
-                const forward = camera
-                    .getTarget()
-                    .subtract(camera.position)
-                    .normalize();
-                const distance = 5;
-                const targetPosition = camera.position.add(
-                    forward.scale(distance)
+                // キャビネットの台座部分のY座標を取得
+                const displayPartBoundingInfo = displayPart.getBoundingInfo();
+                const displayTop =
+                    displayPartBoundingInfo.boundingBox.maximumWorld.y;
+
+                // キャビネットの台座部分の上に配置
+                rootMesh.position = new Vector3(
+                    displayPart.position.x,
+                    displayTop, // 表示部分の上面に配置
+                    displayPart.position.z
                 );
 
-                // モデルをカメラの前に配置
-                rootMesh.position = targetPosition;
-
                 // モデルのサイズを適切に調整
+                const maxAllowedSize = 1.5;
                 const scale =
-                    1 / Math.max(modelSize.x, modelSize.y, modelSize.z);
+                    maxAllowedSize /
+                    Math.max(modelSize.x, modelSize.y, modelSize.z);
                 rootMesh.scaling = new Vector3(scale, scale, scale);
 
                 // モデルのすべてのメッシュに対して設定
@@ -134,6 +170,9 @@ export const studioSceneSetup = (
             .then((result) => {
                 console.log("モデルが読み込まれました:" + modelPath);
                 const rootMesh = result.meshes[0];
+
+                // cabinetタグを追加
+                Tags.AddTagsTo(rootMesh, "cabinet");
 
                 // モデルのバウンディングボックスを計算
                 const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
