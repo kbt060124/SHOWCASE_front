@@ -31,6 +31,7 @@ export const useAuth = () => {
             const response = await api.get("/api/user");
             setUser(response.data);
             setIsAuthenticated(true);
+            setRooms(response.data.rooms);
         } catch (err) {
             setUser(null);
             setIsAuthenticated(false);
@@ -64,10 +65,6 @@ export const useAuth = () => {
                 const userResponse = await api.get("/api/user");
                 setUser(userResponse.data);
                 setIsAuthenticated(true);
-
-                setRooms(response.data.rooms);
-                console.log("useAuth rooms", response.data.rooms);
-
                 return true;
             }
             return false;

@@ -62,7 +62,7 @@ function App() {
                     }
                 />
                 <Route
-                    path="/studio"
+                    path="/studio/:room_id"
                     element={
                         <ProtectedRoute>
                             <Studio />

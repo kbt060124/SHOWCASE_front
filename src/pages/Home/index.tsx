@@ -6,10 +6,6 @@ function Home() {
     const { user, logout, rooms } = useAuth();
     const navigate = useNavigate();
 
-    useEffect(() => {
-        console.log("Updated rooms in Home:", rooms);
-    }, []);
-
     const handleLogout = async () => {
         const success = await logout();
         if (success) {
@@ -47,7 +43,7 @@ function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Studioカード */}
                     <Link
-                        to="/studio"
+                        to={`/studio/${rooms[0]?.id}`}
                         className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
                     >
                         <div className="flex items-center gap-4">
