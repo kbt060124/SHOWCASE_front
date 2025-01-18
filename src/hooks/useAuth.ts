@@ -23,6 +23,7 @@ export const useAuth = () => {
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
+    const [rooms, setRooms] = useState<any[]>([]);
 
     const checkAuth = async () => {
         try {
@@ -59,10 +60,14 @@ export const useAuth = () => {
             await getCsrfToken();
             const response = await api.post("/login", credentials);
             console.log("Login response:", response);
-            if (response.status === 204) {
+            if (response.status === 200) {
                 const userResponse = await api.get("/api/user");
                 setUser(userResponse.data);
                 setIsAuthenticated(true);
+
+                setRooms(response.data.rooms);
+                console.log("useAuth rooms", response.data.rooms);
+
                 return true;
             }
             return false;
@@ -123,6 +128,7 @@ export const useAuth = () => {
         loading,
         error,
         isAuthenticated,
+        rooms,
         login,
         logout,
         register,

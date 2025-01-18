@@ -1,9 +1,14 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useEffect } from "react";
 
 function Home() {
-    const { user, logout } = useAuth();
+    const { user, logout, rooms } = useAuth();
     const navigate = useNavigate();
+
+    useEffect(() => {
+        console.log("Updated rooms in Home:", rooms);
+    }, []);
 
     const handleLogout = async () => {
         const success = await logout();
@@ -11,7 +16,7 @@ function Home() {
             navigate("/login");
         }
     };
-
+    // console.log("Home rooms", rooms);
     return (
         <div className="min-h-screen bg-gray-50">
             {/* ヘッダー */}
