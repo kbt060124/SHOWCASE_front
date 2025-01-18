@@ -11,11 +11,16 @@ import {
     SceneLoader,
     ActionManager,
     Mesh,
+    Tags,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { setupModelOutline } from "./modelOutline";
 
-export const studioSceneSetup = (scene: Scene, isItem:boolean, modelPath?: string) => {
+export const studioSceneSetup = (
+    scene: Scene,
+    isItem: boolean,
+    modelPath?: string
+) => {
     // 部屋のサイズ
     const roomSize = {
         width: 20,
@@ -85,6 +90,9 @@ export const studioSceneSetup = (scene: Scene, isItem:boolean, modelPath?: strin
                 console.log("モデルが読み込まれました");
                 const rootMesh = result.meshes[0];
 
+                // warehouse_itemタグを追加
+                Tags.AddTagsTo(rootMesh, "warehouse_item");
+
                 // モデルのバウンディングボックスを計算
                 const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
                 const modelSize = boundingInfo.max.subtract(boundingInfo.min);
@@ -120,11 +128,11 @@ export const studioSceneSetup = (scene: Scene, isItem:boolean, modelPath?: strin
                 setupModelOutline(scene, result.meshes);
             })
             .catch(console.error);
-    }else{
+    } else {
         const camera = scene.cameras[0] as ArcRotateCamera;
         SceneLoader.ImportMeshAsync("", "", modelPath, scene)
             .then((result) => {
-                console.log("モデルが読み込まれました:"+modelPath);
+                console.log("モデルが読み込まれました:" + modelPath);
                 const rootMesh = result.meshes[0];
 
                 // モデルのバウンディングボックスを計算
