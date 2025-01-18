@@ -61,7 +61,7 @@ export const useAuth = () => {
             await getCsrfToken();
             const response = await api.post("/login", credentials);
             console.log("Login response:", response);
-            if (response.status === 200) {
+            if (response.status === 204) {
                 const userResponse = await api.get("/api/user");
                 setUser(userResponse.data);
                 setIsAuthenticated(true);

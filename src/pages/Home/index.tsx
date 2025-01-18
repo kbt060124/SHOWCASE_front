@@ -12,7 +12,6 @@ function Home() {
             navigate("/login");
         }
     };
-    // console.log("Home rooms", rooms);
     return (
         <div className="min-h-screen bg-gray-50">
             {/* ヘッダー */}
