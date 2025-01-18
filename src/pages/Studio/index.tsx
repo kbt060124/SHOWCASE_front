@@ -24,6 +24,17 @@ const Studio: FC = () => {
 
     const handleModelSelect = (modelPath: string) => {
         if (sceneRef) {
+            // 既存のwarehouse_itemタグが付いているメッシュを検索して削除
+            const meshesToDispose = sceneRef.meshes.filter(
+                (mesh) =>
+                    Tags.HasTags(mesh) &&
+                    Tags.MatchesQuery(mesh, "warehouse_item")
+            );
+            meshesToDispose.forEach((mesh) => {
+                mesh.dispose();
+            });
+
+            // 新しいモデルを表示
             studioSceneSetup(sceneRef, true, modelPath);
         }
     };
