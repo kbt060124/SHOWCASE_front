@@ -15,7 +15,7 @@ const Studio: FC = () => {
         }else{
             //api/room/createのAjaxリクエスト
             setSceneRef(scene);
-            studioSceneSetup(scene, false, "/models/museum_case.glb");
+            studioSceneSetup(scene, false, "/models/display_cabinet.glb");
         }
     }, []);
 
