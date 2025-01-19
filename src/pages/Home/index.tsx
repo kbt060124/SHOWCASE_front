@@ -1,10 +1,30 @@
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
-import { useEffect } from "react";
+import api from "../../axios";
 
 function Home() {
-    const { user, logout, rooms } = useAuth();
+    const { user, rooms, logout } = useAuth();
     const navigate = useNavigate();
+
+    const createRoom = async () => {
+        try {
+            const { data } = await api.post("/room/create");
+            if (data.room) {
+                navigate(`/studio/${data.room.id}`);
+            }
+        } catch (error) {
+            console.error("ルーム作成エラー:", error);
+        }
+    };
+
+    const handleStudioClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        if (rooms.length > 0) {
+            navigate(`/studio/${rooms[0].id}`);
+        } else {
+            createRoom();
+        }
+    };
 
     const handleLogout = async () => {
         const success = await logout();
@@ -12,6 +32,7 @@ function Home() {
             navigate("/login");
         }
     };
+
     return (
         <div className="min-h-screen bg-gray-50">
             {/* ヘッダー */}
@@ -42,7 +63,8 @@ function Home() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     {/* Studioカード */}
                     <Link
-                        to={`/studio/${rooms[0]?.id}`}
+                        to="#"
+                        onClick={handleStudioClick}
                         className="bg-white rounded-lg shadow hover:shadow-md transition-shadow p-6"
                     >
                         <div className="flex items-center gap-4">
