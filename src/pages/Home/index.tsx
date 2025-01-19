@@ -3,13 +3,13 @@ import { useAuth } from "../../hooks/useAuth";
 import api from "../../axios";
 
 function Home() {
-    const { user, rooms, logout } = useAuth();
+    const { user, logout } = useAuth();
     const navigate = useNavigate();
 
     const createRoom = async () => {
         try {
-            const { data } = await api.post("/room/create");
-            if (data.room) {
+            const { data } = await api.post("api/room/create");
+            if (data.rooms) {
                 navigate(`/studio/${data.room.id}`);
             }
         } catch (error) {
@@ -17,12 +17,19 @@ function Home() {
         }
     };
 
-    const handleStudioClick = (e: React.MouseEvent) => {
+    const handleStudioClick = async (e: React.MouseEvent) => {
         e.preventDefault();
-        if (rooms.length > 0) {
-            navigate(`/studio/${rooms[0].id}`);
-        } else {
-            createRoom();
+        if (!user?.id) return; // userが存在することを確認
+
+        try {
+            const { data } = await api.get(`/api/room/${user.id}`);
+            if (data.rooms && data.rooms.length > 0) {
+                navigate(`/studio/${data.rooms[0].id}`);
+            } else {
+                createRoom();
+            }
+        } catch (error) {
+            console.error("ルーム一覧取得エラー:", error);
         }
     };
 
