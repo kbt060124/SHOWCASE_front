@@ -5,21 +5,17 @@ import { Scene, Tags } from "@babylonjs/core";
 import WarehousePanel from "./WarehousePanel";
 import { SavedMeshData } from "./room";
 import api from "../../axios";
+import { useParams } from "react-router-dom";
 
 const Studio: FC = () => {
+    const { room_id } = useParams<{ room_id: string }>();
     const [sceneRef, setSceneRef] = useState<Scene | null>(null);
     const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(false);
-    const [isRoom, setIsRoom] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
     const handleSceneReady = useCallback((scene: Scene) => {
-        if (isRoom) {
-            //保存した部屋を再現する処理
-        } else {
-            //api/room/createのAjaxリクエスト
-            setSceneRef(scene);
-            studioSceneSetup(scene, false, "/models/display_cabinet.glb");
-        }
+        setSceneRef(scene);
+        studioSceneSetup(scene, false, "/models/display_cabinet.glb");
     }, []);
 
     const handleModelSelect = (modelPath: string) => {
@@ -66,7 +62,7 @@ const Studio: FC = () => {
                     }
 
                     const meshData: SavedMeshData = {
-                        itemId: 1, //各アイテムのidに変更
+                        itemId: 42, //各アイテムのidに変更
                         position: {
                             x: mesh.position.x,
                             y: mesh.position.y,
@@ -94,7 +90,7 @@ const Studio: FC = () => {
 
             // 単一のメッシュデータを送信
             for (const meshData of savedData) {
-                await api.put("/api/room/update/1", meshData); //仮で1を設定
+                await api.put(`/api/room/update/${room_id}`, meshData);
             }
 
             alert("保存が完了しました");

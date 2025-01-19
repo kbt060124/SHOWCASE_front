@@ -23,7 +23,6 @@ export const useAuth = () => {
     const [error, setError] = useState<string | null>(null);
     const [user, setUser] = useState<User | null>(null);
     const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-    const [rooms, setRooms] = useState<any[]>([]);
 
     const checkAuth = async () => {
         try {
@@ -31,7 +30,6 @@ export const useAuth = () => {
             const response = await api.get("/api/user");
             setUser(response.data);
             setIsAuthenticated(true);
-            setRooms(response.data.rooms);
         } catch (err) {
             setUser(null);
             setIsAuthenticated(false);
@@ -125,7 +123,6 @@ export const useAuth = () => {
         loading,
         error,
         isAuthenticated,
-        rooms,
         login,
         logout,
         register,
