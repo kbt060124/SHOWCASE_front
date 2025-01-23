@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, FC } from "react";
+import React, { useState, useCallback, FC } from "react";
 import SceneComponent from "../../components/SceneComponent";
 import { studioSceneSetup } from "../../utils/studioSceneSetup";
 import { Scene, Tags } from "@babylonjs/core";
