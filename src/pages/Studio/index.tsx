@@ -1,4 +1,4 @@
-import React, { useState, useCallback, FC } from "react";
+import React, { useState, useEffect, useCallback, FC } from "react";
 import SceneComponent from "../../components/SceneComponent";
 import { studioSceneSetup } from "../../utils/studioSceneSetup";
 import { Scene, Tags } from "@babylonjs/core";
@@ -13,13 +13,19 @@ const Studio: FC = () => {
     const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
 
-    const handleSceneReady = useCallback((scene: Scene) => {
-        setSceneRef(scene);
-        studioSceneSetup(scene, false, "/models/display_cabinet.glb");
-    }, []);
+    const handleSceneReady = useCallback(
+        (scene: Scene) => {
+            setSceneRef(scene);
+            //部屋の再現or初期作成
+            if (room_id) {
+                studioSceneSetup(scene, "/models/display_cabinet.glb", room_id);
+            }
+        },
+        [room_id]
+    );
 
     const handleModelSelect = (modelPath: string) => {
-        if (sceneRef) {
+        if (sceneRef && room_id) {
             // 既存のwarehouse_itemタグが付いているメッシュを検索して削除
             const meshesToDispose = sceneRef.meshes.filter(
                 (mesh) =>
@@ -30,8 +36,8 @@ const Studio: FC = () => {
                 mesh.dispose();
             });
 
-            // 新しいモデルを表示
-            studioSceneSetup(sceneRef, true, modelPath);
+            // アイテムを追加する処理
+            studioSceneSetup(sceneRef, modelPath, room_id);
         }
     };
 
