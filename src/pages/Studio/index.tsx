@@ -1,6 +1,6 @@
 import React, { useState, useCallback, FC } from "react";
 import SceneComponent from "../../components/SceneComponent";
-import { studioSceneSetup } from "../../utils/studioSceneSetup";
+import { studioSceneSetup, studioItemSetup } from "../../utils/studioSceneSetup";
 import { Scene, Tags } from "@babylonjs/core";
 import WarehousePanel from "./WarehousePanel";
 import { SavedMeshData } from "./room";
@@ -37,7 +37,7 @@ const Studio: FC = () => {
             });
 
             // アイテムを追加する処理
-            studioSceneSetup(sceneRef, modelPath, room_id);
+            studioItemSetup(sceneRef, modelPath);
         }
     };
 
