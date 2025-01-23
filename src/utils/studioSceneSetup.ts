@@ -12,15 +12,20 @@ import {
     ActionManager,
     Mesh,
     Tags,
+    Quaternion,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { setupModelOutline } from "./modelOutline";
 
-export const studioSceneSetup = (
+export const studioSceneSetup = async (
     scene: Scene,
     isItem: boolean,
     modelPath?: string
-) => {
+): Promise<{ scale: number; displayTop: number }> => {
+    if (!modelPath) {
+        return { scale: 1, displayTop: 0 };
+    }
+
     // 部屋のサイズ
     const roomSize = {
         width: 20,
@@ -93,7 +98,7 @@ export const studioSceneSetup = (
 
         if (!cabinet) {
             console.error("ディスプレイキャビネットが見つかりません");
-            return;
+            return { scale: 1, displayTop: 0 };
         }
 
         // キャビネットの子メッシュをすべて取得
@@ -117,93 +122,120 @@ export const studioSceneSetup = (
 
         if (!displayPart) {
             console.error("キャビネットの表示部分が見つかりません");
-            return;
+            return { scale: 1, displayTop: 0 };
         }
 
-        SceneLoader.ImportMeshAsync("", "", modelPath, scene)
-            .then((result) => {
-                console.log("モデルが読み込まれました");
-                const rootMesh = result.meshes[0];
+        return new Promise<{ scale: number; displayTop: number }>((resolve) => {
+            SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+                .then((result) => {
+                    console.log("モデルが読み込まれました");
+                    const rootMesh = result.meshes[0];
 
-                // warehouse_itemタグを追加
-                Tags.AddTagsTo(rootMesh, "warehouse_item");
+                    // warehouse_itemタグを追加
+                    Tags.AddTagsTo(rootMesh, "warehouse_item");
 
-                // モデルのバウンディングボックスを計算
-                const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
-                const modelSize = boundingInfo.max.subtract(boundingInfo.min);
+                    // モデルのバウンディングボックスを計算
+                    const boundingInfo =
+                        rootMesh.getHierarchyBoundingVectors(true);
+                    const modelSize = boundingInfo.max.subtract(
+                        boundingInfo.min
+                    );
 
-                // キャビネットの台座部分のY座標を取得
-                const displayPartBoundingInfo = displayPart.getBoundingInfo();
-                const displayTop =
-                    displayPartBoundingInfo.boundingBox.maximumWorld.y;
+                    // キャビネットの台座部分のY座標を取得
+                    const displayPartBoundingInfo =
+                        displayPart.getBoundingInfo();
+                    const displayTop =
+                        displayPartBoundingInfo.boundingBox.maximumWorld.y;
 
-                // キャビネットの台座部分の上に配置
-                rootMesh.position = new Vector3(
-                    displayPart.position.x,
-                    displayTop, // 表示部分の上面に配置
-                    displayPart.position.z
-                );
+                    // キャビネットの台座部分の上に配置
+                    rootMesh.position = new Vector3(
+                        displayPart.position.x,
+                        displayTop,
+                        displayPart.position.z
+                    );
 
-                // モデルのサイズを適切に調整
-                const maxAllowedSize = 1.5;
-                const scale =
-                    maxAllowedSize /
-                    Math.max(modelSize.x, modelSize.y, modelSize.z);
-                rootMesh.scaling = new Vector3(scale, scale, scale);
+                    // モデルを初期状態でカメラの方向に向ける
+                    rootMesh.rotationQuaternion = Quaternion.RotationAxis(
+                        new Vector3(0, 1, 0),
+                        Math.PI
+                    );
 
-                // モデルのすべてのメッシュに対して設定
-                result.meshes.forEach((mesh) => {
-                    mesh.checkCollisions = false;
-                    mesh.isPickable = true;
-                    if (mesh instanceof Mesh) {
-                        mesh.actionManager = new ActionManager(scene);
-                    }
+                    // モデルのサイズを適切に調整
+                    const maxAllowedSize = 1;
+                    const scale =
+                        maxAllowedSize /
+                        Math.max(modelSize.x, modelSize.y, modelSize.z);
+                    rootMesh.scaling = new Vector3(scale, scale, scale);
+
+                    // モデルのすべてのメッシュに対して設定
+                    result.meshes.forEach((mesh) => {
+                        mesh.checkCollisions = false;
+                        mesh.isPickable = true;
+                        if (mesh instanceof Mesh) {
+                            mesh.actionManager = new ActionManager(scene);
+                        }
+                    });
+
+                    // アウトライン機能を設定
+                    setupModelOutline(scene, result.meshes);
+
+                    resolve({ scale, displayTop });
+                })
+                .catch((error) => {
+                    console.error("モデルの読み込みエラー:", error);
+                    resolve({ scale: 1, displayTop: 0 });
                 });
-
-                // アウトライン機能を設定
-                setupModelOutline(scene, result.meshes);
-            })
-            .catch(console.error);
+        });
     } else {
         const camera = scene.cameras[0] as ArcRotateCamera;
-        SceneLoader.ImportMeshAsync("", "", modelPath, scene)
-            .then((result) => {
-                console.log("モデルが読み込まれました:" + modelPath);
-                const rootMesh = result.meshes[0];
+        return new Promise<{ scale: number; displayTop: number }>((resolve) => {
+            SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+                .then((result) => {
+                    console.log("モデルが読み込まれました:" + modelPath);
+                    const rootMesh = result.meshes[0];
 
-                // cabinetタグを追加
-                Tags.AddTagsTo(rootMesh, "cabinet");
+                    // cabinetタグを追加
+                    Tags.AddTagsTo(rootMesh, "cabinet");
 
-                // モデルのバウンディングボックスを計算
-                const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
-                const modelSize = boundingInfo.max.subtract(boundingInfo.min);
+                    // モデルのバウンディングボックスを計算
+                    const boundingInfo =
+                        rootMesh.getHierarchyBoundingVectors(true);
+                    const modelSize = boundingInfo.max.subtract(
+                        boundingInfo.min
+                    );
 
-                // 部屋の高さの半分程度になるようにスケールを計算
-                const targetHeight = roomSize.height * 0.5;
-                const scale = targetHeight / modelSize.y;
-                rootMesh.scaling = new Vector3(scale, scale, scale);
+                    // 部屋の高さの半分程度になるようにスケールを計算
+                    const targetHeight = roomSize.height * 0.5;
+                    const scale = targetHeight / modelSize.y;
+                    rootMesh.scaling = new Vector3(scale, scale, scale);
 
-                // スケーリング後のバウンディングボックスを再計算
-                const scaledBoundingInfo =
-                    rootMesh.getHierarchyBoundingVectors(true);
+                    // スケーリング後のバウンディングボックスを再計算
+                    const scaledBoundingInfo =
+                        rootMesh.getHierarchyBoundingVectors(true);
 
-                // モデルの底面が床（Y=0）に来るように位置を設定
-                const bottomY = scaledBoundingInfo.min.y;
-                rootMesh.position = new Vector3(0, -bottomY, 0);
+                    // モデルの底面が床（Y=0）に来るように位置を設定
+                    const bottomY = scaledBoundingInfo.min.y;
+                    rootMesh.position = new Vector3(0, -bottomY, 0);
 
-                // モデルのすべてのメッシュに対して設定
-                result.meshes.forEach((mesh) => {
-                    mesh.checkCollisions = false;
-                    mesh.isPickable = true;
-                    if (mesh instanceof Mesh) {
-                        mesh.actionManager = new ActionManager(scene);
-                    }
+                    // モデルのすべてのメッシュに対して設定
+                    result.meshes.forEach((mesh) => {
+                        mesh.checkCollisions = false;
+                        mesh.isPickable = true;
+                        if (mesh instanceof Mesh) {
+                            mesh.actionManager = new ActionManager(scene);
+                        }
+                    });
+
+                    // アウトライン機能を設定
+                    setupModelOutline(scene, result.meshes);
+
+                    resolve({ scale, displayTop: 0 });
+                })
+                .catch((error) => {
+                    console.error(error);
+                    resolve({ scale: 1, displayTop: 0 });
                 });
-
-                // アウトライン機能を設定
-                setupModelOutline(scene, result.meshes);
-            })
-            .catch(console.error);
+        });
     }
 };
 
