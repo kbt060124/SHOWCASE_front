@@ -37,7 +37,7 @@ const Studio: FC = () => {
             });
 
             // アイテムを追加する処理
-            studioItemSetup(sceneRef, modelPath, room_id);
+            studioItemSetup(sceneRef, modelPath);
         }
     };
 
