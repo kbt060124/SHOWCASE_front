@@ -22,6 +22,8 @@ function Warehouse() {
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isUploadPreviewOpen, setIsUploadPreviewOpen] = useState(false);
 
+    const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
+
     useEffect(() => {
         const fetchWarehouses = async () => {
             if (!user) return;
@@ -53,12 +55,24 @@ function Warehouse() {
     ) => {
         const file = event.target.files?.[0];
         if (!file) return;
+
+        if (file.size > MAX_FILE_SIZE) {
+            alert("ファイルサイズが100MBを超えています");
+            return;
+        }
+
         setUploadFile(file);
         setIsUploadPreviewOpen(true);
     };
 
     const handleUploadSubmit = async (formData: FormData) => {
         try {
+            // FormDataの内容を確認
+            const file = formData.get("file");
+            if (!file) {
+                throw new Error("ファイルが選択されていません");
+            }
+
             // CSRFトークンを取得
             await api.get("/sanctum/csrf-cookie");
 
@@ -80,6 +94,7 @@ function Warehouse() {
                 setWarehouses((prev) => [...prev, response.data.item]);
             }
             setUploadFile(null);
+            setIsUploadPreviewOpen(false);
         } catch (error) {
             console.error("アップロードエラー:", error);
         }
