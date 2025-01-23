@@ -228,6 +228,144 @@ export const studioSceneSetup = (
     });
 };
 
+export const studioItemSetup = (
+    scene: Scene,
+    modelPath: string,
+    room_id: string
+) => {
+    // 部屋のサイズ
+    const roomSize = {
+        width: 20,
+        height: 12,
+        depth: 20,
+        thickness: 0.3,
+    };
+
+    //部屋の初期化処理
+    // 背景色を設定
+    scene.clearColor = new Color4(0.1, 0.1, 0.3, 1);
+
+    // カメラを追加
+    const camera = new ArcRotateCamera(
+        "camera",
+        -Math.PI / 2,
+        Math.PI / 2.5,
+        10,
+        Vector3.Zero(),
+        scene
+    );
+
+    // カメラの基本設定
+    camera.minZ = 0.1;
+    camera.attachControl(scene.getEngine().getRenderingCanvas(), true);
+    camera.collisionRadius = new Vector3(0.1, 0.1, 0.1);
+    camera.checkCollisions = false;
+
+    // カメラの位置を部屋の中に設定
+    camera.setPosition(
+        new Vector3(0, roomSize.height / 2, -roomSize.depth / 2 + 0.1)
+    );
+    camera.setTarget(new Vector3(0, roomSize.height / 3, 0));
+
+    // カメラの制限を設定
+    camera.upperBetaLimit = Math.PI / 2 + 0.4;
+    camera.lowerBetaLimit = Math.PI / 4;
+    camera.upperAlphaLimit = null;
+    camera.lowerAlphaLimit = null;
+    camera.lowerRadiusLimit = 1.5;
+    camera.upperRadiusLimit = Math.min(
+        roomSize.width / 2 - 0.1,
+        roomSize.depth / 2 - 0.1
+    );
+
+    // カメラの移動設定
+    camera.panningAxis = new Vector3(1, 0, 1);
+    camera.panningDistanceLimit = Math.min(
+        roomSize.width / 2 - 0.1,
+        roomSize.depth / 2 - 0.1
+    );
+    camera.angularSensibilityX = 500;
+    camera.angularSensibilityY = 500;
+    camera.panningSensibility = 50;
+
+    // キャビネットのメッシュをタグで探す
+    const cabinet = scene.meshes.find((mesh) =>
+        Tags.MatchesQuery(mesh, "cabinet")
+    );
+
+    if (!cabinet) {
+        console.error("ディスプレイキャビネットが見つかりません");
+        return;
+    }
+
+    // キャビネットの子メッシュをすべて取得
+    const allChildren = cabinet.getChildren(
+        (node) => node instanceof Mesh,
+        false
+    );
+
+    // 低い位置にある子メッシュを探す
+    const displayPart = allChildren.reduce((lowest, current) => {
+        if (!(current instanceof Mesh)) return lowest;
+        if (!lowest) return current;
+
+        const currentTop = current.getBoundingInfo().boundingBox.maximumWorld.y;
+        const lowestTop = lowest.getBoundingInfo().boundingBox.maximumWorld.y;
+
+        return currentTop < lowestTop ? current : lowest;
+    }, null as Mesh | null);
+
+    if (!displayPart) {
+        console.error("キャビネットの表示部分が見つかりません");
+        return;
+    }
+
+    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+        .then((result) => {
+            console.log("モデルが読み込まれました");
+            const rootMesh = result.meshes[0];
+
+            // warehouse_itemタグを追加
+            Tags.AddTagsTo(rootMesh, "warehouse_item");
+
+            // モデルのバウンディングボックスを計算
+            const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
+            const modelSize = boundingInfo.max.subtract(boundingInfo.min);
+
+            // キャビネットの台座部分のY座標を取得
+            const displayPartBoundingInfo = displayPart.getBoundingInfo();
+            const displayTop =
+                displayPartBoundingInfo.boundingBox.maximumWorld.y;
+
+            // キャビネットの台座部分の上に配置
+            rootMesh.position = new Vector3(
+                displayPart.position.x,
+                displayTop, // 表示部分の上面に配置
+                displayPart.position.z
+            );
+
+            // モデルのサイズを適切に調整
+            const maxAllowedSize = 1.5;
+            const scale =
+                maxAllowedSize /
+                Math.max(modelSize.x, modelSize.y, modelSize.z);
+            rootMesh.scaling = new Vector3(scale, scale, scale);
+
+            // モデルのすべてのメッシュに対して設定
+            result.meshes.forEach((mesh) => {
+                mesh.checkCollisions = false;
+                mesh.isPickable = true;
+                if (mesh instanceof Mesh) {
+                    mesh.actionManager = new ActionManager(scene);
+                }
+            });
+
+            // アウトライン機能を設定
+            setupModelOutline(scene, result.meshes);
+        })
+        .catch(console.error);
+};
+
 // 部屋のセットアップ関数
 const setupRoom = (scene: Scene, roomSize: any) => {
     setupLighting(scene, roomSize);
