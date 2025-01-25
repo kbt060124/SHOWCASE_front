@@ -1,6 +1,9 @@
 import React, { useState, useCallback, FC } from "react";
 import SceneComponent from "../../components/SceneComponent";
-import { studioSceneSetup, studioItemSetup } from "../../utils/studioSceneSetup";
+import {
+    studioSceneSetup,
+    studioItemSetup,
+} from "../../utils/studioSceneSetup";
 import { Scene, Tags } from "@babylonjs/core";
 import WarehousePanel from "./WarehousePanel";
 import { SavedMeshData } from "./room";
@@ -24,7 +27,7 @@ const Studio: FC = () => {
         [room_id]
     );
 
-    const handleModelSelect = (modelPath: string) => {
+    const handleModelSelect = (modelPath: string, itemId: bigint) => {
         if (sceneRef && room_id) {
             // 既存のwarehouse_itemタグが付いているメッシュを検索して削除
             const meshesToDispose = sceneRef.meshes.filter(
@@ -37,7 +40,7 @@ const Studio: FC = () => {
             });
 
             // アイテムを追加する処理
-            studioItemSetup(sceneRef, modelPath);
+            studioItemSetup(sceneRef, modelPath, itemId);
         }
     };
 
@@ -67,8 +70,12 @@ const Studio: FC = () => {
                         mesh.rotationQuaternion = mesh.rotation.toQuaternion();
                     }
 
+                    // メタデータからitemIdを取得
+                    const itemId = mesh.metadata?.itemId || 0; // メタデータがない場合は0をデフォルトに
+                    console.log(itemId, "itemId");
+
                     const meshData: SavedMeshData = {
-                        itemId: 42, //各アイテムのidに変更
+                        itemId, // メタデータから取得したitemIdを使用
                         position: {
                             x: mesh.position.x,
                             y: mesh.position.y,
