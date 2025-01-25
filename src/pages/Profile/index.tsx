@@ -43,7 +43,7 @@ function Profile() {
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                const response = await api.get(`/api/profile/show/${user_id}`);
+                const response = await api.get(`/api/profile/${user_id}`);
                 setUser(response.data.user);
                 setRooms(response.data.rooms);
             } catch (error) {
@@ -72,7 +72,7 @@ function Profile() {
             }
 
             // いいね更新後にプロフィール情報を再取得
-            const response = await api.get(`/api/profile/show/${user_id}`);
+            const response = await api.get(`/api/profile/${user_id}`);
             setRooms(response.data.rooms);
         } catch (error) {
             console.error("いいね処理に失敗しました:", error);
@@ -87,7 +87,7 @@ function Profile() {
             });
 
             // コメント投稿後にプロフィール情報を再取得
-            const response = await api.get(`/api/profile/show/${user_id}`);
+            const response = await api.get(`/api/profile/${user_id}`);
             setRooms(response.data.rooms);
             setNewComment(""); // 入力フィールドをクリア
         } catch (error) {
@@ -111,7 +111,7 @@ function Profile() {
             if (response.status === 200) {
                 // 成功した場合、ルーム情報を再取得
                 const updatedResponse = await api.get(
-                    `/api/profile/show/${user_id}`
+                    `/api/profile/${user_id}`
                 );
                 setRooms(updatedResponse.data.rooms);
 
