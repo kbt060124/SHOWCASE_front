@@ -345,13 +345,21 @@ const loadItemModel = (
                 item.pivot.scale_z
             );
 
-            // APIから取得した回転を設定
-            rootMesh.rotationQuaternion = null; // 既存のQuaternionをクリア
-            rootMesh.rotation = new Vector3(
-                item.pivot.rotation_x * Math.PI,
-                item.pivot.rotation_y * Math.PI,
-                item.pivot.rotation_z * Math.PI
-            );
+            // 保存された回転値からQuaternionを作成して設定
+            if (item.pivot.rotation_x !== undefined) {
+                rootMesh.rotationQuaternion = new Quaternion(
+                    item.pivot.rotation_x,
+                    item.pivot.rotation_y,
+                    item.pivot.rotation_z,
+                    item.pivot.rotation_w
+                );
+            } else {
+                // 初期状態でカメラの方向に向ける
+                rootMesh.rotationQuaternion = Quaternion.RotationAxis(
+                    new Vector3(0, 1, 0),
+                    Math.PI
+                );
+            }
 
             // モデルのすべてのメッシュに対して設定
             result.meshes.forEach((mesh) => {
