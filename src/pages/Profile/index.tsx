@@ -30,6 +30,7 @@ interface Room {
         id: number;
         name: string;
     }[];
+    thumbnail?: string;
 }
 
 function Profile() {
@@ -163,6 +164,22 @@ function Profile() {
             {/* ルーム一覧 */}
             <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
                 <h2 className="text-xl font-bold mb-6">作成したルーム</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {rooms.map((room) => (
+                        <div
+                            key={room.id}
+                            className="bg-white rounded-lg shadow p-6"
+                        >
+                            <img
+                                src={`${import.meta.env.VITE_S3_URL}/room/${
+                                    user?.id
+                                }/${room.id}/${room.thumbnail}`}
+                                alt={`${room.name}のサムネイル`}
+                                className="w-full h-32 object-cover rounded-t-lg"
+                            />
+                        </div>
+                    ))}
+                </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     {rooms.map((room) => {
                         // 現在のユーザーがいいねしているかチェック
