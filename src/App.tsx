@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Studio from "./pages/Studio";
 import Warehouse from "./pages/Warehouse";
 import Profile from "./pages/Profile";
+import Mainstage from "./pages/Mainstage";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import { useAuth } from "./hooks/useAuth";
@@ -82,6 +83,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Profile />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/mainstage/:room_id"
+                    element={
+                        <ProtectedRoute>
+                            <Mainstage />
                         </ProtectedRoute>
                     }
                 />

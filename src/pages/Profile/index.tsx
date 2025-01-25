@@ -170,13 +170,15 @@ function Profile() {
                             key={room.id}
                             className="bg-white rounded-lg shadow p-6"
                         >
-                            <img
-                                src={`${import.meta.env.VITE_S3_URL}/room/${
-                                    user?.id
-                                }/${room.id}/${room.thumbnail}`}
-                                alt={`${room.name}のサムネイル`}
-                                className="w-full h-32 object-cover rounded-t-lg"
-                            />
+                            <a href={`/mainstage/${room.id}`}>
+                                <img
+                                    src={`${import.meta.env.VITE_S3_URL}/room/${
+                                        user?.id
+                                    }/${room.id}/${room.thumbnail}`}
+                                    alt={`${room.name}のサムネイル`}
+                                    className="w-full h-32 object-cover rounded-t-lg"
+                                />
+                            </a>
                         </div>
                     ))}
                 </div>
