@@ -3,7 +3,7 @@ import api from "../../axios";
 import { type Warehouse } from "../../components/Modal/types";
 
 interface WarehousePanelProps {
-    onModelSelect: (modelPath: string) => void;
+    onModelSelect: (modelPath: string, itemId: bigint) => void;
     onClose: () => void;
 }
 
@@ -36,7 +36,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
         const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
             warehouse.user_id
         }/${warehouse.id}/${warehouse.filename}`;
-        onModelSelect(modelPath);
+        onModelSelect(modelPath, warehouse.id);
     };
 
     return (

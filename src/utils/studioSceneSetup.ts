@@ -170,104 +170,6 @@ const createWalls = (scene: Scene, roomSize: any) => {
     );
 };
 
-// キャビネットモデルのロード処理
-const loadCabinetModel = (scene: Scene, modelPath: string, roomSize: any) => {
-    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
-        .then((result) => {
-            console.log("モデルが読み込まれました:" + modelPath);
-            const rootMesh = result.meshes[0];
-
-            // cabinetタグを追加
-            Tags.AddTagsTo(rootMesh, "cabinet");
-
-            // モデルのバウンディングボックスを計算
-            const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
-            const modelSize = boundingInfo.max.subtract(boundingInfo.min);
-
-            // 部屋の高さの半分程度になるようにスケールを計算
-            const targetHeight = roomSize.height * 0.5;
-            const scale = targetHeight / modelSize.y;
-            rootMesh.scaling = new Vector3(scale, scale, scale);
-
-            // スケーリング後のバウンディングボックスを再計算
-            const scaledBoundingInfo =
-                rootMesh.getHierarchyBoundingVectors(true);
-
-            // モデルの底面が床（Y=0）に来るように位置を設定
-            const bottomY = scaledBoundingInfo.min.y;
-            rootMesh.position = new Vector3(0, -bottomY, 0);
-
-            // モデルのすべてのメッシュに対して設定
-            result.meshes.forEach((mesh) => {
-                mesh.checkCollisions = false;
-                mesh.isPickable = true;
-                if (mesh instanceof Mesh) {
-                    mesh.actionManager = new ActionManager(scene);
-                }
-            });
-
-            // アウトライン機能を設定
-            setupModelOutline(scene, result.meshes);
-        })
-        .catch(console.error);
-};
-
-// アイテムモデルのロード処理
-const loadItemModel = (
-    scene: Scene,
-    item: any,
-    cabinet: Mesh,
-    displayPart: Mesh
-) => {
-    const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
-        item.user_id
-    }/${item.pivot.item_id}/${item.filename}`;
-
-    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
-        .then((result) => {
-            console.log("モデルが読み込まれました");
-            const rootMesh = result.meshes[0];
-
-            // warehouse_itemタグを追加
-            Tags.AddTagsTo(rootMesh, "warehouse_item");
-
-            // APIから取得した位置を設定
-            rootMesh.position = new Vector3(
-                item.pivot.position_x,
-                item.pivot.position_y,
-                item.pivot.position_z
-            );
-
-            // APIから取得したスケールを設定
-            rootMesh.scaling = new Vector3(
-                item.pivot.scale_x,
-                item.pivot.scale_y,
-                item.pivot.scale_z
-            );
-
-            // APIから取得した回転を設定
-            rootMesh.rotationQuaternion = null; // 既存のQuaternionをクリア
-            rootMesh.rotation = new Vector3(
-                item.pivot.rotation_x * Math.PI,
-                item.pivot.rotation_y * Math.PI,
-                item.pivot.rotation_z * Math.PI
-            );
-
-            // モデルのすべてのメッシュに対して設定
-            result.meshes.forEach((mesh) => {
-                mesh.checkCollisions = false;
-                mesh.isPickable = true;
-                if (mesh instanceof Mesh) {
-                    mesh.actionManager = new ActionManager(scene);
-                }
-            });
-
-            // アウトライン機能を設定
-            setupModelOutline(scene, result.meshes);
-        })
-        .catch(console.error);
-};
-
 // カメラの設定処理
 const setupCommonScene = (scene: Scene) => {
     // 部屋のサイズ
@@ -327,6 +229,48 @@ const setupCommonScene = (scene: Scene) => {
     return { roomSize };
 };
 
+// キャビネットモデルのロード処理
+const loadCabinetModel = (scene: Scene, modelPath: string, roomSize: any) => {
+    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+        .then((result) => {
+            console.log("モデルが読み込まれました:" + modelPath);
+            const rootMesh = result.meshes[0];
+
+            // cabinetタグを追加
+            Tags.AddTagsTo(rootMesh, "cabinet");
+
+            // モデルのバウンディングボックスを計算
+            const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
+            const modelSize = boundingInfo.max.subtract(boundingInfo.min);
+
+            // 部屋の高さの半分程度になるようにスケールを計算
+            const targetHeight = roomSize.height * 0.5;
+            const scale = targetHeight / modelSize.y;
+            rootMesh.scaling = new Vector3(scale, scale, scale);
+
+            // スケーリング後のバウンディングボックスを再計算
+            const scaledBoundingInfo =
+                rootMesh.getHierarchyBoundingVectors(true);
+
+            // モデルの底面が床（Y=0）に来るように位置を設定
+            const bottomY = scaledBoundingInfo.min.y;
+            rootMesh.position = new Vector3(0, -bottomY, 0);
+
+            // モデルのすべてのメッシュに対して設定
+            result.meshes.forEach((mesh) => {
+                mesh.checkCollisions = false;
+                mesh.isPickable = true;
+                if (mesh instanceof Mesh) {
+                    mesh.actionManager = new ActionManager(scene);
+                }
+            });
+
+            // アウトライン機能を設定
+            setupModelOutline(scene, result.meshes);
+        })
+        .catch(console.error);
+};
+
 // キャビネットと表示部分を取得する処理
 const findCabinetAndDisplayPart = (scene: Scene) => {
     // キャビネットのメッシュをタグで探す
@@ -362,6 +306,65 @@ const findCabinetAndDisplayPart = (scene: Scene) => {
     }
 
     return { cabinet: cabinet as Mesh, displayPart };
+};
+
+// アイテムモデルのロード処理
+const loadItemModel = (
+    scene: Scene,
+    item: any,
+    cabinet: Mesh,
+    displayPart: Mesh
+) => {
+    const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
+        item.user_id
+    }/${item.pivot.item_id}/${item.filename}`;
+
+    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+        .then((result) => {
+            console.log("モデルが読み込まれました");
+            const rootMesh = result.meshes[0];
+
+            // warehouse_itemタグを追加
+            Tags.AddTagsTo(rootMesh, "warehouse_item");
+
+            // item.idをメッシュに割り当てる
+            rootMesh.metadata = { itemId: item.id };
+
+            // APIから取得した位置を設定
+            rootMesh.position = new Vector3(
+                item.pivot.position_x,
+                item.pivot.position_y,
+                item.pivot.position_z
+            );
+
+            // APIから取得したスケールを設定
+            rootMesh.scaling = new Vector3(
+                item.pivot.scale_x,
+                item.pivot.scale_y,
+                item.pivot.scale_z
+            );
+
+            // APIから取得した回転を設定
+            rootMesh.rotationQuaternion = null; // 既存のQuaternionをクリア
+            rootMesh.rotation = new Vector3(
+                item.pivot.rotation_x * Math.PI,
+                item.pivot.rotation_y * Math.PI,
+                item.pivot.rotation_z * Math.PI
+            );
+
+            // モデルのすべてのメッシュに対して設定
+            result.meshes.forEach((mesh) => {
+                mesh.checkCollisions = false;
+                mesh.isPickable = true;
+                if (mesh instanceof Mesh) {
+                    mesh.actionManager = new ActionManager(scene);
+                }
+            });
+
+            // アウトライン機能を設定
+            setupModelOutline(scene, result.meshes);
+        })
+        .catch(console.error);
 };
 
 // 保存した部屋の再現 or 初期表示
@@ -400,6 +403,7 @@ export const studioSceneSetup = (
 export const studioItemSetup = (
     scene: Scene,
     modelPath: string,
+    itemId: bigint
 ) => {
     setupCommonScene(scene);
 
@@ -413,6 +417,9 @@ export const studioItemSetup = (
 
             // warehouse_itemタグを追加
             Tags.AddTagsTo(rootMesh, "warehouse_item");
+
+            // itemIdをメッシュに割り当てる
+            rootMesh.metadata = { itemId };
 
             // モデルのバウンディングボックスを計算
             const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
@@ -452,5 +459,3 @@ export const studioItemSetup = (
         })
         .catch(console.error);
 };
-
-
