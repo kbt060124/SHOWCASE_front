@@ -12,6 +12,7 @@ import {
     ActionManager,
     Mesh,
     Tags,
+    Quaternion
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { setupModelOutline } from "./modelOutline";
@@ -266,7 +267,7 @@ const loadCabinetModel = (scene: Scene, modelPath: string, roomSize: any) => {
             });
 
             // アウトライン機能を設定
-            setupModelOutline(scene, result.meshes);
+            // setupModelOutline(scene, result.meshes);
         })
         .catch(console.error);
 };
@@ -362,7 +363,7 @@ const loadItemModel = (
             });
 
             // アウトライン機能を設定
-            setupModelOutline(scene, result.meshes);
+            // setupModelOutline(scene, result.meshes);
         })
         .catch(console.error);
 };
@@ -404,58 +405,71 @@ export const studioItemSetup = (
     scene: Scene,
     modelPath: string,
     itemId: bigint
-) => {
+): Promise<{ scale: number; displayTop: number }> => {
     setupCommonScene(scene);
 
     const cabinetParts = findCabinetAndDisplayPart(scene);
-    if (!cabinetParts) return;
+    if (!cabinetParts) return Promise.resolve({ scale: 1, displayTop: 0 });
 
-    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
-        .then((result) => {
-            console.log("モデルが読み込まれました");
-            const rootMesh = result.meshes[0];
+    return new Promise<{ scale: number; displayTop: number }>((resolve) => {
+        SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+            .then((result) => {
+                console.log("モデルが読み込まれました");
+                const rootMesh = result.meshes[0];
 
-            // warehouse_itemタグを追加
-            Tags.AddTagsTo(rootMesh, "warehouse_item");
+                // warehouse_itemタグを追加
+                Tags.AddTagsTo(rootMesh, "warehouse_item");
 
-            // itemIdをメッシュに割り当てる
-            rootMesh.metadata = { itemId };
+                // itemIdをメッシュに割り当てる
+                rootMesh.metadata = { itemId };
 
-            // モデルのバウンディングボックスを計算
-            const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
-            const modelSize = boundingInfo.max.subtract(boundingInfo.min);
+                // モデルのバウンディングボックスを計算
+                const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
+                const modelSize = boundingInfo.max.subtract(boundingInfo.min);
 
-            // キャビネットの台座部分のY座標を取得
-            const displayPartBoundingInfo =
-                cabinetParts.displayPart.getBoundingInfo();
-            const displayTop =
-                displayPartBoundingInfo.boundingBox.maximumWorld.y;
+                // キャビネットの台座部分のY座標を取得
+                const displayPartBoundingInfo =
+                    cabinetParts.displayPart.getBoundingInfo();
+                const displayTop =
+                    displayPartBoundingInfo.boundingBox.maximumWorld.y;
 
-            // キャビネットの台座部分の上に配置
-            rootMesh.position = new Vector3(
-                cabinetParts.displayPart.position.x,
-                displayTop,
-                cabinetParts.displayPart.position.z
-            );
+                // キャビネットの台座部分の上に配置
+                rootMesh.position = new Vector3(
+                    cabinetParts.displayPart.position.x,
+                    displayTop,
+                    cabinetParts.displayPart.position.z
+                );
 
-            // モデルのサイズを適切に調整
-            const maxAllowedSize = 1.5;
-            const scale =
-                maxAllowedSize /
-                Math.max(modelSize.x, modelSize.y, modelSize.z);
-            rootMesh.scaling = new Vector3(scale, scale, scale);
+                // モデルを初期状態でカメラの方向に向ける
+                rootMesh.rotationQuaternion = Quaternion.RotationAxis(
+                    new Vector3(0, 1, 0),
+                    Math.PI
+                );
 
-            // モデルのすべてのメッシュに対して設定
-            result.meshes.forEach((mesh) => {
-                mesh.checkCollisions = false;
-                mesh.isPickable = true;
-                if (mesh instanceof Mesh) {
-                    mesh.actionManager = new ActionManager(scene);
-                }
+                // モデルのサイズを適切に調整
+                const maxAllowedSize = 1;
+                const scale =
+                    maxAllowedSize /
+                    Math.max(modelSize.x, modelSize.y, modelSize.z);
+                rootMesh.scaling = new Vector3(scale, scale, scale);
+
+                // モデルのすべてのメッシュに対して設定
+                result.meshes.forEach((mesh) => {
+                    mesh.checkCollisions = false;
+                    mesh.isPickable = true;
+                    if (mesh instanceof Mesh) {
+                        mesh.actionManager = new ActionManager(scene);
+                    }
+                });
+
+                // アウトライン機能を設定
+                // setupModelOutline(scene, result.meshes);
+
+                resolve({ scale, displayTop });
+            })
+            .catch((error) => {
+                console.error("モデルの読み込みエラー:", error);
+                resolve({ scale: 1, displayTop: 0 });
             });
-
-            // アウトライン機能を設定
-            setupModelOutline(scene, result.meshes);
-        })
-        .catch(console.error);
+    });
 };
