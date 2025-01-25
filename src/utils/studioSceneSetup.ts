@@ -267,7 +267,7 @@ const loadCabinetModel = (scene: Scene, modelPath: string, roomSize: any) => {
             });
 
             // アウトライン機能を設定
-            setupModelOutline(scene, result.meshes);
+            // setupModelOutline(scene, result.meshes);
         })
         .catch(console.error);
 };
@@ -363,7 +363,7 @@ const loadItemModel = (
             });
 
             // アウトライン機能を設定
-            setupModelOutline(scene, result.meshes);
+            // setupModelOutline(scene, result.meshes);
         })
         .catch(console.error);
 };
@@ -463,7 +463,7 @@ export const studioItemSetup = (
                 });
 
                 // アウトライン機能を設定
-                setupModelOutline(scene, result.meshes);
+                // setupModelOutline(scene, result.meshes);
 
                 resolve({ scale, displayTop });
             })
