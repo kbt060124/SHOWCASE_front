@@ -72,7 +72,6 @@ const Studio: FC = () => {
 
                     // メタデータからitemIdを取得
                     const itemId = mesh.metadata?.itemId || 0; // メタデータがない場合は0をデフォルトに
-                    console.log(itemId, "itemId");
 
                     const meshData: SavedMeshData = {
                         itemId, // メタデータから取得したitemIdを使用
@@ -98,13 +97,8 @@ const Studio: FC = () => {
                 }
             });
 
-            // デバッグ用のログ出力
-            console.log("保存するデータ:", savedData);
-
-            // 単一のメッシュデータを送信
-            for (const meshData of savedData) {
-                await api.put(`/api/room/update/${room_id}`, meshData);
-            }
+            // 複数のメッシュデータを送信
+            await api.put(`/api/room/update/${room_id}`, savedData);
 
             alert("保存が完了しました");
         } catch (error) {
