@@ -379,7 +379,7 @@ export const studioSceneSetup = (
 
     loadCabinetModel(scene, modelPath, roomSize);
 
-    api.get(`/api/room/show/${room_id}`).then((response) => {
+    api.get(`/api/room/studio/${room_id}`).then((response) => {
         const items = [...response.data.room.items];
         console.log("items", items);
 
