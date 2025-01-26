@@ -12,7 +12,7 @@ import {
     ActionManager,
     Mesh,
     Tags,
-    Quaternion
+    Quaternion,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { setupModelOutline } from "./modelOutline";
@@ -310,77 +310,103 @@ const findCabinetAndDisplayPart = (scene: Scene) => {
 };
 
 // アイテムモデルのロード処理
-const loadItemModel = (
+const loadItemModel = async (
     scene: Scene,
     item: any,
     cabinet: Mesh,
-    displayPart: Mesh
+    displayPart: Mesh,
+    onModelLoad?: (values: {
+        initialScale: number;
+        currentScale: number;
+        rotationX: number;
+        rotationY: number;
+        height: number;
+    }) => void
 ) => {
     const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
         item.user_id
     }/${item.pivot.item_id}/${item.filename}`;
 
-    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
-        .then((result) => {
-            console.log("モデルが読み込まれました");
-            const rootMesh = result.meshes[0];
+    try {
+        const result = await SceneLoader.ImportMeshAsync(
+            "",
+            "",
+            modelPath,
+            scene
+        );
+        const rootMesh = result.meshes[0];
 
-            // warehouse_itemタグを追加
-            Tags.AddTagsTo(rootMesh, "warehouse_item");
+        // warehouse_itemタグを追加
+        Tags.AddTagsTo(rootMesh, "warehouse_item");
+        rootMesh.metadata = { itemId: item.id };
 
-            // item.idをメッシュに割り当てる
-            rootMesh.metadata = { itemId: item.id };
+        // 保存された値を設定
+        rootMesh.position = new Vector3(
+            item.pivot.position_x,
+            item.pivot.position_y,
+            item.pivot.position_z
+        );
 
-            // APIから取得した位置を設定
-            rootMesh.position = new Vector3(
-                item.pivot.position_x,
-                item.pivot.position_y,
-                item.pivot.position_z
-            );
+        // バウンディングボックスから基準スケールを計算
+        const boundingInfo = rootMesh.getHierarchyBoundingVectors(true);
+        const modelSize = boundingInfo.max.subtract(boundingInfo.min);
+        const maxSize = Math.max(modelSize.x, modelSize.y, modelSize.z);
+        const baseScale = 1 / maxSize;
 
-            // APIから取得したスケールを設定
-            rootMesh.scaling = new Vector3(
-                item.pivot.scale_x,
-                item.pivot.scale_y,
-                item.pivot.scale_z
-            );
+        rootMesh.scaling = new Vector3(
+            item.pivot.scale_x,
+            item.pivot.scale_y,
+            item.pivot.scale_z
+        );
 
-            // 保存された回転値からQuaternionを作成して設定
-            if (item.pivot.rotation_x !== undefined) {
-                rootMesh.rotationQuaternion = new Quaternion(
-                    item.pivot.rotation_x,
-                    item.pivot.rotation_y,
-                    item.pivot.rotation_z,
-                    item.pivot.rotation_w
-                );
-            } else {
-                // 初期状態でカメラの方向に向ける
-                rootMesh.rotationQuaternion = Quaternion.RotationAxis(
-                    new Vector3(0, 1, 0),
-                    Math.PI
-                );
-            }
+        // スライダーの相対値を計算（保存されたスケール / 基準スケール）
+        const relativeScale = item.pivot.scale_x / baseScale;
 
-            // モデルのすべてのメッシュに対して設定
-            result.meshes.forEach((mesh) => {
-                mesh.checkCollisions = false;
-                mesh.isPickable = true;
-                if (mesh instanceof Mesh) {
-                    mesh.actionManager = new ActionManager(scene);
-                }
+        // 回転角度を計算
+        const rotation = rootMesh.rotationQuaternion?.toEulerAngles();
+        const rotationX = rotation ? (rotation.x * 180) / Math.PI : 0;
+        const rotationY = rotation ? (rotation.y * 180) / Math.PI : 0;
+
+        // 高さの相対値を計算
+        const displayTop =
+            displayPart.getBoundingInfo().boundingBox.maximumWorld.y;
+        const height = (rootMesh.position.y - displayTop) * 10;
+
+        if (onModelLoad) {
+            onModelLoad({
+                initialScale: baseScale,
+                currentScale: relativeScale,
+                rotationX,
+                rotationY,
+                height,
             });
+        }
 
-            // アウトライン機能を設定
-            // setupModelOutline(scene, result.meshes);
-        })
-        .catch(console.error);
+        // その他の設定
+        result.meshes.forEach((mesh) => {
+            mesh.checkCollisions = false;
+            mesh.isPickable = true;
+            if (mesh instanceof Mesh) {
+                mesh.actionManager = new ActionManager(scene);
+            }
+        });
+    } catch (error) {
+        console.error(error);
+    }
 };
 
 // 保存した部屋の再現 or 初期表示
 export const studioSceneSetup = (
     scene: Scene,
     modelPath: string,
-    room_id: string
+    room_id: string,
+    setters?: {
+        setInitialScale: (scale: number) => void;
+        setModelScale: (scale: number) => void;
+        setModelRotationX: (rotation: number) => void;
+        setModelRotationY: (rotation: number) => void;
+        setModelHeight: (height: number) => void;
+    }
 ) => {
     const { roomSize } = setupCommonScene(scene);
     setupRoom(scene, roomSize);
@@ -401,7 +427,16 @@ export const studioSceneSetup = (
                     scene,
                     item,
                     cabinetParts.cabinet,
-                    cabinetParts.displayPart
+                    cabinetParts.displayPart,
+                    (values) => {
+                        if (setters) {
+                            setters.setInitialScale(values.initialScale);
+                            setters.setModelScale(values.currentScale);
+                            setters.setModelRotationX(values.rotationX);
+                            setters.setModelRotationY(values.rotationY);
+                            setters.setModelHeight(values.height);
+                        }
+                    }
                 );
             });
         }
