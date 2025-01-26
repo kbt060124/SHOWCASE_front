@@ -63,6 +63,9 @@ function Warehouse() {
 
         setUploadFile(file);
         setIsUploadPreviewOpen(true);
+
+        // input要素の値をリセット
+        event.target.value = "";
     };
 
     const handleUploadSubmit = async (formData: FormData) => {
@@ -98,6 +101,11 @@ function Warehouse() {
         } catch (error) {
             console.error("アップロードエラー:", error);
         }
+    };
+
+    const closeUploadModal = () => {
+        setIsUploadPreviewOpen(false);
+        setUploadFile(null);
     };
 
     return (

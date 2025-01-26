@@ -1,15 +1,29 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { UploadFormData } from "./types";
 
 interface FormProps {
     initialName: string;
     onSubmit: (data: UploadFormData) => void;
+    thumbnail: File | null;
 }
 
-const Form: React.FC<FormProps> = ({ initialName, onSubmit }) => {
+const Form: React.FC<FormProps> = ({ initialName, onSubmit, thumbnail }) => {
     const [name, setName] = React.useState(initialName);
     const [memo, setMemo] = React.useState("");
-    const [thumbnail, setThumbnail] = React.useState<File | null>(null);
+    const [thumbnailUrl, setThumbnailUrl] = React.useState<string | null>(null);
+
+    useEffect(() => {
+        console.log("Thumbnail changed:", thumbnail);
+        if (thumbnail) {
+            const url = URL.createObjectURL(thumbnail);
+            console.log("Created thumbnail URL:", url);
+            setThumbnailUrl(url);
+            return () => {
+                console.log("Cleaning up URL:", url);
+                URL.revokeObjectURL(url);
+            };
+        }
+    }, [thumbnail]);
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -21,14 +35,18 @@ const Form: React.FC<FormProps> = ({ initialName, onSubmit }) => {
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                     <h3 className="font-semibold text-gray-700">サムネイル</h3>
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={(e) =>
-                            setThumbnail(e.target.files?.[0] || null)
-                        }
-                        className="mt-1 sm:mt-2 block w-full text-sm"
-                    />
+                    {thumbnailUrl && (
+                        <img
+                            src={thumbnailUrl}
+                            alt="サムネイルプレビュー"
+                            className="mt-1 sm:mt-2 w-full rounded-md"
+                        />
+                    )}
+                    {!thumbnailUrl && (
+                        <p className="mt-1 sm:mt-2 text-sm text-gray-500">
+                            3Dモデルのプレビューから設定してください
+                        </p>
+                    )}
                 </div>
                 <div>
                     <h3 className="font-semibold text-gray-700">名前</h3>
