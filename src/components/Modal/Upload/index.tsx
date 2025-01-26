@@ -14,6 +14,13 @@ const UploadModal: React.FC<UploadModalProps> = ({
     const { user } = useAuth();
     const [thumbnail, setThumbnail] = React.useState<File | null>(null);
 
+    // モーダルが閉じられた時にサムネイルをリセットする
+    React.useEffect(() => {
+        if (!isOpen) {
+            setThumbnail(null);
+        }
+    }, [isOpen]);
+
     if (!isOpen) return null;
 
     const handleSubmit = (formData: UploadFormData) => {

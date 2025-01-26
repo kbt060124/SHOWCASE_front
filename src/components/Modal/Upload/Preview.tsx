@@ -6,6 +6,7 @@ import {
     Vector3,
     HemisphericLight,
     Scene,
+    Engine,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 
@@ -32,6 +33,13 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
             }
         };
         reader.readAsArrayBuffer(file);
+
+        return () => {
+            if (sceneRef.current) {
+                sceneRef.current.dispose();
+                sceneRef.current = null;
+            }
+        };
     }, [file]);
 
     const captureScreenshot = () => {
@@ -40,22 +48,18 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
             return;
         }
 
-        const engine = sceneRef.current.getEngine();
+        const engine = sceneRef.current.getEngine() as Engine;
         const canvas = engine.getRenderingCanvas();
 
         if (canvas) {
-            // 現在のサイズを保存
             const originalWidth = canvas.width;
             const originalHeight = canvas.height;
 
-            // キャプチャ用にサイズを設定
             canvas.width = 1024;
             canvas.height = 1024;
 
-            // 強制的に再レンダリング
             sceneRef.current.render();
 
-            // キャプチャを実行
             canvas.toBlob(
                 (blob) => {
                     if (blob) {
@@ -65,7 +69,6 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
                         onCaptureScreenshot(file);
                     }
 
-                    // 元のサイズに戻す
                     canvas.width = originalWidth;
                     canvas.height = originalHeight;
                     sceneRef.current?.render();
@@ -77,10 +80,10 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
     };
 
     return (
-        <div className="flex-1 min-h-[250px] sm:min-h-[300px] overflow-hidden">
+        <div className="flex-1 min-h-[250px] sm:min-h-[300px] overflow-hidden relative">
             {modelData && (
                 <>
-                    <div className="mb-2">
+                    <div className="absolute top-2 left-2 z-10">
                         <button
                             onClick={captureScreenshot}
                             className="bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600"
@@ -88,7 +91,10 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
                             現在の表示をサムネイルとして設定
                         </button>
                     </div>
-                    <div className="w-full h-[500px]">
+                    <div
+                        className="w-full h-full pt-12"
+                        style={{ minHeight: "500px" }}
+                    >
                         <SceneComponent
                             antialias
                             onSceneReady={(scene) => {
@@ -171,6 +177,7 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
                                     });
                             }}
                             id="upload-preview"
+                            className="w-full h-full"
                         />
                     </div>
                 </>
