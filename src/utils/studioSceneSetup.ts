@@ -315,13 +315,14 @@ const loadItemModel = async (
     item: any,
     cabinet: Mesh,
     displayPart: Mesh,
-    onModelLoad?: (values: {
-        initialScale: number;
-        currentScale: number;
-        rotationX: number;
-        rotationY: number;
-        height: number;
-    }) => void
+    setters?: {
+        setInitialScale: (scale: number) => void;
+        setModelScale: (scale: number) => void;
+        setModelRotationX: (rotation: number) => void;
+        setModelRotationY: (rotation: number) => void;
+        setModelHeight: (height: number) => void;
+        setDisplayTop: (top: number) => void;
+    }
 ) => {
     const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
         item.user_id
@@ -362,11 +363,16 @@ const loadItemModel = async (
         // スライダーの相対値を計算（保存されたスケール / 基準スケール）
         const relativeScale = item.pivot.scale_x / baseScale;
 
-        // 高さの相対値を計算（10で割って相対値に変換）
+        // displayTopを計算して設定
         const displayTop =
             displayPart.getBoundingInfo().boundingBox.maximumWorld.y;
+        if (setters?.setDisplayTop) {
+            setters.setDisplayTop(displayTop);
+        }
+
+        // 高さの相対値を計算
         const heightDiff = rootMesh.position.y - displayTop;
-        const relativeHeight = heightDiff * 10; // スライダーの値として使用する相対値
+        const relativeHeight = heightDiff * 10;
 
         // 保存された回転を設定
         if (item.pivot.rotation_x !== undefined) {
@@ -394,14 +400,12 @@ const loadItemModel = async (
                 rotationY += 360;
             }
 
-            if (onModelLoad) {
-                onModelLoad({
-                    initialScale: baseScale,
-                    currentScale: relativeScale,
-                    rotationX: rotationX,
-                    rotationY: rotationY,
-                    height: relativeHeight,
-                });
+            if (setters) {
+                setters.setInitialScale(baseScale);
+                setters.setModelScale(relativeScale);
+                setters.setModelRotationX(rotationX);
+                setters.setModelRotationY(rotationY);
+                setters.setModelHeight(relativeHeight);
             }
         }
 
@@ -429,6 +433,7 @@ export const studioSceneSetup = (
         setModelRotationX: (rotation: number) => void;
         setModelRotationY: (rotation: number) => void;
         setModelHeight: (height: number) => void;
+        setDisplayTop: (top: number) => void;
     }
 ) => {
     const { roomSize } = setupCommonScene(scene);
@@ -451,15 +456,7 @@ export const studioSceneSetup = (
                     item,
                     cabinetParts.cabinet,
                     cabinetParts.displayPart,
-                    (values) => {
-                        if (setters) {
-                            setters.setInitialScale(values.initialScale);
-                            setters.setModelScale(values.currentScale);
-                            setters.setModelRotationX(values.rotationX);
-                            setters.setModelRotationY(values.rotationY);
-                            setters.setModelHeight(values.height);
-                        }
-                    }
+                    setters
                 );
             });
         }

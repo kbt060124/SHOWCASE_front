@@ -39,6 +39,7 @@ const Studio: FC = () => {
                         setModelRotationX,
                         setModelRotationY,
                         setModelHeight,
+                        setDisplayTop,
                     }
                 );
             }
@@ -208,9 +209,12 @@ const Studio: FC = () => {
                 setModelRotationY(value);
                 break;
             case "height":
-                const heightAdjustment = value * 0.1;
-                warehouseItem.position.y = displayTop + heightAdjustment;
-                setModelHeight(value);
+                if (displayTop !== undefined) {
+                    // displayTopが設定されていることを確認
+                    const heightAdjustment = value * 0.1;
+                    warehouseItem.position.y = displayTop + heightAdjustment;
+                    setModelHeight(value);
+                }
                 break;
         }
     };
