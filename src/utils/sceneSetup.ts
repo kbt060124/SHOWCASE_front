@@ -18,6 +18,13 @@ export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
         scene
     );
     camera.minZ = 0.1;
+
+    // ズーム動作の調整
+    camera.wheelPrecision =  100; // 値を大きくするとズームの速度が遅くなります（デフォルトは3）
+    camera.lowerRadiusLimit = 0.5; // ズームインの制限
+    camera.upperRadiusLimit = 2; // ズームアウトの制限
+    camera.pinchPrecision = 50; // モバイルデバイスのピンチズームの感度
+
     camera.attachControl(scene.getEngine().getRenderingCanvas(), true);
 
     // ライトを追加
