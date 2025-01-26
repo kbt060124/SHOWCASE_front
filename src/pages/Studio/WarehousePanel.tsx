@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import api from "../../axios";
 import { type Warehouse } from "../../components/Modal/types";
+import CloseIcon from "@mui/icons-material/Close";
+import ModelViewer from "../../components/Modal/ModelViewer";
 
 interface WarehousePanelProps {
     onModelSelect: (modelPath: string, itemId: bigint) => void;
@@ -12,6 +14,8 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     onClose,
 }) => {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+    const [selectedWarehouse, setSelectedWarehouse] =
+        useState<Warehouse | null>(null);
 
     useEffect(() => {
         const fetchWarehouses = async () => {
@@ -21,6 +25,10 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                     `http://localhost/api/item/${userId}`
                 );
                 setWarehouses(response.data);
+                // デフォルトで最初のモデルを選択
+                if (response.data.length > 0) {
+                    setSelectedWarehouse(response.data[0]);
+                }
             } catch (error) {
                 console.error(
                     "倉庫データの取得中にエラーが発生しました:",
@@ -33,38 +41,46 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     }, []);
 
     const handleThumbnailClick = (warehouse: Warehouse) => {
-        const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
-            warehouse.user_id
-        }/${warehouse.id}/${warehouse.filename}`;
-        onModelSelect(modelPath, warehouse.id);
+        setSelectedWarehouse(warehouse);
+    };
+
+    const handleAddToStudio = () => {
+        if (selectedWarehouse) {
+            const modelPath = `${import.meta.env.VITE_S3_URL}/warehouse/${
+                selectedWarehouse.user_id
+            }/${selectedWarehouse.id}/${selectedWarehouse.filename}`;
+            onModelSelect(modelPath, selectedWarehouse.id);
+            onClose();
+        }
     };
 
     return (
-        <div className="p-4">
+        <div className="p-4 h-full flex flex-col">
             <div className="flex justify-between items-center mb-4">
                 <h2 className="text-xl font-bold">倉庫</h2>
-                <button
-                    onClick={onClose}
-                    className="text-gray-500 hover:text-gray-700"
-                    aria-label="閉じる"
-                >
-                    <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-6 w-6"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
+                <div className="flex items-center gap-4">
+                    <button
+                        onClick={handleAddToStudio}
+                        disabled={!selectedWarehouse}
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
-                        <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M6 18L18 6M6 6l12 12"
-                        />
-                    </svg>
-                </button>
+                        Studioに配置
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="text-gray-500 hover:text-gray-700"
+                        aria-label="閉じる"
+                    >
+                        <CloseIcon />
+                    </button>
+                </div>
             </div>
-            <div className="grid grid-cols-3 gap-4">
+            {selectedWarehouse && (
+                <div className="mb-4 h-[300px]">
+                    <ModelViewer warehouse={selectedWarehouse} />
+                </div>
+            )}
+            <div className="grid grid-cols-4 gap-4 overflow-y-auto flex-1">
                 {warehouses.map((warehouse) => (
                     <div
                         key={warehouse.id}

@@ -128,7 +128,6 @@ const Studio: FC = () => {
         }
     };
 
-
     const handleReturnToWarehouse = () => {
         if (sceneRef) {
             // warehouse_itemタグが付いているメッシュを検索して削除
@@ -207,19 +206,17 @@ const Studio: FC = () => {
         <div className="h-screen w-screen flex">
             {isWarehousePanelOpen && (
                 <div
-                    className="fixed inset-0 z-10"
+                    className="fixed inset-0 z-10 bg-white"
                     onClick={handleClickOutside}
                 >
-                    <div className="absolute left-0 top-0 w-1/3 h-full bg-white border-r border-gray-200 overflow-y-auto">
-                        <WarehousePanel
-                            onModelSelect={handleModelSelect}
-                            onClose={() => setIsWarehousePanelOpen(false)}
-                        />
-                    </div>
+                    <WarehousePanel
+                        onModelSelect={handleModelSelect}
+                        onClose={() => setIsWarehousePanelOpen(false)}
+                    />
                 </div>
             )}
             <div className="w-full relative">
-                <div className="absolute top-4 right-4 z-10">
+                <div className="absolute top-4 right-4 z-5">
                     <button
                         onClick={handleSave}
                         disabled={isSaving}
@@ -243,7 +240,7 @@ const Studio: FC = () => {
                         </button>
                     </div>
                 )}
-                <div className="absolute bottom-4 right-4 z-10">
+                <div className="absolute bottom-4 right-4 z-5">
                     <button
                         onClick={() => setIsEditMode(!isEditMode)}
                         className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
