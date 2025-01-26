@@ -11,7 +11,7 @@ export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
     // カメラを追加
     const camera = new ArcRotateCamera(
         "camera",
-        -Math.PI / 2,
+        Math.PI / 2,
         Math.PI / 2.5,
         10,
         Vector3.Zero(),
@@ -41,7 +41,7 @@ export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
 
             // カメラの位置を調整
             const radius = modelSize.length() * 1.5;
-            camera.setPosition(new Vector3(0, 0, -radius));
+            camera.setPosition(new Vector3(0, 0, radius));
 
             // カメラのターゲットをモデルの中心に設定
             camera.setTarget(Vector3.Zero());
