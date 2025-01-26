@@ -362,24 +362,47 @@ const loadItemModel = async (
         // スライダーの相対値を計算（保存されたスケール / 基準スケール）
         const relativeScale = item.pivot.scale_x / baseScale;
 
-        // 回転角度を計算
-        const rotation = rootMesh.rotationQuaternion?.toEulerAngles();
-        const rotationX = rotation ? (rotation.x * 180) / Math.PI : 0;
-        const rotationY = rotation ? (rotation.y * 180) / Math.PI : 0;
-
-        // 高さの相対値を計算
+        // 高さの相対値を計算（10で割って相対値に変換）
         const displayTop =
             displayPart.getBoundingInfo().boundingBox.maximumWorld.y;
-        const height = (rootMesh.position.y - displayTop) * 10;
+        const heightDiff = rootMesh.position.y - displayTop;
+        const relativeHeight = heightDiff * 10; // スライダーの値として使用する相対値
 
-        if (onModelLoad) {
-            onModelLoad({
-                initialScale: baseScale,
-                currentScale: relativeScale,
-                rotationX,
-                rotationY,
-                height,
-            });
+        // 保存された回転を設定
+        if (item.pivot.rotation_x !== undefined) {
+            const savedRotation = new Quaternion(
+                item.pivot.rotation_x,
+                item.pivot.rotation_y,
+                item.pivot.rotation_z,
+                item.pivot.rotation_w
+            );
+            rootMesh.rotationQuaternion = savedRotation;
+
+            // オイラー角に変換して角度を計算
+            const euler = savedRotation.toEulerAngles();
+
+            // X軸の回転角度を計算（-180から180の範囲に正規化）
+            let rotationX = (euler.x * 180) / Math.PI;
+            if (rotationX > 180) rotationX -= 360;
+            if (rotationX < -180) rotationX += 360;
+
+            // Y軸の回転角度を計算（-180から180の範囲に正規化）
+            let rotationY = (-euler.y * 180) / Math.PI - 180;
+            if (rotationY > 180) {
+                rotationY -= 360;
+            } else if (rotationY < -180) {
+                rotationY += 360;
+            }
+
+            if (onModelLoad) {
+                onModelLoad({
+                    initialScale: baseScale,
+                    currentScale: relativeScale,
+                    rotationX: rotationX,
+                    rotationY: rotationY,
+                    height: relativeHeight,
+                });
+            }
         }
 
         // その他の設定

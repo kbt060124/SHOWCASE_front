@@ -190,16 +190,18 @@ const Studio: FC = () => {
                 setModelRotationX(value);
                 break;
             case "rotationY":
-                // Y軸周りの回転のQuaternionを作成
+                // Y軸周りの回転のQuaternionを作成（値を反転）
                 const newYRotation = Quaternion.RotationAxis(
                     new Vector3(0, 1, 0),
-                    -value * (Math.PI / 180) + Math.PI // マイナスを追加
+                    -value * (Math.PI / 180) + Math.PI // 値を反転して回転方向を逆に
                 );
+
                 // X軸の回転を保持
                 const currentXRotation = Quaternion.RotationAxis(
                     new Vector3(1, 0, 0),
                     modelRotationX * (Math.PI / 180)
                 );
+
                 // 回転を合成
                 warehouseItem.rotationQuaternion =
                     newYRotation.multiply(currentXRotation);
