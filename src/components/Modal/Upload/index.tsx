@@ -11,7 +11,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
     onSubmit,
     isOpen,
 }) => {
-    const { user } = useAuth(); 
+    const { user } = useAuth();
+    const [thumbnail, setThumbnail] = React.useState<File | null>(null);
+
     if (!isOpen) return null;
 
     const handleSubmit = (formData: UploadFormData) => {
@@ -32,10 +34,11 @@ const UploadModal: React.FC<UploadModalProps> = ({
             <div className="bg-white p-3 sm:p-4 rounded-lg w-full max-h-[95vh] flex flex-col relative">
                 <CloseButton onClose={onClose} />
                 <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
-                    <Preview file={file} />
+                    <Preview file={file} onCaptureScreenshot={setThumbnail} />
                     <Form
                         initialName={file.name.replace(".glb", "")}
                         onSubmit={handleSubmit}
+                        thumbnail={thumbnail}
                     />
                 </div>
             </div>
