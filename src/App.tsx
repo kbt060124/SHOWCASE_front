@@ -9,6 +9,7 @@ import Home from "./pages/Home";
 import Studio from "./pages/Studio";
 import Warehouse from "./pages/Warehouse";
 import Profile from "./pages/Profile";
+import CreateProfile from "./pages/Profile/Create";
 import Mainstage from "./pages/Mainstage";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
@@ -75,6 +76,14 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Warehouse />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/profile/create"
+                    element={
+                        <ProtectedRoute>
+                            <CreateProfile />
                         </ProtectedRoute>
                     }
                 />

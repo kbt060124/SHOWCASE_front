@@ -19,7 +19,7 @@ const Register = () => {
             password_confirmation: passwordConfirmation,
         });
         if (success) {
-            navigate("/");
+            navigate("/profile/create");
         }
     };
 
