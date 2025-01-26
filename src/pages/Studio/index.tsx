@@ -16,9 +16,9 @@ const Studio: FC = () => {
     const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
-    const [initialScale, setInitialScale] = useState(1);
+    const [initialScale, setInitialScale] = useState<number>(1);
     const [displayTop, setDisplayTop] = useState(0);
-    const [modelScale, setModelScale] = useState(1);
+    const [modelScale, setModelScale] = useState<number>(1);
     const [modelRotationX, setModelRotationX] = useState(0);
     const [modelRotationY, setModelRotationY] = useState(0);
     const [modelHeight, setModelHeight] = useState(0);
@@ -28,7 +28,20 @@ const Studio: FC = () => {
             setSceneRef(scene);
             //部屋の再現or初期作成
             if (room_id) {
-                studioSceneSetup(scene, "/models/display_cabinet.glb", room_id);
+                studioSceneSetup(
+                    scene,
+                    "/models/display_cabinet.glb",
+                    room_id,
+                    {
+                        setInitialScale: (scale: number) =>
+                            setInitialScale(scale),
+                        setModelScale: (scale: number) => setModelScale(scale),
+                        setModelRotationX,
+                        setModelRotationY,
+                        setModelHeight,
+                        setDisplayTop,
+                    }
+                );
             }
         },
         [room_id]
@@ -157,7 +170,6 @@ const Studio: FC = () => {
 
         switch (type) {
             case "scale":
-                // 初期スケールを基準として相対的に調整
                 const newScale = initialScale * value;
                 warehouseItem.scaling.setAll(newScale);
                 setModelScale(value);
@@ -179,25 +191,30 @@ const Studio: FC = () => {
                 setModelRotationX(value);
                 break;
             case "rotationY":
-                // Y軸周りの回転のQuaternionを作成
+                // Y軸周りの回転のQuaternionを作成（値を反転）
                 const newYRotation = Quaternion.RotationAxis(
                     new Vector3(0, 1, 0),
-                    -value * (Math.PI / 180) + Math.PI // マイナスを追加
+                    -value * (Math.PI / 180) + Math.PI // 値を反転して回転方向を逆に
                 );
+
                 // X軸の回転を保持
                 const currentXRotation = Quaternion.RotationAxis(
                     new Vector3(1, 0, 0),
                     modelRotationX * (Math.PI / 180)
                 );
+
                 // 回転を合成
                 warehouseItem.rotationQuaternion =
                     newYRotation.multiply(currentXRotation);
                 setModelRotationY(value);
                 break;
             case "height":
-                const heightAdjustment = value * 0.1;
-                warehouseItem.position.y = displayTop + heightAdjustment;
-                setModelHeight(value);
+                if (displayTop !== undefined) {
+                    // displayTopが設定されていることを確認
+                    const heightAdjustment = value * 0.1;
+                    warehouseItem.position.y = displayTop + heightAdjustment;
+                    setModelHeight(value);
+                }
                 break;
         }
     };
