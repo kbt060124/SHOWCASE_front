@@ -103,11 +103,6 @@ function Warehouse() {
         }
     };
 
-    const closeUploadModal = () => {
-        setIsUploadPreviewOpen(false);
-        setUploadFile(null);
-    };
-
     return (
         <div className="container mx-auto px-4">
             <div className="flex justify-between item-center mb-4">

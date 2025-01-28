@@ -15,7 +15,6 @@ import {
     Quaternion,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-import { setupModelOutline } from "./modelOutline";
 import api from "../axios";
 
 // 部屋のセットアップ関数
@@ -313,7 +312,6 @@ const findCabinetAndDisplayPart = (scene: Scene) => {
 const loadItemModel = async (
     scene: Scene,
     item: any,
-    cabinet: Mesh,
     displayPart: Mesh,
     setters?: {
         setInitialScale: (scale: number) => void;
@@ -454,7 +452,6 @@ export const studioSceneSetup = (
                 loadItemModel(
                     scene,
                     item,
-                    cabinetParts.cabinet,
                     cabinetParts.displayPart,
                     setters
                 );
