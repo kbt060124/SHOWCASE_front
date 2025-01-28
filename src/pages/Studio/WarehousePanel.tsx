@@ -22,7 +22,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
             try {
                 const userId = 1;
                 const response = await api.get<Warehouse[]>(
-                    `http://localhost/api/item/${userId}`
+                    `/api/item/${userId}`
                 );
                 setWarehouses(response.data);
                 // デフォルトで最初のモデルを選択

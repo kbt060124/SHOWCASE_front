@@ -15,7 +15,7 @@ import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import { useAuth } from "./hooks/useAuth";
 import "./App.css";
-import axios from "axios";
+import api from "./axios";
 
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -39,9 +39,7 @@ function App() {
         // CSRFトークンを取得
         const getCsrfToken = async () => {
             try {
-                await axios.get("http://localhost/sanctum/csrf-cookie", {
-                    withCredentials: true,
-                });
+                await api.get("/sanctum/csrf-cookie");
             } catch (error) {
                 console.error("CSRFトークンの取得に失敗:", error);
             }
