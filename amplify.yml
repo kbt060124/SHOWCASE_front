@@ -6,6 +6,7 @@ frontend:
                 - npm ci
         build:
             commands:
+                - for vars in $(env | grep -e "^VITE_"); do echo "Setting $vars"; done
                 - npm run build
     artifacts:
         baseDirectory: dist
