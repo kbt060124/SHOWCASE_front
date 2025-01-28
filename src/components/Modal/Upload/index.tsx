@@ -33,6 +33,7 @@ const UploadModal: React.FC<UploadModalProps> = ({
         if (formData.thumbnail) {
             submitData.append("thumbnail", formData.thumbnail);
         }
+        console.log("submitData", submitData);
         onSubmit(submitData);
     };
 

@@ -243,7 +243,7 @@ const Studio: FC = () => {
                     </button>
                 </div>
                 {!isWarehousePanelOpen && (
-                    <div className="absolute bottom-4 left-4 z-10">
+                    <div className="absolute top-10 left-4 z-10">
                         <button
                             onClick={() => setIsWarehousePanelOpen(true)}
                             className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
@@ -257,7 +257,7 @@ const Studio: FC = () => {
                         </button>
                     </div>
                 )}
-                <div className="absolute bottom-4 right-4 z-5">
+                <div className="absolute top-10 right-4 z-5">
                     <button
                         onClick={() => setIsEditMode(!isEditMode)}
                         className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
