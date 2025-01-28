@@ -15,7 +15,6 @@ import {
     Quaternion,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-import { setupModelOutline } from "./modelOutline";
 import api from "../axios";
 
 // 部屋のセットアップ関数
@@ -265,9 +264,6 @@ const loadCabinetModel = (scene: Scene, modelPath: string, roomSize: any) => {
                     mesh.actionManager = new ActionManager(scene);
                 }
             });
-
-            // アウトライン機能を設定
-            // setupModelOutline(scene, result.meshes);
         })
         .catch(console.error);
 };
@@ -313,7 +309,6 @@ const findCabinetAndDisplayPart = (scene: Scene) => {
 const loadItemModel = async (
     scene: Scene,
     item: any,
-    cabinet: Mesh,
     displayPart: Mesh,
     setters?: {
         setInitialScale: (scale: number) => void;
@@ -451,13 +446,7 @@ export const studioSceneSetup = (
 
             // 各アイテムに対してモデルをロード
             items.forEach((item) => {
-                loadItemModel(
-                    scene,
-                    item,
-                    cabinetParts.cabinet,
-                    cabinetParts.displayPart,
-                    setters
-                );
+                loadItemModel(scene, item, cabinetParts.displayPart, setters);
             });
         }
     });
@@ -524,9 +513,6 @@ export const studioItemSetup = (
                         mesh.actionManager = new ActionManager(scene);
                     }
                 });
-
-                // アウトライン機能を設定
-                // setupModelOutline(scene, result.meshes);
 
                 resolve({ scale, displayTop });
             })
