@@ -215,6 +215,7 @@ const setupCommonScene = (scene: Scene) => {
         roomSize.width / 2 - 0.1,
         roomSize.depth / 2 - 0.1
     );
+    camera.panningSensibility = 0; // パン操作を無効にする
 
     // カメラの移動設定
     camera.panningAxis = new Vector3(1, 0, 1);
