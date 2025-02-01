@@ -103,12 +103,18 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
 
                                 const camera = new ArcRotateCamera(
                                     "camera",
-                                    -Math.PI / 2,
+                                    Math.PI / 2,
                                     Math.PI / 2.5,
                                     10,
                                     Vector3.Zero(),
                                     scene
                                 );
+                                camera.minZ = 0.1;
+                                camera.wheelPrecision = 100;
+                                camera.lowerRadiusLimit = 0.5;
+                                camera.upperRadiusLimit = 2;
+                                camera.pinchPrecision = 50;
+                                camera.panningSensibility = 0;
                                 camera.attachControl(
                                     scene.getEngine().getRenderingCanvas(),
                                     true
@@ -146,24 +152,42 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
                                                 boundingInfo.max.subtract(
                                                     boundingInfo.min
                                                 );
+                                            const maxAllowedSize = 1;
+                                            const scale =
+                                                maxAllowedSize /
+                                                Math.max(
+                                                    modelSize.x,
+                                                    modelSize.y,
+                                                    modelSize.z
+                                                );
+                                            rootMesh.scaling = new Vector3(
+                                                scale,
+                                                scale,
+                                                scale
+                                            );
+
+                                            const scaledBoundingInfo =
+                                                rootMesh.getHierarchyBoundingVectors(
+                                                    true
+                                                );
                                             const modelCenter =
-                                                boundingInfo.min.add(
-                                                    modelSize.scale(0.5)
+                                                scaledBoundingInfo.min.add(
+                                                    scaledBoundingInfo.max
+                                                        .subtract(
+                                                            scaledBoundingInfo.min
+                                                        )
+                                                        .scale(0.5)
                                                 );
 
-                                            rootMesh.position =
-                                                Vector3.Zero().subtract(
-                                                    modelCenter
-                                                );
+                                            rootMesh.position = new Vector3(
+                                                0,
+                                                -modelCenter.y,
+                                                0
+                                            );
 
-                                            const radius =
-                                                modelSize.length() * 1.5;
+                                            const radius = 2;
                                             camera.setPosition(
-                                                new Vector3(
-                                                    0,
-                                                    modelSize.y / 2,
-                                                    -radius
-                                                )
+                                                new Vector3(0, 0, -radius)
                                             );
                                             camera.setTarget(Vector3.Zero());
                                         }
