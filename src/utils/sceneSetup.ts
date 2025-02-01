@@ -24,6 +24,7 @@ export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
     camera.lowerRadiusLimit = 0.5; // ズームインの制限
     camera.upperRadiusLimit = 2; // ズームアウトの制限
     camera.pinchPrecision = 50; // モバイルデバイスのピンチズームの感度
+    camera.panningSensibility = 0; // パン操作を無効にする
 
     camera.attachControl(scene.getEngine().getRenderingCanvas(), true);
 
