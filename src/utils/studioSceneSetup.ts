@@ -203,7 +203,7 @@ const setupCommonScene = (scene: Scene) => {
     camera.setPosition(
         new Vector3(0, roomSize.height / 2, -roomSize.depth / 2 + 0.1)
     );
-    camera.setTarget(new Vector3(0, roomSize.height / 3, 0));
+    camera.setTarget(new Vector3(0, roomSize.height / 2.45, 0));
 
     // カメラの制限を設定
     camera.upperBetaLimit = Math.PI / 2 + 0.4;
@@ -215,7 +215,6 @@ const setupCommonScene = (scene: Scene) => {
         roomSize.width / 2 - 0.1,
         roomSize.depth / 2 - 0.1
     );
-    
 
     // カメラの移動設定
     camera.panningAxis = new Vector3(1, 0, 1);
@@ -226,7 +225,7 @@ const setupCommonScene = (scene: Scene) => {
     camera.angularSensibilityX = 500;
     camera.angularSensibilityY = 500;
 
-    camera.wheelPrecision = 100; // 値を大きくするとズームの速度が遅くなります（デフォルトは3）
+    camera.wheelPrecision = 10; // 値を大きくするとズームの速度が遅くなります（デフォルトは3）
     camera.pinchPrecision = 50; // モバイルデバイスのピンチズームの感度
     camera.panningSensibility = 0; // パン操作を無効にする
 
@@ -455,12 +454,7 @@ export const studioSceneSetup = (
 
             // 各アイテムに対してモデルをロード
             items.forEach((item) => {
-                loadItemModel(
-                    scene,
-                    item,
-                    cabinetParts.displayPart,
-                    setters
-                );
+                loadItemModel(scene, item, cabinetParts.displayPart, setters);
             });
         }
     });
