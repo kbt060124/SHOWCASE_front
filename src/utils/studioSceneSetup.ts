@@ -225,6 +225,11 @@ const setupCommonScene = (scene: Scene) => {
     );
     camera.angularSensibilityX = 500;
     camera.angularSensibilityY = 500;
+
+    camera.wheelPrecision = 100; // 値を大きくするとズームの速度が遅くなります（デフォルトは3）
+    camera.pinchPrecision = 50; // モバイルデバイスのピンチズームの感度
+    camera.panningSensibility = 0; // パン操作を無効にする
+
     camera.panningSensibility = 0;
 
     return { roomSize };
