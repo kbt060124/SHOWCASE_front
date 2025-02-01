@@ -4,9 +4,14 @@ import { Warehouse } from "./types";
 interface InfoPanelProps {
     warehouse: Warehouse;
     onEdit: () => void;
+    onDelete: () => void;
 }
 
-const InfoPanel: React.FC<InfoPanelProps> = ({ warehouse, onEdit }) => {
+const InfoPanel: React.FC<InfoPanelProps> = ({
+    warehouse,
+    onEdit,
+    onDelete,
+}) => {
     const formatDate = (dateString: string | null) => {
         return dateString
             ? new Date(dateString).toLocaleDateString("ja-JP")
@@ -42,6 +47,14 @@ const InfoPanel: React.FC<InfoPanelProps> = ({ warehouse, onEdit }) => {
                     <p className="mt-1 sm:mt-2 text-gray-600 text-sm sm:text-base">
                         {formatDate(warehouse.created_at)}
                     </p>
+                </div>
+                <div>
+                    <button
+                        onClick={onDelete}
+                        className="w-full py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                    >
+                        削除
+                    </button>
                 </div>
             </div>
         </div>

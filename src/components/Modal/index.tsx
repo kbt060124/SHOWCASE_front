@@ -6,7 +6,12 @@ import ModelViewer from "./ModelViewer";
 import Form from "./Form";
 import api from "../../axios";
 
-const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
+const Modal: React.FC<ModalProps> = ({
+    warehouse,
+    onClose,
+    onDelete,
+    onUpdate,
+}) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [thumbnail, setThumbnail] = useState<File | null>(null);
 
@@ -24,12 +29,6 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
                 submitData.append("thumbnail", formData.thumbnail);
             }
 
-            // FormDataの内容を確認
-            console.log("FormData contents:");
-            for (const pair of submitData.entries()) {
-                console.log(pair[0], pair[1]);
-            }
-
             const response = await api.post(
                 `/api/item/update/${warehouse.id}`,
                 submitData,
@@ -40,15 +39,33 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
                 }
             );
 
-            console.log("API Response:", response.data);
-
-            if (response.data.success) {
+            if (response.status === 200) {
+                onUpdate(response.data.item); // 更新されたデータを親コンポーネントに渡す
                 setIsEditMode(false);
-                onClose(); // モーダルを閉じる
-                window.location.reload(); // 画面を更新
+                onClose();
             }
         } catch (error) {
             console.error("更新に失敗しました:", error);
+            alert("更新に失敗しました");
+        }
+    };
+
+    const handleDelete = async () => {
+        if (!window.confirm("このアイテムを削除してもよろしいですか？")) {
+            return;
+        }
+
+        try {
+            const response = await api.delete(
+                `/api/item/destroy/${warehouse.id}`
+            );
+            if (response.status === 200) {
+                onDelete(warehouse.id); // 親コンポーネントに削除を通知
+                onClose(); // モーダルを閉じる
+            }
+        } catch (error) {
+            console.error("削除に失敗しました:", error);
+            alert("削除に失敗しました");
         }
     };
 
@@ -73,6 +90,7 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
                         <InfoPanel
                             warehouse={warehouse}
                             onEdit={() => setIsEditMode(true)}
+                            onDelete={handleDelete}
                         />
                     )}
                 </div>
