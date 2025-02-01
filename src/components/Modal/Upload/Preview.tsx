@@ -9,6 +9,7 @@ import {
     Engine,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
+import { setupUploadScene } from "../../../utils/sceneSetup";
 
 interface PreviewProps {
     file: File;
@@ -100,81 +101,7 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
                             onSceneReady={(scene) => {
                                 console.log("Scene ready:", scene);
                                 sceneRef.current = scene;
-
-                                const camera = new ArcRotateCamera(
-                                    "camera",
-                                    -Math.PI / 2,
-                                    Math.PI / 2.5,
-                                    10,
-                                    Vector3.Zero(),
-                                    scene
-                                );
-                                camera.attachControl(
-                                    scene.getEngine().getRenderingCanvas(),
-                                    true
-                                );
-
-                                new HemisphericLight(
-                                    "light",
-                                    new Vector3(0, 1, 0),
-                                    scene
-                                );
-
-                                const blob = new Blob([modelData], {
-                                    type: "model/gltf-binary",
-                                });
-                                const url = URL.createObjectURL(blob);
-
-                                SceneLoader.LoadAssetContainerAsync(
-                                    "",
-                                    url,
-                                    scene,
-                                    null,
-                                    ".glb"
-                                )
-                                    .then((container) => {
-                                        container.addAllToScene();
-                                        URL.revokeObjectURL(url);
-
-                                        const rootMesh = container.meshes[0];
-                                        if (rootMesh) {
-                                            const boundingInfo =
-                                                rootMesh.getHierarchyBoundingVectors(
-                                                    true
-                                                );
-                                            const modelSize =
-                                                boundingInfo.max.subtract(
-                                                    boundingInfo.min
-                                                );
-                                            const modelCenter =
-                                                boundingInfo.min.add(
-                                                    modelSize.scale(0.5)
-                                                );
-
-                                            rootMesh.position =
-                                                Vector3.Zero().subtract(
-                                                    modelCenter
-                                                );
-
-                                            const radius =
-                                                modelSize.length() * 1.5;
-                                            camera.setPosition(
-                                                new Vector3(
-                                                    0,
-                                                    modelSize.y / 2,
-                                                    -radius
-                                                )
-                                            );
-                                            camera.setTarget(Vector3.Zero());
-                                        }
-                                    })
-                                    .catch((error) => {
-                                        console.error(
-                                            "GLBファイルのロードに失敗:",
-                                            error
-                                        );
-                                        URL.revokeObjectURL(url);
-                                    });
+                                setupUploadScene(scene, modelData);
                             }}
                             id="upload-preview"
                             className="w-full h-full"
