@@ -14,4 +14,5 @@ export interface Warehouse {
 export interface ModalProps {
     warehouse: Warehouse;
     onClose: () => void;
+    onDelete: (id: bigint) => void;
 }

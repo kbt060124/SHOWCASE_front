@@ -6,7 +6,7 @@ import ModelViewer from "./ModelViewer";
 import Form from "./Form";
 import api from "../../axios";
 
-const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
+const Modal: React.FC<ModalProps> = ({ warehouse, onClose, onDelete }) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [thumbnail, setThumbnail] = useState<File | null>(null);
 
@@ -52,6 +52,25 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
         }
     };
 
+    const handleDelete = async () => {
+        if (!window.confirm("このアイテムを削除してもよろしいですか？")) {
+            return;
+        }
+
+        try {
+            const response = await api.delete(
+                `/api/item/destroy/${warehouse.id}`
+            );
+            if (response.status === 200) {
+                onDelete(warehouse.id); // 親コンポーネントに削除を通知
+                onClose(); // モーダルを閉じる
+            }
+        } catch (error) {
+            console.error("削除に失敗しました:", error);
+            alert("削除に失敗しました");
+        }
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
             <div className="bg-white p-3 sm:p-4 rounded-lg w-full max-h-[95vh] flex flex-col relative">
@@ -73,6 +92,7 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose }) => {
                         <InfoPanel
                             warehouse={warehouse}
                             onEdit={() => setIsEditMode(true)}
+                            onDelete={handleDelete}
                         />
                     )}
                 </div>

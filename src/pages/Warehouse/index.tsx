@@ -103,6 +103,12 @@ function Warehouse() {
         }
     };
 
+    const handleDelete = (deletedId: bigint) => {
+        setWarehouses(prevWarehouses => 
+            prevWarehouses.filter(warehouse => warehouse.id !== deletedId)
+        );
+    };
+
     return (
         <div className="container mx-auto px-4">
             <div className="flex justify-between item-center mb-4">
@@ -141,7 +147,11 @@ function Warehouse() {
             </div>
 
             {selectedWarehouse && (
-                <Modal warehouse={selectedWarehouse} onClose={closeModal} />
+                <Modal 
+                    warehouse={selectedWarehouse} 
+                    onClose={closeModal}
+                    onDelete={handleDelete}
+                />
             )}
 
             {uploadFile && (
