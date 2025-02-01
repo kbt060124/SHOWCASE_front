@@ -1,0 +1,17 @@
+version: 1
+frontend:
+    phases:
+        preBuild:
+            commands:
+                - npm ci
+        build:
+            commands:
+                - for vars in $(env | grep -e "^VITE_"); do echo "Setting $vars"; done
+                - npm run build
+    artifacts:
+        baseDirectory: dist
+        files:
+            - "**/*"
+    cache:
+        paths:
+            - node_modules/**/*
