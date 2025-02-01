@@ -9,6 +9,7 @@ import {
     Engine,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
+import { setupUploadScene } from "../../../utils/sceneSetup";
 
 interface PreviewProps {
     file: File;
@@ -100,105 +101,7 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
                             onSceneReady={(scene) => {
                                 console.log("Scene ready:", scene);
                                 sceneRef.current = scene;
-
-                                const camera = new ArcRotateCamera(
-                                    "camera",
-                                    Math.PI / 2,
-                                    Math.PI / 2.5,
-                                    10,
-                                    Vector3.Zero(),
-                                    scene
-                                );
-                                camera.minZ = 0.1;
-                                camera.wheelPrecision = 100;
-                                camera.lowerRadiusLimit = 0.5;
-                                camera.upperRadiusLimit = 2;
-                                camera.pinchPrecision = 50;
-                                camera.panningSensibility = 0;
-                                camera.attachControl(
-                                    scene.getEngine().getRenderingCanvas(),
-                                    true
-                                );
-
-                                new HemisphericLight(
-                                    "light",
-                                    new Vector3(0, 1, 0),
-                                    scene
-                                );
-
-                                const blob = new Blob([modelData], {
-                                    type: "model/gltf-binary",
-                                });
-                                const url = URL.createObjectURL(blob);
-
-                                SceneLoader.LoadAssetContainerAsync(
-                                    "",
-                                    url,
-                                    scene,
-                                    null,
-                                    ".glb"
-                                )
-                                    .then((container) => {
-                                        container.addAllToScene();
-                                        URL.revokeObjectURL(url);
-
-                                        const rootMesh = container.meshes[0];
-                                        if (rootMesh) {
-                                            const boundingInfo =
-                                                rootMesh.getHierarchyBoundingVectors(
-                                                    true
-                                                );
-                                            const modelSize =
-                                                boundingInfo.max.subtract(
-                                                    boundingInfo.min
-                                                );
-                                            const maxAllowedSize = 1;
-                                            const scale =
-                                                maxAllowedSize /
-                                                Math.max(
-                                                    modelSize.x,
-                                                    modelSize.y,
-                                                    modelSize.z
-                                                );
-                                            rootMesh.scaling = new Vector3(
-                                                scale,
-                                                scale,
-                                                scale
-                                            );
-
-                                            const scaledBoundingInfo =
-                                                rootMesh.getHierarchyBoundingVectors(
-                                                    true
-                                                );
-                                            const modelCenter =
-                                                scaledBoundingInfo.min.add(
-                                                    scaledBoundingInfo.max
-                                                        .subtract(
-                                                            scaledBoundingInfo.min
-                                                        )
-                                                        .scale(0.5)
-                                                );
-
-                                            rootMesh.position = new Vector3(
-                                                0,
-                                                -modelCenter.y,
-                                                0
-                                            );
-
-                                            const radius = 2;
-                                            camera.setPosition(
-                                                new Vector3(0, 0, -radius)
-                                            );
-                                            camera.setTarget(Vector3.Zero());
-                                        }
-                                    })
-                                    .catch((error) => {
-                                        console.error(
-                                            "GLBファイルのロードに失敗:",
-                                            error
-                                        );
-                                        URL.revokeObjectURL(url);
-                                    });
+                                setupUploadScene(scene, modelData);
                             }}
                             id="upload-preview"
                             className="w-full h-full"
