@@ -6,7 +6,12 @@ import ModelViewer from "./ModelViewer";
 import Form from "./Form";
 import api from "../../axios";
 
-const Modal: React.FC<ModalProps> = ({ warehouse, onClose, onDelete }) => {
+const Modal: React.FC<ModalProps> = ({
+    warehouse,
+    onClose,
+    onDelete,
+    onUpdate,
+}) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [thumbnail, setThumbnail] = useState<File | null>(null);
 
@@ -24,12 +29,6 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose, onDelete }) => {
                 submitData.append("thumbnail", formData.thumbnail);
             }
 
-            // FormDataの内容を確認
-            console.log("FormData contents:");
-            for (const pair of submitData.entries()) {
-                console.log(pair[0], pair[1]);
-            }
-
             const response = await api.post(
                 `/api/item/update/${warehouse.id}`,
                 submitData,
@@ -40,15 +39,14 @@ const Modal: React.FC<ModalProps> = ({ warehouse, onClose, onDelete }) => {
                 }
             );
 
-            console.log("API Response:", response.data);
-
-            if (response.data.success) {
+            if (response.status === 200) {
+                onUpdate(response.data.item); // 更新されたデータを親コンポーネントに渡す
                 setIsEditMode(false);
-                onClose(); // モーダルを閉じる
-                window.location.reload(); // 画面を更新
+                onClose();
             }
         } catch (error) {
             console.error("更新に失敗しました:", error);
+            alert("更新に失敗しました");
         }
     };
 
