@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../utils/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 
 const Register = () => {
@@ -73,7 +73,9 @@ const Register = () => {
                                 className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                                 placeholder="パスワード（確認）"
                                 value={passwordConfirmation}
-                                onChange={(e) => setPasswordConfirmation(e.target.value)}
+                                onChange={(e) =>
+                                    setPasswordConfirmation(e.target.value)
+                                }
                             />
                         </div>
                     </div>
@@ -89,7 +91,10 @@ const Register = () => {
                     </div>
 
                     <div className="text-sm text-center">
-                        <Link to="/login" className="font-medium text-indigo-600 hover:text-indigo-500">
+                        <Link
+                            to="/login"
+                            className="font-medium text-indigo-600 hover:text-indigo-500"
+                        >
                             すでにアカウントをお持ちの方はこちら
                         </Link>
                     </div>
@@ -99,4 +104,4 @@ const Register = () => {
     );
 };
 
-export default Register; 
+export default Register;

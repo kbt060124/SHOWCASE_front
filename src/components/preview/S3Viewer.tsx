@@ -1,16 +1,28 @@
 import React, { useRef } from "react";
-import SceneComponent from "../SceneComponent";
-import { setupWarehouseScene } from "../../utils/sceneSetup";
-import { type Warehouse } from "./types";
+import SceneComponent from "@/components/SceneComponent";
+import { setupWarehouseScene } from "@/utils/sceneSetup";
 import { Scene, Engine } from "@babylonjs/core";
 
-interface ModelViewerProps {
+interface Warehouse {
+    id: bigint;
+    name: string;
+    item_id: bigint;
+    user_id: bigint;
+    thumbnail: string;
+    memo: string | null;
+    total_size: number;
+    filename: string;
+    created_at: string | null;
+    updated_at: string | null;
+}
+
+interface S3ViewerProps {
     warehouse: Warehouse;
     isEditMode?: boolean;
     onCaptureScreenshot?: (screenshot: File) => void;
 }
 
-const ModelViewer: React.FC<ModelViewerProps> = ({
+const S3Viewer: React.FC<S3ViewerProps> = ({
     warehouse,
     isEditMode = false,
     onCaptureScreenshot,
@@ -95,4 +107,4 @@ const ModelViewer: React.FC<ModelViewerProps> = ({
     );
 };
 
-export default ModelViewer;
+export default S3Viewer;

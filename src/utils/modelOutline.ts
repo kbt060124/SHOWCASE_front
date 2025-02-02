@@ -1,7 +1,17 @@
-import { Scene, AbstractMesh, Color3, ActionManager, ExecuteCodeAction, PointerInfo, PointerEventTypes, Mesh, HighlightLayer } from "@babylonjs/core";
+import {
+    Scene,
+    AbstractMesh,
+    Color3,
+    ActionManager,
+    ExecuteCodeAction,
+    PointerInfo,
+    PointerEventTypes,
+    Mesh,
+    HighlightLayer,
+} from "@babylonjs/core";
 
 // 選択状態の型定義
-export interface ModelSelection {
+interface ModelSelection {
     mesh: Mesh;
     rootMesh: AbstractMesh;
 }
@@ -34,7 +44,7 @@ export const setupModelOutline = (scene: Scene, meshes: AbstractMesh[]) => {
     const rootMesh = meshes[0];
 
     // メッシュのクリックイベント設定
-    meshes.forEach(mesh => {
+    meshes.forEach((mesh) => {
         if (!(mesh instanceof Mesh)) return;
 
         if (!mesh.actionManager) {
@@ -45,28 +55,28 @@ export const setupModelOutline = (scene: Scene, meshes: AbstractMesh[]) => {
         mesh.actionManager.actions = [];
 
         mesh.actionManager.registerAction(
-            new ExecuteCodeAction(
-                ActionManager.OnPickTrigger,
-                () => {
-                    if (!globalHighlightLayer || !isHighlightLayerActive) return;
+            new ExecuteCodeAction(ActionManager.OnPickTrigger, () => {
+                if (!globalHighlightLayer || !isHighlightLayerActive) return;
 
-                    // 同じメッシュをクリックした場合は選択解除
-                    if (currentSelection?.mesh === mesh) {
-                        clearSelection();
-                        return;
-                    }
-
-                    // 前回選択されていたメッシュのハイライトを削除
-                    globalHighlightLayer.removeAllMeshes();
-
-                    // 新しいメッシュを選択してハイライト
-                    currentSelection = {
-                        mesh: mesh as Mesh,
-                        rootMesh: rootMesh
-                    };
-                    globalHighlightLayer.addMesh(mesh as Mesh, new Color3(0, 1.0, 0));
+                // 同じメッシュをクリックした場合は選択解除
+                if (currentSelection?.mesh === mesh) {
+                    clearSelection();
+                    return;
                 }
-            )
+
+                // 前回選択されていたメッシュのハイライトを削除
+                globalHighlightLayer.removeAllMeshes();
+
+                // 新しいメッシュを選択してハイライト
+                currentSelection = {
+                    mesh: mesh as Mesh,
+                    rootMesh: rootMesh,
+                };
+                globalHighlightLayer.addMesh(
+                    mesh as Mesh,
+                    new Color3(0, 1.0, 0)
+                );
+            })
         );
     });
 
@@ -74,11 +84,13 @@ export const setupModelOutline = (scene: Scene, meshes: AbstractMesh[]) => {
     scene.onPointerObservable.add((pointerInfo: PointerInfo) => {
         if (pointerInfo.type === PointerEventTypes.POINTERDOWN) {
             const mesh = pointerInfo.pickInfo?.pickedMesh;
-            if (!mesh || 
-                mesh.name.includes("Wall") || 
-                mesh.name.includes("floor") || 
-                mesh.name.includes("Floor") || 
-                mesh.name.includes("ceiling")) {
+            if (
+                !mesh ||
+                mesh.name.includes("Wall") ||
+                mesh.name.includes("floor") ||
+                mesh.name.includes("Floor") ||
+                mesh.name.includes("ceiling")
+            ) {
                 clearSelection();
             }
         }

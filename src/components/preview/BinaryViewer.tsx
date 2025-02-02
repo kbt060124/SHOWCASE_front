@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from "react";
-import SceneComponent from "../../SceneComponent";
-import {
-    Scene,
-    Engine,
-} from "@babylonjs/core";
+import SceneComponent from "@/components/SceneComponent";
+import { Scene, Engine } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-import { setupUploadScene } from "../../../utils/sceneSetup";
+import { setupUploadScene } from "../../utils/sceneSetup";
 
-interface PreviewProps {
+interface BinaryViewerProps {
     file: File;
     onCaptureScreenshot: (screenshot: File) => void;
 }
 
-const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
+const BinaryViewer: React.FC<BinaryViewerProps> = ({
+    file,
+    onCaptureScreenshot,
+}) => {
     const [modelData, setModelData] = useState<ArrayBuffer | null>(null);
     const sceneRef = React.useRef<Scene | null>(null);
 
@@ -109,4 +109,4 @@ const Preview: React.FC<PreviewProps> = ({ file, onCaptureScreenshot }) => {
     );
 };
 
-export default Preview;
+export default BinaryViewer;

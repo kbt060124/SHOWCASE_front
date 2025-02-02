@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useAuth } from "../../hooks/useAuth";
+import { useAuth } from "../../../utils/useAuth";
 import { useNavigate, Link } from "react-router-dom";
 
 const Login = () => {

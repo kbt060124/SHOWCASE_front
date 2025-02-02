@@ -5,17 +5,17 @@ import {
     Route,
     Navigate,
 } from "react-router-dom";
-import Home from "./pages/Home";
-import Studio from "./pages/Studio";
-import Warehouse from "./pages/Warehouse";
-import Profile from "./pages/Profile";
-import CreateProfile from "./pages/Profile/Create";
-import Mainstage from "./pages/Mainstage";
-import Login from "./components/Auth/Login";
-import Register from "./components/Auth/Register";
-import { useAuth } from "./hooks/useAuth";
-import "./App.css";
-import api from "./axios";
+import Home from "@/pages/home";
+import Studio from "@/pages/studio";
+import Warehouse from "@/pages/warehouse";
+import Profile from "@/pages/profile";
+import CreateProfile from "@/pages/profile/Create";
+import Mainstage from "@/pages/mainstage";
+import Login from "@/pages/auth/login";
+import Register from "@/pages/auth/register";
+import { useAuth } from "@/utils/useAuth";
+import "@/App.css";
+import api from "@/utils/axios";
 
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {

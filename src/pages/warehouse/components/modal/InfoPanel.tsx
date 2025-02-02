@@ -1,5 +1,17 @@
 import React from "react";
-import { Warehouse } from "./types";
+
+interface Warehouse {
+    id: bigint;
+    name: string;
+    item_id: bigint;
+    user_id: bigint;
+    thumbnail: string;
+    memo: string | null;
+    total_size: number;
+    filename: string;
+    created_at: string | null;
+    updated_at: string | null;
+}
 
 interface InfoPanelProps {
     warehouse: Warehouse;

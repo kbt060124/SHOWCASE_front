@@ -1,32 +1,32 @@
 import React, { useEffect } from "react";
-import { Warehouse } from "./types";
 
-interface FormProps {
-    warehouse: Warehouse;
-    onSubmit: (data: {
-        name: string;
-        memo: string;
-        thumbnail: File | null;
-    }) => void;
+interface UploadFormData {
+    name: string;
+    memo: string;
     thumbnail: File | null;
-    onCancel: () => void;
 }
 
-const Form: React.FC<FormProps> = ({
-    warehouse,
-    onSubmit,
-    thumbnail,
-    onCancel,
-}) => {
-    const [name, setName] = React.useState(warehouse.name);
-    const [memo, setMemo] = React.useState(warehouse.memo || "");
+interface FormProps {
+    initialName: string;
+    onSubmit: (data: UploadFormData) => void;
+    thumbnail: File | null;
+}
+
+const Form: React.FC<FormProps> = ({ initialName, onSubmit, thumbnail }) => {
+    const [name, setName] = React.useState(initialName);
+    const [memo, setMemo] = React.useState("");
     const [thumbnailUrl, setThumbnailUrl] = React.useState<string | null>(null);
 
     useEffect(() => {
+        console.log("Thumbnail changed:", thumbnail);
         if (thumbnail) {
             const url = URL.createObjectURL(thumbnail);
+            console.log("Created thumbnail URL:", url);
             setThumbnailUrl(url);
-            return () => URL.revokeObjectURL(url);
+            return () => {
+                console.log("Cleaning up URL:", url);
+                URL.revokeObjectURL(url);
+            };
         }
     }, [thumbnail]);
 
@@ -40,20 +40,17 @@ const Form: React.FC<FormProps> = ({
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                     <h3 className="font-semibold text-gray-700">サムネイル</h3>
-                    {thumbnailUrl ? (
+                    {thumbnailUrl && (
                         <img
                             src={thumbnailUrl}
-                            alt="新しいサムネイル"
+                            alt="サムネイルプレビュー"
                             className="mt-1 sm:mt-2 w-full rounded-md"
                         />
-                    ) : (
-                        <img
-                            src={`${import.meta.env.VITE_S3_URL}/warehouse/${
-                                warehouse.user_id
-                            }/${warehouse.id}/${warehouse.thumbnail}`}
-                            alt="現在のサムネイル"
-                            className="mt-1 sm:mt-2 w-full rounded-md"
-                        />
+                    )}
+                    {!thumbnailUrl && (
+                        <p className="mt-1 sm:mt-2 text-sm text-gray-500">
+                            3Dモデルのプレビューから設定してください
+                        </p>
                     )}
                 </div>
                 <div>
@@ -75,21 +72,12 @@ const Form: React.FC<FormProps> = ({
                         rows={4}
                     />
                 </div>
-                <div className="flex gap-2">
-                    <button
-                        type="submit"
-                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                    >
-                        更新
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
-                    >
-                        キャンセル
-                    </button>
-                </div>
+                <button
+                    type="submit"
+                    className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                >
+                    アップロード
+                </button>
             </form>
         </div>
     );

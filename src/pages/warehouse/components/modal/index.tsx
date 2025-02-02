@@ -1,10 +1,29 @@
 import React, { useState } from "react";
-import { ModalProps } from "./types";
-import CloseButton from "./CloseButton";
-import InfoPanel from "./InfoPanel";
-import ModelViewer from "./ModelViewer";
-import Form from "./Form";
-import api from "../../axios";
+import CloseButton from "@/pages/warehouse/components/modal/CloseButton";
+import InfoPanel from "@/pages/warehouse/components/modal/InfoPanel";
+import S3Viewer from "@/components/preview/S3Viewer";
+import Form from "@/pages/warehouse/components/modal/Form";
+import api from "@/utils/axios";
+
+interface Warehouse {
+    id: bigint;
+    name: string;
+    item_id: bigint;
+    user_id: bigint;
+    thumbnail: string;
+    memo: string | null;
+    total_size: number;
+    filename: string;
+    created_at: string | null;
+    updated_at: string | null;
+}
+
+interface ModalProps {
+    warehouse: Warehouse;
+    onClose: () => void;
+    onDelete: (id: bigint) => void;
+    onUpdate: (updatedWarehouse: Warehouse) => void;
+}
 
 const Modal: React.FC<ModalProps> = ({
     warehouse,
@@ -74,7 +93,7 @@ const Modal: React.FC<ModalProps> = ({
             <div className="bg-white p-3 sm:p-4 rounded-lg w-full max-h-[95vh] flex flex-col relative">
                 <CloseButton onClose={onClose} />
                 <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
-                    <ModelViewer
+                    <S3Viewer
                         warehouse={warehouse}
                         isEditMode={isEditMode}
                         onCaptureScreenshot={setThumbnail}

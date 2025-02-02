@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import api from "../axios";
+import api from "@/utils/axios";
 import Cookies from "js-cookie";
 
 interface User {

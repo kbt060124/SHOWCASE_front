@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import api from "../../axios";
+import api from "@/utils/axios";
 import ImageCropper from "./components/ImageCropper";
 
 interface Profile {
@@ -105,7 +105,11 @@ function Profile() {
             formData.append("introduction", editForm.introduction);
 
             if (editForm.user_thumbnail) {
-                formData.append("user_thumbnail", editForm.user_thumbnail, "profile.jpg");
+                formData.append(
+                    "user_thumbnail",
+                    editForm.user_thumbnail,
+                    "profile.jpg"
+                );
             }
 
             const response = await api.post(
