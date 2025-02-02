@@ -1,10 +1,6 @@
 import React, { useEffect, useState } from "react";
 import SceneComponent from "../../SceneComponent";
 import {
-    SceneLoader,
-    ArcRotateCamera,
-    Vector3,
-    HemisphericLight,
     Scene,
     Engine,
 } from "@babylonjs/core";
