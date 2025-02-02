@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import Home from "@/pages/home";
 import Studio from "@/pages/studio";
 import Warehouse from "@/pages/warehouse";
 import Profile from "@/pages/profile";
@@ -57,14 +56,6 @@ function App() {
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <Home />
-                        </ProtectedRoute>
-                    }
-                />
                 <Route
                     path="/studio/:room_id"
                     element={
