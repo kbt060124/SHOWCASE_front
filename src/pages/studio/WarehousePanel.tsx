@@ -1,8 +1,20 @@
 import React, { useEffect, useState } from "react";
-import api from "../../axios";
-import { type Warehouse } from "../../components/Modal/types";
+import api from "@/utils/axios";
 import CloseIcon from "@mui/icons-material/Close";
-import ModelViewer from "../../components/Modal/ModelViewer";
+import S3Viewer from "../../components/preview/S3Viewer";
+
+interface Warehouse {
+    id: bigint;
+    name: string;
+    item_id: bigint;
+    user_id: bigint;
+    thumbnail: string;
+    memo: string | null;
+    total_size: number;
+    filename: string;
+    created_at: string | null;
+    updated_at: string | null;
+}
 
 interface WarehousePanelProps {
     onModelSelect: (modelPath: string, itemId: bigint) => void;
@@ -77,7 +89,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
             </div>
             {selectedWarehouse && (
                 <div className="mb-4 h-[300px]">
-                    <ModelViewer warehouse={selectedWarehouse} />
+                    <S3Viewer warehouse={selectedWarehouse} />
                 </div>
             )}
             <div className="grid grid-cols-4 gap-4 overflow-y-auto flex-1">

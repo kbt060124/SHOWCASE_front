@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
-import api from "../../axios";
+import { useAuth } from "../../utils/useAuth";
+import api from "@/utils/axios";
 
 interface CreateProfileForm {
     nickname: string;

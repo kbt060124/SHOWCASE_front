@@ -1,9 +1,23 @@
 import { useEffect, useState } from "react";
-import api from "../../axios";
-import Modal from "../../components/Modal";
-import UploadModal from "../../components/Modal/Upload";
-import { useAuth } from "../../hooks/useAuth";
-import { type Warehouse } from "../../components/Modal/types";
+import S3Viewer from "@/components/preview/S3Viewer";
+import BinaryViewer from "@/components/preview/BinaryViewer";
+import UploadForm from "@/pages/warehouse/components/upload";
+import Modal from "@/pages/warehouse/components/modal";
+import { useAuth } from "@/utils/useAuth";
+import api from "@/utils/axios";
+
+interface Warehouse {
+    id: bigint;
+    name: string;
+    item_id: bigint;
+    user_id: bigint;
+    thumbnail: string;
+    memo: string | null;
+    total_size: number;
+    filename: string;
+    created_at: string | null;
+    updated_at: string | null;
+}
 
 function getCookie(name: string): string {
     const value = `; ${document.cookie}`;
@@ -177,7 +191,7 @@ function Warehouse() {
             )}
 
             {uploadFile && (
-                <UploadModal
+                <UploadForm
                     isOpen={isUploadPreviewOpen}
                     onClose={() => setIsUploadPreviewOpen(false)}
                     file={uploadFile}

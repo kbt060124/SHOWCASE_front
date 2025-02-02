@@ -1,27 +1,44 @@
 import React, { useEffect } from "react";
-import { UploadFormData } from "./types";
 
-interface FormProps {
-    initialName: string;
-    onSubmit: (data: UploadFormData) => void;
-    thumbnail: File | null;
+interface Warehouse {
+    id: bigint;
+    name: string;
+    item_id: bigint;
+    user_id: bigint;
+    thumbnail: string;
+    memo: string | null;
+    total_size: number;
+    filename: string;
+    created_at: string | null;
+    updated_at: string | null;
 }
 
-const Form: React.FC<FormProps> = ({ initialName, onSubmit, thumbnail }) => {
-    const [name, setName] = React.useState(initialName);
-    const [memo, setMemo] = React.useState("");
+interface FormProps {
+    warehouse: Warehouse;
+    onSubmit: (data: {
+        name: string;
+        memo: string;
+        thumbnail: File | null;
+    }) => void;
+    thumbnail: File | null;
+    onCancel: () => void;
+}
+
+const Form: React.FC<FormProps> = ({
+    warehouse,
+    onSubmit,
+    thumbnail,
+    onCancel,
+}) => {
+    const [name, setName] = React.useState(warehouse.name);
+    const [memo, setMemo] = React.useState(warehouse.memo || "");
     const [thumbnailUrl, setThumbnailUrl] = React.useState<string | null>(null);
 
     useEffect(() => {
-        console.log("Thumbnail changed:", thumbnail);
         if (thumbnail) {
             const url = URL.createObjectURL(thumbnail);
-            console.log("Created thumbnail URL:", url);
             setThumbnailUrl(url);
-            return () => {
-                console.log("Cleaning up URL:", url);
-                URL.revokeObjectURL(url);
-            };
+            return () => URL.revokeObjectURL(url);
         }
     }, [thumbnail]);
 
@@ -35,17 +52,20 @@ const Form: React.FC<FormProps> = ({ initialName, onSubmit, thumbnail }) => {
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                     <h3 className="font-semibold text-gray-700">サムネイル</h3>
-                    {thumbnailUrl && (
+                    {thumbnailUrl ? (
                         <img
                             src={thumbnailUrl}
-                            alt="サムネイルプレビュー"
+                            alt="新しいサムネイル"
                             className="mt-1 sm:mt-2 w-full rounded-md"
                         />
-                    )}
-                    {!thumbnailUrl && (
-                        <p className="mt-1 sm:mt-2 text-sm text-gray-500">
-                            3Dモデルのプレビューから設定してください
-                        </p>
+                    ) : (
+                        <img
+                            src={`${import.meta.env.VITE_S3_URL}/warehouse/${
+                                warehouse.user_id
+                            }/${warehouse.id}/${warehouse.thumbnail}`}
+                            alt="現在のサムネイル"
+                            className="mt-1 sm:mt-2 w-full rounded-md"
+                        />
                     )}
                 </div>
                 <div>
@@ -67,12 +87,21 @@ const Form: React.FC<FormProps> = ({ initialName, onSubmit, thumbnail }) => {
                         rows={4}
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                >
-                    アップロード
-                </button>
+                <div className="flex gap-2">
+                    <button
+                        type="submit"
+                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
+                    >
+                        更新
+                    </button>
+                    <button
+                        type="button"
+                        onClick={onCancel}
+                        className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
+                    >
+                        キャンセル
+                    </button>
+                </div>
             </form>
         </div>
     );

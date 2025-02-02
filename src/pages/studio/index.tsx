@@ -1,14 +1,31 @@
 import React, { useState, useCallback, FC } from "react";
-import SceneComponent from "../../components/SceneComponent";
-import {
-    studioSceneSetup,
-    studioItemSetup,
-} from "../../utils/studioSceneSetup";
+import SceneComponent from "@/components/SceneComponent";
+import { studioSceneSetup, studioItemSetup } from "@/utils/studioSceneSetup";
 import { Scene, Tags, Quaternion, Vector3 } from "@babylonjs/core";
-import WarehousePanel from "./WarehousePanel";
-import { SavedMeshData } from "./room";
-import api from "../../axios";
+import WarehousePanel from "@/pages/studio/WarehousePanel";
+import api from "@/utils/axios";
 import { useParams } from "react-router-dom";
+
+interface SavedMeshData {
+    itemId: number;
+    position: {
+        x: number;
+        y: number;
+        z: number;
+    };
+    rotation: {
+        x: number;
+        y: number;
+        z: number;
+        w: number;
+    };
+    scaling: {
+        x: number;
+        y: number;
+        z: number;
+    };
+    parentIndex: number;
+}
 
 const Studio: FC = () => {
     const { room_id } = useParams<{ room_id: string }>();

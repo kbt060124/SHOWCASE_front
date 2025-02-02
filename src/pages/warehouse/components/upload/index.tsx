@@ -1,9 +1,21 @@
 import React from "react";
-import { UploadModalProps, UploadFormData } from "./types";
-import CloseButton from "../CloseButton";
-import Preview from "./Preview";
-import Form from "./Form";
-import { useAuth } from "../../../hooks/useAuth";
+import CloseButton from "../modal/CloseButton";
+import BinaryViewer from "@/components/preview/BinaryViewer";
+import Form from "@/pages/warehouse/components/upload/Form";
+import { useAuth } from "@/utils/useAuth";
+
+interface UploadModalProps {
+    file: File;
+    isOpen: boolean;
+    onClose: () => void;
+    onSubmit: (formData: FormData) => void;
+}
+
+interface UploadFormData {
+    name: string;
+    memo: string;
+    thumbnail: File | null;
+}
 
 const UploadModal: React.FC<UploadModalProps> = ({
     file,
@@ -58,7 +70,10 @@ const UploadModal: React.FC<UploadModalProps> = ({
             <div className="bg-white p-3 sm:p-4 rounded-lg w-full max-h-[95vh] flex flex-col relative">
                 <CloseButton onClose={onClose} />
                 <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
-                    <Preview file={file} onCaptureScreenshot={setThumbnail} />
+                    <BinaryViewer
+                        file={file}
+                        onCaptureScreenshot={setThumbnail}
+                    />
                     <Form
                         initialName={file.name.replace(".glb", "")}
                         onSubmit={handleSubmit}

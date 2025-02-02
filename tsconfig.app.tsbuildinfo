@@ -1,1 +1,33 @@
-{"root":["./src/App.tsx","./src/axios.ts","./src/main.tsx","./src/vite-env.d.ts","./src/components/SceneComponent.tsx","./src/components/Auth/Login.tsx","./src/components/Auth/Register.tsx","./src/components/Modal/CloseButton.tsx","./src/components/Modal/InfoPanel.tsx","./src/components/Modal/ModelViewer.tsx","./src/components/Modal/index.tsx","./src/components/Modal/types.ts","./src/components/Modal/Upload/Form.tsx","./src/components/Modal/Upload/Preview.tsx","./src/components/Modal/Upload/index.tsx","./src/components/Modal/Upload/types.ts","./src/hooks/useAuth.ts","./src/pages/Home/index.tsx","./src/pages/Mainstage/index.tsx","./src/pages/Profile/Create.tsx","./src/pages/Profile/index.tsx","./src/pages/Studio/WarehousePanel.tsx","./src/pages/Studio/index.tsx","./src/pages/Studio/room.ts","./src/pages/Warehouse/index.tsx","./src/utils/modelOutline.ts","./src/utils/sceneSetup.ts","./src/utils/studioSceneSetup.ts"],"version":"5.6.3"}
+{
+    "root": [
+        "./src/App.tsx",
+        "./src/axios.ts",
+        "./src/main.tsx",
+        "./src/vite-env.d.ts",
+        "./src/components/SceneComponent.tsx",
+        "./src/components/Auth/Login.tsx",
+        "./src/components/Auth/Register.tsx",
+        "./src/components/Modal/CloseButton.tsx",
+        "./src/components/Modal/InfoPanel.tsx",
+        "./src/components/Modal/S3Viewer.tsx",
+        "./src/components/Modal/index.tsx",
+        "./src/components/Modal/types.ts",
+        "./src/components/Modal/Upload/Form.tsx",
+        "./src/components/Modal/Upload/Preview.tsx",
+        "./src/components/Modal/Upload/index.tsx",
+        "./src/components/Modal/Upload/types.ts",
+        "./src/hooks/useAuth.ts",
+        "./src/pages/Home/index.tsx",
+        "./src/pages/Mainstage/index.tsx",
+        "./src/pages/Profile/Create.tsx",
+        "./src/pages/Profile/index.tsx",
+        "./src/pages/Studio/WarehousePanel.tsx",
+        "./src/pages/Studio/index.tsx",
+        "./src/pages/Studio/room.ts",
+        "./src/pages/Warehouse/index.tsx",
+        "./src/utils/modelOutline.ts",
+        "./src/utils/sceneSetup.ts",
+        "./src/utils/studioSceneSetup.ts"
+    ],
+    "version": "5.6.3"
+}

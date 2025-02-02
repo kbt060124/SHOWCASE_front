@@ -15,7 +15,7 @@ import {
     Quaternion,
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
-import api from "../axios";
+import api from "./axios";
 
 // 部屋のセットアップ関数
 const setupRoom = (scene: Scene, roomSize: any) => {
