@@ -3,7 +3,6 @@ import SceneComponent from "@/components/SceneComponent";
 import { Scene, Engine } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 import { setupUploadScene } from "../../utils/sceneSetup";
-import { setupWarehouseScene } from "@/utils/sceneSetup";
 
 interface BinaryViewerProps {
     file: File;
