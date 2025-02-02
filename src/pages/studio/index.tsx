@@ -128,7 +128,7 @@ const Studio: FC = () => {
 
                                 // FormDataの作成と送信を修正
                                 const formData = new FormData();
-                                formData.append("file", file, "thumbnail.png"); // ファイル名を明示的に指定
+                                formData.append("thumbnail", file, "thumbnail.png"); // ファイル名を明示的に指定
 
                                 // FormDataの内容を確認
                                 console.log("FormDataの内容:");

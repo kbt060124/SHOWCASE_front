@@ -379,7 +379,7 @@ function Profile() {
                                 <img
                                     src={`${import.meta.env.VITE_S3_URL}/room/${
                                         user?.id
-                                    }/${room.id}/${room.thumbnail}`}
+                                    }/${room.id}/thumbnail.png`}
                                     alt={`${room.name}のサムネイル`}
                                     className="w-full h-32 object-cover rounded-t-lg"
                                 />
