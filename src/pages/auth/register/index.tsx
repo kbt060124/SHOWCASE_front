@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { useAuth } from "../../../utils/useAuth";
+import { useAuth } from "@/utils/useAuth";
 import { useNavigate, Link } from "react-router-dom";
+import api from "@/utils/axios";
 
 const Register = () => {
     const [name, setName] = useState("");
@@ -19,7 +20,14 @@ const Register = () => {
             password_confirmation: passwordConfirmation,
         });
         if (success) {
-            navigate("/profile/create");
+            try {
+                const { data } = await api.post("api/room/create");
+                if (data.room) {
+                    navigate("/profile/create");
+                }
+            } catch (error) {
+                console.error("ルーム作成エラー:", error);
+            }
         }
     };
 

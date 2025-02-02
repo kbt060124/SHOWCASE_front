@@ -1,19 +1,33 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../utils/useAuth";
 import { useNavigate, Link } from "react-router-dom";
+import api from "@/utils/axios";
 
 const Login = () => {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
-    const { login, loading, error, isAuthenticated } = useAuth();
+    const { login, loading, error, isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
 
     useEffect(() => {
         if (isAuthenticated) {
-            console.log("User is authenticated, redirecting to home");
-            navigate("/", { replace: true });
+            console.log("User is authenticated, redirecting...");
+            const checkProfileAndRedirect = async () => {
+                try {
+                    const { data } = await api.get(`/api/room/${user?.id}`);
+                    if (data.rooms) {
+                        navigate(`/mainstage/${data.rooms[0].id}`, {
+                            replace: true,
+                        });
+                    }
+                } catch (error) {
+                    console.error("ルーム取得エラー:", error);
+                    navigate("/warehose", { replace: true }); // フォールバック
+                }
+            };
+            checkProfileAndRedirect();
         }
-    }, [isAuthenticated, navigate]);
+    }, [isAuthenticated, navigate, user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
