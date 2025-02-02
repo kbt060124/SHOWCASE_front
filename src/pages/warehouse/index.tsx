@@ -1,6 +1,4 @@
 import { useEffect, useState } from "react";
-import S3Viewer from "@/components/preview/S3Viewer";
-import BinaryViewer from "@/components/preview/BinaryViewer";
 import UploadForm from "@/pages/warehouse/components/upload";
 import Modal from "@/pages/warehouse/components/modal";
 import { useAuth } from "@/utils/useAuth";

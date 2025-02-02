@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../utils/useAuth";
 import { useNavigate, Link } from "react-router-dom";
-import api from "@/utils/axios";
-import Cookies from "js-cookie";
 
 const Login = () => {
     const [email, setEmail] = useState("");

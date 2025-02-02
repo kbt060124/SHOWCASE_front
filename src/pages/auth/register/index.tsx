@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useAuth } from "../../../utils/useAuth";
 import { useNavigate, Link } from "react-router-dom";
-import api from "@/utils/axios";
 
 const Register = () => {
     const [name, setName] = useState("");
