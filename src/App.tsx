@@ -37,9 +37,7 @@ const noNavPaths = ["/login", "/register", "/profile/create"];
 function App() {
     const location = useLocation();
     const showNav =
-        !noNavPaths.includes(location.pathname) &&
-        !location.pathname.startsWith("/studio/") &&
-        !location.pathname.startsWith("/mainstage/");
+        !noNavPaths.includes(location.pathname)
 
     useEffect(() => {
         // CSRFトークンを取得
