@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../../axios";
+import ImageCropper from "./components/ImageCropper";
 
 interface Profile {
     nickname: string;
@@ -25,13 +26,22 @@ interface Room {
     thumbnail?: string;
 }
 
+interface EditForm {
+    nickname: string;
+    last_name: string;
+    first_name: string;
+    attribute: string;
+    introduction: string;
+    user_thumbnail?: Blob;
+}
+
 function Profile() {
     const { user_id } = useParams();
     const [user, setUser] = useState<User | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
     const [isEditing, setIsEditing] = useState(false);
-    const [editForm, setEditForm] = useState({
+    const [editForm, setEditForm] = useState<EditForm>({
         nickname: "",
         last_name: "",
         first_name: "",
@@ -40,14 +50,16 @@ function Profile() {
     });
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<User[]>([]);
+    const [selectedImage, setSelectedImage] = useState<string | null>(null);
+    const [isCropping, setIsCropping] = useState(false);
 
     useEffect(() => {
         if (user?.profile) {
             setEditForm({
-                nickname: user.profile.nickname,
-                last_name: user.profile.last_name,
-                first_name: user.profile.first_name,
-                attribute: user.profile.attribute,
+                nickname: user.profile.nickname || "",
+                last_name: user.profile.last_name || "",
+                first_name: user.profile.first_name || "",
+                attribute: user.profile.attribute || "",
                 introduction: user.profile.introduction || "",
             });
         }
@@ -84,11 +96,34 @@ function Profile() {
 
     const handleUpdate = async () => {
         try {
-            const response = await api.put(
+            const formData = new FormData();
+            formData.append("_method", "PUT"); // PUT メソッドをエミュレート
+            formData.append("nickname", editForm.nickname);
+            formData.append("last_name", editForm.last_name);
+            formData.append("first_name", editForm.first_name);
+            formData.append("attribute", editForm.attribute);
+            formData.append("introduction", editForm.introduction);
+
+            if (editForm.user_thumbnail) {
+                formData.append("user_thumbnail", editForm.user_thumbnail, "profile.jpg");
+            }
+
+            const response = await api.post(
                 `/api/profile/update/${user_id}`,
-                editForm
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Accept: "application/json",
+                    },
+                }
             );
-            setUser(response.data);
+
+            // レスポンスの詳細をログ出力
+            console.log("更新レスポンス:", response);
+            console.log("レスポンスデータ:", response.data);
+
+            setUser(response.data.user);
             setIsEditing(false);
         } catch (error) {
             console.error("プロフィールの更新に失敗しました:", error);
@@ -106,6 +141,40 @@ function Profile() {
         }
     };
 
+    const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setSelectedImage(reader.result as string);
+                setIsCropping(true);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleCropComplete = async (croppedBlob: Blob) => {
+        setEditForm((prev) => ({
+            ...prev,
+            user_thumbnail: croppedBlob,
+        }));
+        setIsCropping(false);
+        setSelectedImage(null);
+    };
+
+    const handleEditClick = () => {
+        if (user?.profile) {
+            setEditForm({
+                nickname: user.profile.nickname || "",
+                last_name: user.profile.last_name || "",
+                first_name: user.profile.first_name || "",
+                attribute: user.profile.attribute || "",
+                introduction: user.profile.introduction || "",
+            });
+        }
+        setIsEditing(true);
+    };
+
     if (loading) {
         return <div>読み込み中...</div>;
     }
@@ -117,14 +186,45 @@ function Profile() {
                 <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-6">
-                            <img
-                                src={
-                                    user?.profile.user_thumbnail ||
-                                    "/default-avatar.png"
-                                }
-                                alt="プロフィール画像"
-                                className="w-24 h-24 rounded-full object-cover"
-                            />
+                            <div className="relative">
+                                <img
+                                    src={
+                                        editForm.user_thumbnail
+                                            ? URL.createObjectURL(
+                                                  editForm.user_thumbnail
+                                              )
+                                            : user?.profile.user_thumbnail &&
+                                              user.profile.user_thumbnail !==
+                                                  "default_thumbnail.png"
+                                            ? `${
+                                                  import.meta.env.VITE_S3_URL
+                                              }/user/${user.id}/${
+                                                  user.profile.user_thumbnail
+                                              }`
+                                            : "/default-avatar.png"
+                                    }
+                                    alt="プロフィール画像"
+                                    className="w-24 h-24 rounded-full object-cover"
+                                />
+                                {isEditing && (
+                                    <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2 cursor-pointer hover:bg-blue-600">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageSelect}
+                                        />
+                                        <svg
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            className="h-5 w-5 text-white"
+                                            viewBox="0 0 20 20"
+                                            fill="currentColor"
+                                        >
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                        </svg>
+                                    </label>
+                                )}
+                            </div>
                             <div className="space-y-2">
                                 {isEditing ? (
                                     <>
@@ -235,28 +335,28 @@ function Profile() {
                                 )}
                             </div>
                         </div>
-                        {isEditing ? (
-                            <div className="space-y-2">
+                        {!isEditing ? (
+                            <button
+                                onClick={handleEditClick}
+                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
+                            >
+                                編集
+                            </button>
+                        ) : (
+                            <div className="space-x-2">
                                 <button
-                                    className="block w-full bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
                                     onClick={handleUpdate}
+                                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
                                 >
                                     更新する
                                 </button>
                                 <button
-                                    className="block w-full bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md"
                                     onClick={() => setIsEditing(false)}
+                                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
                                 >
                                     キャンセル
                                 </button>
                             </div>
-                        ) : (
-                            <button
-                                className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md"
-                                onClick={() => setIsEditing(true)}
-                            >
-                                プロフィールを編集
-                            </button>
                         )}
                     </div>
                 </div>
@@ -311,8 +411,15 @@ function Profile() {
                             >
                                 <img
                                     src={
-                                        result.profile?.user_thumbnail ||
-                                        "/default-avatar.png"
+                                        result.profile?.user_thumbnail &&
+                                        result.profile.user_thumbnail !==
+                                            "default_thumbnail.png"
+                                            ? `${
+                                                  import.meta.env.VITE_S3_URL
+                                              }/user/${result.id}/${
+                                                  result.profile.user_thumbnail
+                                              }`
+                                            : "/default-avatar.png"
                                     }
                                     alt={`${result.profile?.nickname}のサムネイル`}
                                     className="w-16 h-16 rounded-full object-cover"
@@ -331,6 +438,18 @@ function Profile() {
                     ))}
                 </div>
             </div>
+
+            {isCropping && (
+                <ImageCropper
+                    image={
+                        selectedImage ||
+                        user?.profile.user_thumbnail ||
+                        "/default-avatar.png"
+                    }
+                    onCropComplete={handleCropComplete}
+                    onCancel={() => setIsCropping(false)}
+                />
+            )}
         </div>
     );
 }
