@@ -87,6 +87,62 @@ const Studio: FC = () => {
         setIsSaving(true);
 
         try {
+            // シーンのキャプチャを取得
+            const engine = sceneRef.getEngine();
+            const canvas = engine.getRenderingCanvas();
+
+            if (canvas) {
+                const originalWidth = canvas.width;
+                const originalHeight = canvas.height;
+
+                // キャプチャ用に一時的にキャンバスサイズを変更
+                canvas.width = 1024;
+                canvas.height = 1024;
+                sceneRef.render();
+
+                // キャプチャの取得と保存を待機
+                await new Promise<void>((resolve) => {
+                    canvas.toBlob(
+                        async (blob) => {
+                            if (blob) {
+                                const file = new File([blob], "thumbnail.png", {
+                                    type: "image/png",
+                                });
+
+                                // FormDataの作成と送信を修正
+                                const formData = new FormData();
+                                formData.append("file", file, "thumbnail.png"); // ファイル名を明示的に指定
+
+                                // FormDataの内容を確認
+                                console.log("FormDataの内容:");
+                                for (const pair of formData.entries()) {
+                                    console.log(pair[0], pair[1]);
+                                }
+
+                                await api.post(
+                                    `/api/room/upload/thumbnail/${room_id}`,
+                                    formData,
+                                    {
+                                        headers: {
+                                            "Content-Type":
+                                                "multipart/form-data",
+                                        },
+                                    }
+                                );
+                            }
+
+                            // キャンバスサイズを元に戻す
+                            canvas.width = originalWidth;
+                            canvas.height = originalHeight;
+                            sceneRef.render();
+                            resolve();
+                        },
+                        "image/png",
+                        0.95
+                    );
+                });
+            }
+
             const meshes = sceneRef.meshes;
             const savedData: SavedMeshData[] = [];
 
