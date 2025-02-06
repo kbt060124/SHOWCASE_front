@@ -71,7 +71,6 @@ function Profile() {
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`/api/profile/${user_id}`);
-                console.log(response.data.user);
                 setUser(response.data.user);
                 setRooms(response.data.rooms);
             } catch (error) {
@@ -127,10 +126,6 @@ function Profile() {
                 }
             );
 
-            // レスポンスの詳細をログ出力
-            console.log("更新レスポンス:", response);
-            console.log("レスポンスデータ:", response.data);
-
             setUser(response.data.user);
             setIsEditing(false);
         } catch (error) {
@@ -178,8 +173,7 @@ function Profile() {
 
     return (
         <div className="min-h-screen bg-white relative pb-20 sm:pb-0">
-            <Header nickname={user?.profile.nickname}/>
-            {/* プロフィールヘッダー */}
+            <Header nickname={user?.profile.nickname} />
             <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
                 <div className="flex items-start space-x-4">
                     {/* プロフィール画像 */}
@@ -224,7 +218,7 @@ function Profile() {
 
                     {/* プロフィール情報 */}
                     <div className="flex-1">
-                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                        <div className="flex justify-between items-center mb-4">
                             <div className="flex items-center space-x-2">
                                 <h1 className="text-xl font-semibold">
                                     {isEditing ? (
@@ -260,26 +254,11 @@ function Profile() {
                                     </button>
                                 )}
                             </div>
-                            {isEditing && (
-                                <div className="hidden sm:flex space-x-2">
-                                    <button
-                                        onClick={handleUpdate}
-                                        className="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600"
-                                    >
-                                        保存
-                                    </button>
-                                    <button
-                                        onClick={() => setIsEditing(false)}
-                                        className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
-                                    >
-                                        キャンセル
-                                    </button>
-                                </div>
-                            )}
                         </div>
-                        <div className="mt-4">
-                            {isEditing ? (
-                                <div className="space-y-2">
+
+                        {isEditing ? (
+                            <>
+                                <div className="space-y-4">
                                     <div className="flex flex-col sm:flex-row sm:space-x-2">
                                         <input
                                             type="text"
@@ -326,76 +305,76 @@ function Profile() {
                                                 introduction: e.target.value,
                                             })
                                         }
-                                        className="w-full border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:outline-none"
-                                        rows={3}
+                                        className="w-full h-24 border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:outline-none"
                                         placeholder="自己紹介"
                                     />
                                 </div>
-                            ) : (
-                                <div className="space-y-2">
-                                    <p className="text-gray-600">
-                                        {`${user?.profile.last_name} ${user?.profile.first_name}`}
+                            </>
+                        ) : (
+                            <div className="space-y-2">
+                                <p className="text-gray-600">
+                                    {`${user?.profile.last_name} ${user?.profile.first_name}`}
+                                </p>
+                                {user?.profile.introduction && (
+                                    <p className="text-gray-700">
+                                        {user.profile.introduction}
                                     </p>
-                                    {user?.profile.introduction && (
-                                        <p className="text-gray-700">
-                                            {user.profile.introduction}
-                                        </p>
-                                    )}
-                                </div>
-                            )}
-                        </div>
+                                )}
+                            </div>
+                        )}
                     </div>
                 </div>
-            </div>
 
-            {/* スマホ表示時の固定ボタン */}
-            {isEditing && (
-                <div className="sm:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4">
-                    <div className="flex space-x-2 max-w-7xl mx-auto">
+                {/* 保存・キャンセルボタン */}
+                {isEditing && (
+                    <div className="flex justify-center space-x-4 my-8">
                         <button
                             onClick={handleUpdate}
-                            className="flex-1 px-4 py-3 bg-blue-500 text-white rounded-md hover:bg-blue-600"
+                            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-32"
                         >
                             保存
                         </button>
                         <button
                             onClick={() => setIsEditing(false)}
-                            className="flex-1 px-4 py-3 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 w-32"
                         >
                             キャンセル
                         </button>
                     </div>
-                </div>
-            )}
+                )}
 
-            {/* ギャラリーグリッド */}
-            <div className="mt-8 grid grid-cols-3 gap-1">
-                {/* 実際の部屋 */}
-                {rooms.map((room) => (
-                    <div key={room.id} className="aspect-square relative group">
-                        <a href={`/mainstage/${room.id}`}>
+                {/* ギャラリーグリッド */}
+                <div className="mt-8 grid grid-cols-3 gap-1">
+                    {/* 実際の部屋 */}
+                    {rooms.map((room) => (
+                        <div
+                            key={room.id}
+                            className="aspect-square relative group"
+                        >
+                            <a href={`/mainstage/${room.id}`}>
+                                <img
+                                    src={`${import.meta.env.VITE_S3_URL}/room/${
+                                        user?.id
+                                    }/${room.id}/thumbnail.png`}
+                                    alt={`${room.name}のサムネイル`}
+                                    className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                            </a>
+                        </div>
+                    ))}
+
+                    {/* ダミーの部屋 */}
+                    {dummyRooms.map((dummy) => (
+                        <div key={dummy.id} className="aspect-square relative">
                             <img
-                                src={`${import.meta.env.VITE_S3_URL}/room/${
-                                    user?.id
-                                }/${room.id}/thumbnail.png`}
-                                alt={`${room.name}のサムネイル`}
+                                src={`/images/room/coming_soon${dummy.imageNumber}.png`}
+                                alt="Coming Soon"
                                 className="w-full h-full object-cover"
                             />
-                            <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                        </a>
-                    </div>
-                ))}
-
-                {/* ダミーの部屋 */}
-                {dummyRooms.map((dummy) => (
-                    <div key={dummy.id} className="aspect-square relative">
-                        <img
-                            src={`/images/room/coming_soon${dummy.imageNumber}.png`}
-                            alt="Coming Soon"
-                            className="w-full h-full object-cover"
-                        />
-                    </div>
-                ))}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {isCropping && (
