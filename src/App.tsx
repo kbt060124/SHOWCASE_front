@@ -52,7 +52,7 @@ function App() {
     }, []);
 
     return (
-        <div className="pb-16">
+        <div>
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
