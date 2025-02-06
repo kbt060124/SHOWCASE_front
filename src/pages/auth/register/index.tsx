@@ -6,22 +6,22 @@ import api from "@/utils/axios";
 
 const Register = () => {
     const [step, setStep] = useState(1);
-    const [lastName, setLastName] = useState("");
-    const [firstName, setFirstName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [passwordConfirmation, setPasswordConfirmation] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
+    const [showPasswordConfirmation, setShowPasswordConfirmation] =
+        useState(false);
     const [username, setUsername] = useState("");
+    const [lastName, setLastName] = useState("");
+    const [firstName, setFirstName] = useState("");
     const [dateOfBirth, setDateOfBirth] = useState("");
+    const [gender, setGender] = useState("");
     const [interests, setInterests] = useState("");
     const [introduction, setIntroduction] = useState("");
     const [error, setError] = useState<string | null>(null);
     const { register, loading } = useAuth();
     const navigate = useNavigate();
-    const [showPassword, setShowPassword] = useState(false);
-    const [showPasswordConfirmation, setShowPasswordConfirmation] =
-        useState(false);
-    const [gender, setGender] = useState("");
 
     const handleNext = () => {
         const error = validateStep1();
@@ -33,89 +33,8 @@ const Register = () => {
         setStep(2);
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-
-        if (step === 1) {
-            handleNext();
-            return;
-        }
-
-        const error = validateStep2();
-        if (error) {
-            setError(error);
-            return;
-        }
-        setError(null);
-
-        try {
-            const registerResult = await register({
-                email,
-                password,
-                password_confirmation: passwordConfirmation,
-            }).catch((err) => {
-                throw err;
-            });
-
-            if (!registerResult) {
-                setError("登録処理に失敗しました");
-                return;
-            }
-
-            if (registerResult.success && registerResult.user) {
-                const profileData = {
-                    nickname: username,
-                    last_name: lastName,
-                    first_name: firstName,
-                    birthday: dateOfBirth,
-                    introduction: introduction,
-                    attribute: interests,
-                    gender: gender,
-                };
-
-                try {
-                    const response = await api.post(
-                        `/api/profile/create/${registerResult.user.id}`,
-                        profileData
-                    );
-
-                    if (response.status === 201) {
-                        try {
-                            const { data } = await api.post("api/room/create");
-                            if (data.room) {
-                                try {
-                                    const roomResponse = await api.get(
-                                        `/api/room/${registerResult.user.id}`
-                                    );
-                                    if (roomResponse.data.rooms) {
-                                        navigate(
-                                            `/mainstage/${roomResponse.data.rooms[0].id}`
-                                        );
-                                    }
-                                } catch (error) {
-                                    setError("ルーム情報の取得に失敗しました");
-                                }
-                            }
-                        } catch (error) {
-                            setError("ルームの作成に失敗しました");
-                        }
-                    }
-                } catch (error) {
-                    setError("プロフィールの作成に失敗しました");
-                }
-            } else {
-                setError(
-                    "ユーザー登録に失敗しました。詳細: " +
-                        JSON.stringify(registerResult)
-                );
-            }
-        } catch (error: any) {
-            setError(
-                error.response?.data?.message ||
-                    error.message ||
-                    "アカウントの作成に失敗しました"
-            );
-        }
+    const handleBack = () => {
+        setStep(1);
     };
 
     const validateStep1 = () => {
@@ -156,8 +75,83 @@ const Register = () => {
         return null;
     };
 
-    const handleBack = () => {
-        setStep(1);
+    const createProfile = async (userId: number, profileData: any) => {
+        const response = await api.post(
+            `/api/profile/create/${userId}`,
+            profileData
+        );
+        if (response.status !== 201) {
+            throw new Error("プロフィールの作成に失敗しました");
+        }
+    };
+
+    const createAndGetRoom = async (userId: number) => {
+        const { data } = await api.post("api/room/create");
+        if (!data.room) {
+            throw new Error("ルームの作成に失敗しました");
+        }
+
+        const roomResponse = await api.get(`/api/room/${userId}`);
+        if (!roomResponse.data.rooms) {
+            throw new Error("ルーム情報の取得に失敗しました");
+        }
+        return roomResponse.data.rooms[0].id;
+    };
+
+    const handleRegistration = async () => {
+        const registerResult = await register({
+            email,
+            password,
+            password_confirmation: passwordConfirmation,
+        });
+
+        if (!registerResult?.success || !registerResult.user) {
+            throw new Error(
+                "ユーザー登録に失敗しました。詳細: " +
+                    JSON.stringify(registerResult)
+            );
+        }
+
+        const profileData = {
+            nickname: username,
+            last_name: lastName,
+            first_name: firstName,
+            birthday: dateOfBirth,
+            introduction: introduction,
+            attribute: interests,
+            gender: gender,
+        };
+
+        await createProfile(registerResult.user.id, profileData);
+        const roomId = await createAndGetRoom(registerResult.user.id);
+        return roomId;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (step === 1) {
+            handleNext();
+            return;
+        }
+
+        const validationError = validateStep2();
+        if (validationError) {
+            setError(validationError);
+            return;
+        }
+        setError(null);
+
+        try {
+            const roomId = await handleRegistration();
+            navigate(`/mainstage/${roomId}`);
+        } catch (error: any) {
+            setError(
+                error.response?.data?.message ||
+                    error.message ||
+                    "アカウントの作成に失敗しました"
+            );
+        }
     };
 
     return (
