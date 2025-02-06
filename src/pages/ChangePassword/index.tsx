@@ -1,46 +1,39 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/utils/useAuth";
-import api from "@/utils/axios";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
 function ChangePassword() {
-    const { user } = useAuth();
+    const { user, changePassword, error: authError } = useAuth();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [newPasswordConfirmation, setNewPasswordConfirmation] = useState("");
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
-    const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        setError(null);
         setSuccess(null);
         setLoading(true);
 
-        try {
-            await api.put("/password/update", {
-                current_password: currentPassword,
-                password: newPassword,
-                password_confirmation: newPasswordConfirmation,
-            });
+        const success = await changePassword({
+            current_password: currentPassword,
+            password: newPassword,
+            password_confirmation: newPasswordConfirmation,
+        });
+
+        if (success) {
             setSuccess("パスワードが変更されました");
             // 3秒後にプロフィールページに遷移
             setTimeout(() => {
                 navigate(`/profile/${user?.id}`);
             }, 3000);
-        } catch (err: any) {
-            console.error("パスワード変更エラー:", err);
-            setError(
-                err.response?.data?.message || "パスワードの変更に失敗しました"
-            );
-        } finally {
-            setLoading(false);
         }
+
+        setLoading(false);
     };
 
     return (
@@ -54,9 +47,9 @@ function ChangePassword() {
                     </div>
                 )}
 
-                {error && (
+                {authError && (
                     <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-md">
-                        {error}
+                        {authError}
                     </div>
                 )}
 
@@ -83,7 +76,7 @@ function ChangePassword() {
                                 }
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2"
                             >
-                                <VisibilityIcon/>
+                                <VisibilityIcon />
                             </button>
                         </div>
                     </div>
@@ -108,7 +101,7 @@ function ChangePassword() {
                                 }
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2"
                             >
-                                <VisibilityIcon/>
+                                <VisibilityIcon />
                             </button>
                         </div>
                     </div>
@@ -135,7 +128,7 @@ function ChangePassword() {
                                 }
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2"
                             >
-                                <VisibilityIcon/>
+                                <VisibilityIcon />
                             </button>
                         </div>
                     </div>

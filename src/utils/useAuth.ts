@@ -18,6 +18,12 @@ interface RegisterCredentials extends LoginCredentials {
     password_confirmation: string;
 }
 
+interface ChangePasswordData {
+    current_password: string;
+    password: string;
+    password_confirmation: string;
+}
+
 export const useAuth = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -118,6 +124,18 @@ export const useAuth = () => {
         }
     };
 
+    const changePassword = async (data: ChangePasswordData) => {
+        try {
+            await api.put("/password/update", data);
+            return true;
+        } catch (err: any) {
+            setError(
+                err.response?.data?.message || "パスワードの変更に失敗しました"
+            );
+            return false;
+        }
+    };
+
     return {
         user,
         loading,
@@ -127,5 +145,6 @@ export const useAuth = () => {
         logout,
         register,
         checkAuth,
+        changePassword,
     };
 };
