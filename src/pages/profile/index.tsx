@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "@/utils/axios";
 import ImageCropper from "./components/ImageCropper";
+import Header from "./components/Header";
 
 interface Profile {
     nickname: string;
@@ -48,10 +49,11 @@ function Profile() {
         attribute: "",
         introduction: "",
     });
-    const [searchQuery, setSearchQuery] = useState("");
-    const [searchResults, setSearchResults] = useState<User[]>([]);
     const [selectedImage, setSelectedImage] = useState<string | null>(null);
     const [isCropping, setIsCropping] = useState(false);
+    const [dummyRooms, setDummyRooms] = useState<
+        { id: string; imageNumber: number }[]
+    >([]);
 
     useEffect(() => {
         if (user?.profile) {
@@ -69,7 +71,6 @@ function Profile() {
         const fetchProfile = async () => {
             try {
                 const response = await api.get(`/api/profile/${user_id}`);
-                console.log(response.data.user);
                 setUser(response.data.user);
                 setRooms(response.data.rooms);
             } catch (error) {
@@ -83,16 +84,18 @@ function Profile() {
     }, [user_id]);
 
     useEffect(() => {
-        const delayDebounceFn = setTimeout(() => {
-            if (searchQuery) {
-                handleSearch();
-            } else {
-                setSearchResults([]);
-            }
-        }, 500); // 500ミリ秒のディレイ
-
-        return () => clearTimeout(delayDebounceFn);
-    }, [searchQuery]);
+        // 9個に満たない場合、ダミーの部屋を追加
+        if (rooms.length < 9) {
+            const dummyCount = 9 - rooms.length;
+            const dummies = Array.from({ length: dummyCount }, (_, index) => ({
+                id: `dummy-${index}`,
+                imageNumber: (index % 8) + 1, // 1から8までの数字をループ
+            }));
+            setDummyRooms(dummies);
+        } else {
+            setDummyRooms([]);
+        }
+    }, [rooms]);
 
     const handleUpdate = async () => {
         try {
@@ -123,25 +126,10 @@ function Profile() {
                 }
             );
 
-            // レスポンスの詳細をログ出力
-            console.log("更新レスポンス:", response);
-            console.log("レスポンスデータ:", response.data);
-
             setUser(response.data.user);
             setIsEditing(false);
         } catch (error) {
             console.error("プロフィールの更新に失敗しました:", error);
-        }
-    };
-
-    const handleSearch = async () => {
-        try {
-            const response = await api.get("/api/profile/search", {
-                params: { query: searchQuery },
-            });
-            setSearchResults(response.data);
-        } catch (error) {
-            console.error("ユーザー検索に失敗しました:", error);
         }
     };
 
@@ -184,196 +172,184 @@ function Profile() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-100">
-            {/* プロフィールヘッダー */}
-            <div className="bg-white shadow">
-                <div className="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8">
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-6">
-                            <div className="relative">
-                                <img
-                                    src={
-                                        editForm.user_thumbnail
-                                            ? URL.createObjectURL(
-                                                  editForm.user_thumbnail
-                                              )
-                                            : user?.profile.user_thumbnail &&
-                                              user.profile.user_thumbnail !==
-                                                  "default_thumbnail.png"
-                                            ? `${
-                                                  import.meta.env.VITE_S3_URL
-                                              }/user/${user.id}/${
-                                                  user.profile.user_thumbnail
-                                              }`
-                                            : "/default-avatar.png"
-                                    }
-                                    alt="プロフィール画像"
-                                    className="w-24 h-24 rounded-full object-cover"
+        <div className="min-h-screen bg-white relative pb-20 sm:pb-0">
+            <Header nickname={user?.profile.nickname} />
+            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+                <div className="flex items-start space-x-4">
+                    {/* プロフィール画像 */}
+                    <div className="relative w-24 h-24">
+                        <img
+                            src={
+                                editForm.user_thumbnail
+                                    ? URL.createObjectURL(
+                                          editForm.user_thumbnail
+                                      )
+                                    : user?.profile.user_thumbnail &&
+                                      user.profile.user_thumbnail !==
+                                          "default_thumbnail.png"
+                                    ? `${import.meta.env.VITE_S3_URL}/user/${
+                                          user.id
+                                      }/${user.profile.user_thumbnail}`
+                                    : "/default-avatar.png"
+                            }
+                            alt="プロフィール画像"
+                            className="w-full h-full rounded-full object-cover"
+                        />
+                        {isEditing && (
+                            <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1.5 cursor-pointer hover:bg-blue-600">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    className="hidden"
+                                    onChange={handleImageSelect}
                                 />
-                                {isEditing && (
-                                    <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-2 cursor-pointer hover:bg-blue-600">
+                                <svg
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    className="h-4 w-4 text-white"
+                                    viewBox="0 0 20 20"
+                                    fill="currentColor"
+                                >
+                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793z" />
+                                    <path d="M11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                </svg>
+                            </label>
+                        )}
+                    </div>
+
+                    {/* プロフィール情報 */}
+                    <div className="flex-1">
+                        <div className="flex justify-between items-center mb-4">
+                            <div className="flex items-center space-x-2">
+                                <h1 className="text-xl font-semibold">
+                                    {isEditing ? (
                                         <input
-                                            type="file"
-                                            accept="image/*"
-                                            className="hidden"
-                                            onChange={handleImageSelect}
+                                            type="text"
+                                            value={editForm.nickname}
+                                            onChange={(e) =>
+                                                setEditForm({
+                                                    ...editForm,
+                                                    nickname: e.target.value,
+                                                })
+                                            }
+                                            className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
                                         />
+                                    ) : (
+                                        user?.profile.nickname
+                                    )}
+                                </h1>
+                                {!isEditing && (
+                                    <button
+                                        onClick={handleEditClick}
+                                        className="text-gray-500 hover:text-gray-700"
+                                    >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5 text-white"
+                                            className="h-5 w-5"
                                             viewBox="0 0 20 20"
                                             fill="currentColor"
                                         >
-                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793z" />
+                                            <path d="M11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                         </svg>
-                                    </label>
-                                )}
-                            </div>
-                            <div className="space-y-2">
-                                {isEditing ? (
-                                    <>
-                                        <div>
-                                            <label className="block text-sm text-gray-500">
-                                                ニックネーム:
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={editForm.nickname}
-                                                onChange={(e) =>
-                                                    setEditForm({
-                                                        ...editForm,
-                                                        nickname:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-500">
-                                                姓:
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={editForm.last_name}
-                                                onChange={(e) =>
-                                                    setEditForm({
-                                                        ...editForm,
-                                                        last_name:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-500">
-                                                名:
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={editForm.first_name}
-                                                onChange={(e) =>
-                                                    setEditForm({
-                                                        ...editForm,
-                                                        first_name:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-500">
-                                                属性:
-                                            </label>
-                                            <input
-                                                type="text"
-                                                value={editForm.attribute}
-                                                onChange={(e) =>
-                                                    setEditForm({
-                                                        ...editForm,
-                                                        attribute:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                            />
-                                        </div>
-                                        <div>
-                                            <label className="block text-sm text-gray-500">
-                                                自己紹介:
-                                            </label>
-                                            <textarea
-                                                value={editForm.introduction}
-                                                onChange={(e) =>
-                                                    setEditForm({
-                                                        ...editForm,
-                                                        introduction:
-                                                            e.target.value,
-                                                    })
-                                                }
-                                                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                                                rows={3}
-                                            />
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <h1 className="text-2xl font-bold">
-                                            {user?.profile.nickname}
-                                        </h1>
-                                        <p className="text-gray-600">
-                                            {user?.profile.last_name}{" "}
-                                            {user?.profile.first_name}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            属性: {user?.profile.attribute}
-                                        </p>
-                                        {user?.profile.introduction && (
-                                            <p className="text-sm text-gray-700">
-                                                {user.profile.introduction}
-                                            </p>
-                                        )}
-                                    </>
+                                    </button>
                                 )}
                             </div>
                         </div>
-                        {!isEditing ? (
-                            <button
-                                onClick={handleEditClick}
-                                className="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600"
-                            >
-                                編集
-                            </button>
+
+                        {isEditing ? (
+                            <>
+                                <div className="space-y-4">
+                                    <div className="flex flex-col sm:flex-row sm:space-x-2">
+                                        <input
+                                            type="text"
+                                            value={editForm.last_name}
+                                            onChange={(e) =>
+                                                setEditForm({
+                                                    ...editForm,
+                                                    last_name: e.target.value,
+                                                })
+                                            }
+                                            className="border-b border-gray-300 focus:border-blue-500 focus:outline-none mb-2 sm:mb-0"
+                                            placeholder="姓"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={editForm.first_name}
+                                            onChange={(e) =>
+                                                setEditForm({
+                                                    ...editForm,
+                                                    first_name: e.target.value,
+                                                })
+                                            }
+                                            className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
+                                            placeholder="名"
+                                        />
+                                    </div>
+                                    <input
+                                        type="text"
+                                        value={editForm.attribute}
+                                        onChange={(e) =>
+                                            setEditForm({
+                                                ...editForm,
+                                                attribute: e.target.value,
+                                            })
+                                        }
+                                        className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
+                                        placeholder="属性"
+                                    />
+                                    <textarea
+                                        value={editForm.introduction}
+                                        onChange={(e) =>
+                                            setEditForm({
+                                                ...editForm,
+                                                introduction: e.target.value,
+                                            })
+                                        }
+                                        className="w-full h-24 border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:outline-none"
+                                        placeholder="自己紹介"
+                                    />
+                                </div>
+                            </>
                         ) : (
-                            <div className="space-x-2">
-                                <button
-                                    onClick={handleUpdate}
-                                    className="bg-green-500 text-white px-4 py-2 rounded-md hover:bg-green-600"
-                                >
-                                    更新する
-                                </button>
-                                <button
-                                    onClick={() => setIsEditing(false)}
-                                    className="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
-                                >
-                                    キャンセル
-                                </button>
+                            <div className="space-y-2">
+                                <p className="text-gray-600">
+                                    {`${user?.profile.last_name} ${user?.profile.first_name}`}
+                                </p>
+                                {user?.profile.introduction && (
+                                    <p className="text-gray-700">
+                                        {user.profile.introduction}
+                                    </p>
+                                )}
                             </div>
                         )}
                     </div>
                 </div>
-            </div>
 
-            {/* ルーム一覧 */}
-            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                <h2 className="text-xl font-bold mb-6">作成したルーム</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {/* 保存・キャンセルボタン */}
+                {isEditing && (
+                    <div className="flex justify-center space-x-4 my-8">
+                        <button
+                            onClick={handleUpdate}
+                            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-32"
+                        >
+                            保存
+                        </button>
+                        <button
+                            onClick={() => setIsEditing(false)}
+                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 w-32"
+                        >
+                            キャンセル
+                        </button>
+                    </div>
+                )}
+
+                {/* ギャラリーグリッド */}
+                <div className="mt-8 grid grid-cols-3 gap-1">
+                    {/* 実際の部屋 */}
                     {rooms.map((room) => (
                         <div
                             key={room.id}
-                            className="bg-white rounded-lg shadow p-6"
+                            className="aspect-square relative group"
                         >
                             <a href={`/mainstage/${room.id}`}>
                                 <img
@@ -381,63 +357,21 @@ function Profile() {
                                         user?.id
                                     }/${room.id}/thumbnail.png`}
                                     alt={`${room.name}のサムネイル`}
-                                    className="w-full h-32 object-cover rounded-t-lg"
+                                    className="w-full h-full object-cover"
                                 />
+                                <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                             </a>
                         </div>
                     ))}
-                </div>
-            </div>
 
-            {/* ユーザー検索セクション */}
-            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-                <h2 className="text-xl font-bold mb-6">ユーザー検索</h2>
-                <div className="mb-6">
-                    <input
-                        type="text"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="ニックネームで検索"
-                        className="w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                    />
-                </div>
-
-                {/* 検索結果 */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {searchResults.map((result) => (
-                        <div
-                            key={result.id}
-                            className="bg-white rounded-lg shadow p-6"
-                        >
-                            <a
-                                href={`/profile/${result.id}`}
-                                className="flex items-center space-x-4"
-                            >
-                                <img
-                                    src={
-                                        result.profile?.user_thumbnail &&
-                                        result.profile.user_thumbnail !==
-                                            "default_thumbnail.png"
-                                            ? `${
-                                                  import.meta.env.VITE_S3_URL
-                                              }/user/${result.id}/${
-                                                  result.profile.user_thumbnail
-                                              }`
-                                            : "/default-avatar.png"
-                                    }
-                                    alt={`${result.profile?.nickname}のサムネイル`}
-                                    className="w-16 h-16 rounded-full object-cover"
-                                />
-                                <div>
-                                    <h3 className="font-bold">
-                                        {result.profile?.nickname}
-                                    </h3>
-                                    <p className="text-sm text-gray-600">
-                                        {result.profile?.last_name}{" "}
-                                        {result.profile?.first_name}
-                                    </p>
-                                </div>
-                            </a>
+                    {/* ダミーの部屋 */}
+                    {dummyRooms.map((dummy) => (
+                        <div key={dummy.id} className="aspect-square relative">
+                            <img
+                                src={`/images/room/coming_soon${dummy.imageNumber}.png`}
+                                alt="Coming Soon"
+                                className="w-full h-full object-cover"
+                            />
                         </div>
                     ))}
                 </div>
