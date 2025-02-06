@@ -16,6 +16,7 @@ import Register from "@/pages/auth/register";
 import { useAuth } from "@/utils/useAuth";
 import "@/App.css";
 import api from "@/utils/axios";
+import ChangePassword from "./pages/ChangePassword";
 
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -53,6 +54,7 @@ function App() {
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
+                <Route path="/change-password" element={<ChangePassword />} />
                 <Route
                     path="/"
                     element={
