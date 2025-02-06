@@ -14,7 +14,7 @@ interface LoginCredentials {
 }
 
 interface RegisterCredentials extends LoginCredentials {
-    name: string;
+    email: string;
     password_confirmation: string;
 }
 
@@ -98,21 +98,77 @@ export const useAuth = () => {
         try {
             setLoading(true);
             setError(null);
+
+            console.log("Register開始 - CSRF取得前");
             await getCsrfToken();
-            await api.post("/register", credentials);
-            await checkAuth();
-            return true;
+            console.log("CSRF取得完了");
+
+            console.log("Register credentials:", credentials);
+            const registerResponse = await api
+                .post("/register", credentials)
+                .catch((err) => {
+                    console.error("Register API error:", {
+                        status: err.response?.status,
+                        data: err.response?.data,
+                        message: err.message,
+                    });
+                    throw err;
+                });
+
+            console.log("Register response full:", {
+                status: registerResponse.status,
+                data: registerResponse.data,
+                headers: registerResponse.headers,
+            });
+
+            if (registerResponse.status === 204) {
+                try {
+                    console.log("ユーザー情報取得開始");
+                    const userResponse = await api.get("/api/user");
+                    console.log("User response:", userResponse);
+
+                    if (!userResponse.data) {
+                        console.error("User data is empty");
+                        throw new Error("ユーザー情報が取得できませんでした");
+                    }
+
+                    setUser(userResponse.data);
+                    setIsAuthenticated(true);
+                    return {
+                        success: true,
+                        user: userResponse.data,
+                    };
+                } catch (userError) {
+                    console.error("User fetch error details:", userError);
+                    throw userError;
+                }
+            }
+
+            console.error(
+                "Unexpected response status:",
+                registerResponse.status
+            );
+            return {
+                success: false,
+                user: null,
+            };
         } catch (err: any) {
-            console.error("Registration error:", err);
+            console.error("Registration error full details:", {
+                error: err,
+                response: err.response,
+                message: err.message,
+                stack: err.stack,
+            });
+
             if (err.response?.data?.errors) {
                 const errorMessages = Object.values(err.response.data.errors)
                     .flat()
                     .join("\n");
                 setError(errorMessages);
             } else {
-                setError("登録に失敗しました");
+                setError(err.message || "登録に失敗しました");
             }
-            return false;
+            throw err;
         } finally {
             setLoading(false);
         }
