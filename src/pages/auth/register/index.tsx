@@ -5,22 +5,6 @@ import api from "@/utils/axios";
 import { Step1Form } from "./components/Step1Form";
 import { Step2Form } from "./components/Step2Form";
 
-interface RegisterFormData {
-    email: string;
-    password: string;
-    password_confirmation: string;
-}
-
-interface ProfileData {
-    nickname: string;
-    last_name: string;
-    first_name: string;
-    birthday: string;
-    introduction: string;
-    attribute: string;
-    gender: string;
-}
-
 const Register = () => {
     const [step, setStep] = useState(1);
     const [email, setEmail] = useState("");
