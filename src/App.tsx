@@ -3,7 +3,6 @@ import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Studio from "@/pages/studio";
 import Warehouse from "@/pages/warehouse";
 import Profile from "@/pages/profile";
-import CreateProfile from "@/pages/profile/Create";
 import Visit from "@/pages/visit";
 import Mainstage from "@/pages/mainstage";
 import Login from "@/pages/auth/login";
@@ -69,14 +68,6 @@ function App() {
                     element={
                         <ProtectedRoute>
                             <Warehouse />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/profile/create"
-                    element={
-                        <ProtectedRoute>
-                            <CreateProfile />
                         </ProtectedRoute>
                     }
                 />
