@@ -49,34 +49,20 @@ const Register = () => {
         setError(null);
 
         try {
-            // 1. ユーザー登録
-            console.log("登録開始");
-            console.log("送信データ:", {
-                email,
-                password,
-                password_confirmation: passwordConfirmation,
-            });
-
             const registerResult = await register({
                 email,
                 password,
                 password_confirmation: passwordConfirmation,
             }).catch((err) => {
-                console.error("Register function error:", err);
                 throw err;
             });
 
-            console.log("registerResult:", registerResult);
-
             if (!registerResult) {
-                console.error("Register result is undefined");
                 setError("登録処理に失敗しました");
                 return;
             }
 
             if (registerResult.success && registerResult.user) {
-                console.log("ユーザー登録成功:", registerResult.user);
-                // 2. プロフィール作成
                 const profileData = {
                     nickname: username,
                     last_name: lastName,
@@ -86,32 +72,20 @@ const Register = () => {
                     attribute: interests,
                     gender: gender,
                 };
-                console.log("プロフィールデータ:", profileData);
 
                 try {
-                    console.log("プロフィール作成開始");
                     const response = await api.post(
                         `/api/profile/create/${registerResult.user.id}`,
                         profileData
                     );
-                    console.log("プロフィール作成レスポンス:", response);
 
                     if (response.status === 201) {
-                        console.log("プロフィール作成成功");
-                        // 3. ルーム作成
                         try {
-                            console.log("ルーム作成開始");
                             const { data } = await api.post("api/room/create");
-                            console.log("ルーム作成レスポンス:", data);
                             if (data.room) {
-                                // 4. ルーム情報の取得とmainstageへの遷移
                                 try {
                                     const roomResponse = await api.get(
                                         `/api/room/${registerResult.user.id}`
-                                    );
-                                    console.log(
-                                        "ルーム情報取得:",
-                                        roomResponse.data
                                     );
                                     if (roomResponse.data.rooms) {
                                         navigate(
@@ -119,33 +93,23 @@ const Register = () => {
                                         );
                                     }
                                 } catch (error) {
-                                    console.error("ルーム取得エラー:", error);
                                     setError("ルーム情報の取得に失敗しました");
                                 }
                             }
                         } catch (error) {
-                            console.error("ルーム作成エラー:", error);
                             setError("ルームの作成に失敗しました");
                         }
                     }
                 } catch (error) {
-                    console.error("プロフィール作成エラー:", error);
                     setError("プロフィールの作成に失敗しました");
                 }
             } else {
-                console.error("Register failed with result:", registerResult);
                 setError(
                     "ユーザー登録に失敗しました。詳細: " +
                         JSON.stringify(registerResult)
                 );
             }
         } catch (error: any) {
-            console.error("登録エラー詳細:", {
-                error,
-                message: error.message,
-                response: error.response,
-                stack: error.stack,
-            });
             setError(
                 error.response?.data?.message ||
                     error.message ||

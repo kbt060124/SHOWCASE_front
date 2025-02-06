@@ -58,7 +58,6 @@ export const useAuth = () => {
         try {
             await getCsrfToken();
             const response = await api.post("/login", credentials);
-            console.log("Login response:", response);
             if (response.status === 204) {
                 const userResponse = await api.get("/api/user");
                 setUser(userResponse.data);
@@ -67,7 +66,6 @@ export const useAuth = () => {
             }
             return false;
         } catch (err: any) {
-            console.error("Login error:", err);
             setError(err.response?.data?.message || "ログインに失敗しました");
             setUser(null);
             setIsAuthenticated(false);
@@ -98,37 +96,18 @@ export const useAuth = () => {
         try {
             setLoading(true);
             setError(null);
-
-            console.log("Register開始 - CSRF取得前");
             await getCsrfToken();
-            console.log("CSRF取得完了");
 
-            console.log("Register credentials:", credentials);
             const registerResponse = await api
                 .post("/register", credentials)
                 .catch((err) => {
-                    console.error("Register API error:", {
-                        status: err.response?.status,
-                        data: err.response?.data,
-                        message: err.message,
-                    });
                     throw err;
                 });
 
-            console.log("Register response full:", {
-                status: registerResponse.status,
-                data: registerResponse.data,
-                headers: registerResponse.headers,
-            });
-
             if (registerResponse.status === 204) {
                 try {
-                    console.log("ユーザー情報取得開始");
                     const userResponse = await api.get("/api/user");
-                    console.log("User response:", userResponse);
-
                     if (!userResponse.data) {
-                        console.error("User data is empty");
                         throw new Error("ユーザー情報が取得できませんでした");
                     }
 
@@ -139,27 +118,15 @@ export const useAuth = () => {
                         user: userResponse.data,
                     };
                 } catch (userError) {
-                    console.error("User fetch error details:", userError);
                     throw userError;
                 }
             }
 
-            console.error(
-                "Unexpected response status:",
-                registerResponse.status
-            );
             return {
                 success: false,
                 user: null,
             };
         } catch (err: any) {
-            console.error("Registration error full details:", {
-                error: err,
-                response: err.response,
-                message: err.message,
-                stack: err.stack,
-            });
-
             if (err.response?.data?.errors) {
                 const errorMessages = Object.values(err.response.data.errors)
                     .flat()
