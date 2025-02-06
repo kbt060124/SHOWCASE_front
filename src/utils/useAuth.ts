@@ -14,7 +14,7 @@ interface LoginCredentials {
 }
 
 interface RegisterCredentials extends LoginCredentials {
-    name: string;
+    email: string;
     password_confirmation: string;
 }
 
@@ -64,7 +64,6 @@ export const useAuth = () => {
         try {
             await getCsrfToken();
             const response = await api.post("/login", credentials);
-            console.log("Login response:", response);
             if (response.status === 204) {
                 const userResponse = await api.get("/api/user");
                 setUser(userResponse.data);
@@ -73,7 +72,6 @@ export const useAuth = () => {
             }
             return false;
         } catch (err: any) {
-            console.error("Login error:", err);
             setError(err.response?.data?.message || "ログインに失敗しました");
             setUser(null);
             setIsAuthenticated(false);
@@ -105,20 +103,45 @@ export const useAuth = () => {
             setLoading(true);
             setError(null);
             await getCsrfToken();
-            await api.post("/register", credentials);
-            await checkAuth();
-            return true;
+
+            const registerResponse = await api
+                .post("/register", credentials)
+                .catch((err) => {
+                    throw err;
+                });
+
+            if (registerResponse.status === 204) {
+                try {
+                    const userResponse = await api.get("/api/user");
+                    if (!userResponse.data) {
+                        throw new Error("ユーザー情報が取得できませんでした");
+                    }
+
+                    setUser(userResponse.data);
+                    setIsAuthenticated(true);
+                    return {
+                        success: true,
+                        user: userResponse.data,
+                    };
+                } catch (userError) {
+                    throw userError;
+                }
+            }
+
+            return {
+                success: false,
+                user: null,
+            };
         } catch (err: any) {
-            console.error("Registration error:", err);
             if (err.response?.data?.errors) {
                 const errorMessages = Object.values(err.response.data.errors)
                     .flat()
                     .join("\n");
                 setError(errorMessages);
             } else {
-                setError("登録に失敗しました");
+                setError(err.message || "登録に失敗しました");
             }
-            return false;
+            throw err;
         } finally {
             setLoading(false);
         }
