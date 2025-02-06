@@ -37,7 +37,14 @@ const CreateProfile = () => {
             );
 
             if (response.status === 201) {
-                navigate(`/`);
+                try {
+                    const { data } = await api.get(`/api/room/${user?.id}`);
+                    if (data.rooms) {
+                        navigate(`/mainstage/${data.rooms[0].id}`);
+                    }
+                } catch (error) {
+                    console.error("ルーム取得エラー:", error);
+                }
             }
         } catch (error) {
             console.error("プロフィールの作成に失敗しました:", error);

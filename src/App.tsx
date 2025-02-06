@@ -1,21 +1,17 @@
 import React, { useEffect } from "react";
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Navigate,
-} from "react-router-dom";
-import Home from "@/pages/home";
+import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Studio from "@/pages/studio";
 import Warehouse from "@/pages/warehouse";
 import Profile from "@/pages/profile";
 import CreateProfile from "@/pages/profile/Create";
+import Visit from "@/pages/visit";
 import Mainstage from "@/pages/mainstage";
 import Login from "@/pages/auth/login";
 import Register from "@/pages/auth/register";
 import { useAuth } from "@/utils/useAuth";
 import "@/App.css";
 import api from "@/utils/axios";
+import MenuBar from "./components/MenuBar";
 import ChangePassword from "./pages/ChangePassword";
 
 // 認証が必要なルートを保護するためのコンポーネント
@@ -35,7 +31,14 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     return <>{children}</>;
 };
 
+// メニューバーを表示しないパスのリスト
+const noNavPaths = ["/login", "/register", "/profile/create"];
+
 function App() {
+    const location = useLocation();
+    const showNav =
+        !noNavPaths.includes(location.pathname)
+
     useEffect(() => {
         // CSRFトークンを取得
         const getCsrfToken = async () => {
@@ -50,19 +53,11 @@ function App() {
     }, []);
 
     return (
-        <Router>
+        <div className="pb-16">
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
                 <Route path="/change-password" element={<ChangePassword />} />
-                <Route
-                    path="/"
-                    element={
-                        <ProtectedRoute>
-                            <Home />
-                        </ProtectedRoute>
-                    }
-                />
                 <Route
                     path="/studio/:room_id"
                     element={
@@ -103,8 +98,10 @@ function App() {
                         </ProtectedRoute>
                     }
                 />
+                <Route path="/visit" element={<Visit />} />
             </Routes>
-        </Router>
+            {showNav && <MenuBar />}
+        </div>
     );
 }
 
