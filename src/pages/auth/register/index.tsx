@@ -1,8 +1,25 @@
 import React, { useState } from "react";
 import { useAuth } from "@/utils/useAuth";
 import { useNavigate, Link } from "react-router-dom";
-import VisibilityIcon from "@mui/icons-material/Visibility";
 import api from "@/utils/axios";
+import { Step1Form } from "./components/Step1Form";
+import { Step2Form } from "./components/Step2Form";
+
+interface RegisterFormData {
+    email: string;
+    password: string;
+    password_confirmation: string;
+}
+
+interface ProfileData {
+    nickname: string;
+    last_name: string;
+    first_name: string;
+    birthday: string;
+    introduction: string;
+    attribute: string;
+    gender: string;
+}
 
 const Register = () => {
     const [step, setStep] = useState(1);
@@ -196,148 +213,37 @@ const Register = () => {
 
                 <form className="space-y-4" onSubmit={handleSubmit}>
                     {step === 1 ? (
-                        <div className="space-y-4">
-                            <div>
-                                <input
-                                    type="email"
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="E-mail"
-                                    value={email}
-                                    onChange={(e) => setEmail(e.target.value)}
-                                />
-                            </div>
-                            <div className="relative">
-                                <input
-                                    type={showPassword ? "text" : "password"}
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
-                                />
-                                <button
-                                    type="button"
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                    onClick={() =>
-                                        setShowPassword(!showPassword)
-                                    }
-                                >
-                                    <VisibilityIcon />
-                                </button>
-                            </div>
-                            <div className="relative">
-                                <input
-                                    type={
-                                        showPasswordConfirmation
-                                            ? "text"
-                                            : "password"
-                                    }
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Confirm Password"
-                                    value={passwordConfirmation}
-                                    onChange={(e) =>
-                                        setPasswordConfirmation(e.target.value)
-                                    }
-                                />
-                                <button
-                                    type="button"
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
-                                    onClick={() =>
-                                        setShowPasswordConfirmation(
-                                            !showPasswordConfirmation
-                                        )
-                                    }
-                                >
-                                    <VisibilityIcon />
-                                </button>
-                            </div>
-                        </div>
+                        <Step1Form
+                            email={email}
+                            password={password}
+                            passwordConfirmation={passwordConfirmation}
+                            showPassword={showPassword}
+                            showPasswordConfirmation={showPasswordConfirmation}
+                            setEmail={setEmail}
+                            setPassword={setPassword}
+                            setPasswordConfirmation={setPasswordConfirmation}
+                            setShowPassword={setShowPassword}
+                            setShowPasswordConfirmation={
+                                setShowPasswordConfirmation
+                            }
+                        />
                     ) : (
-                        <div className="space-y-4">
-                            <div>
-                                <input
-                                    type="text"
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Username"
-                                    value={username}
-                                    onChange={(e) =>
-                                        setUsername(e.target.value)
-                                    }
-                                />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <input
-                                        type="text"
-                                        className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="Last name"
-                                        value={lastName}
-                                        onChange={(e) =>
-                                            setLastName(e.target.value)
-                                        }
-                                    />
-                                </div>
-                                <div>
-                                    <input
-                                        type="text"
-                                        className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                        placeholder="First name"
-                                        value={firstName}
-                                        onChange={(e) =>
-                                            setFirstName(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            </div>
-                            <div>
-                                <input
-                                    type="date"
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Date of Birth"
-                                    value={dateOfBirth}
-                                    onChange={(e) =>
-                                        setDateOfBirth(e.target.value)
-                                    }
-                                />
-                            </div>
-                            <div>
-                                <select
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    value={gender}
-                                    onChange={(e) => setGender(e.target.value)}
-                                >
-                                    <option value="">性別を選択</option>
-                                    <option value="male">男性</option>
-                                    <option value="female">女性</option>
-                                    <option value="other">その他</option>
-                                    <option value="no_answer">
-                                        回答しない
-                                    </option>
-                                </select>
-                            </div>
-                            <div>
-                                <input
-                                    type="text"
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-                                    placeholder="Interests"
-                                    value={interests}
-                                    onChange={(e) =>
-                                        setInterests(e.target.value)
-                                    }
-                                />
-                            </div>
-                            <div>
-                                <textarea
-                                    className="appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500 min-h-[100px] resize-none"
-                                    placeholder="Introduction"
-                                    value={introduction}
-                                    onChange={(e) =>
-                                        setIntroduction(e.target.value)
-                                    }
-                                />
-                            </div>
-                        </div>
+                        <Step2Form
+                            username={username}
+                            lastName={lastName}
+                            firstName={firstName}
+                            dateOfBirth={dateOfBirth}
+                            gender={gender}
+                            interests={interests}
+                            introduction={introduction}
+                            setUsername={setUsername}
+                            setLastName={setLastName}
+                            setFirstName={setFirstName}
+                            setDateOfBirth={setDateOfBirth}
+                            setGender={setGender}
+                            setInterests={setInterests}
+                            setIntroduction={setIntroduction}
+                        />
                     )}
 
                     <button
