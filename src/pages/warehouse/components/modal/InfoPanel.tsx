@@ -32,12 +32,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                     <p className="text-gray-600">{warehouse.memo || ""}</p>
                 </div>
                 <button
-                    onClick={onEdit}
-                    className="text-blue-500 hover:text-blue-600 text-sm mr-4"
-                >
-                    Edit
-                </button>
-                <button
                     onClick={onDelete}
                     className="text-[#8C252B] hover:opacity-80 text-sm"
                 >

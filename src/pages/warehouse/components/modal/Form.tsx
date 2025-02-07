@@ -28,7 +28,7 @@ const Form: React.FC<FormProps> = ({
     warehouse,
     onSubmit,
     thumbnail,
-    onCancel,
+    // onCancel,
 }) => {
     const [name, setName] = React.useState(warehouse.name);
     const [memo, setMemo] = React.useState(warehouse.memo || "");
@@ -86,21 +86,6 @@ const Form: React.FC<FormProps> = ({
                         className="mt-1 sm:mt-2 block w-full rounded-md border-gray-300"
                         rows={4}
                     />
-                </div>
-                <div className="flex gap-2">
-                    <button
-                        type="submit"
-                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                    >
-                        更新
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
-                    >
-                        キャンセル
-                    </button>
                 </div>
             </form>
         </div>

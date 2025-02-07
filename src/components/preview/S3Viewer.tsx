@@ -130,7 +130,7 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                 <div className="px-4 pt-2">
                     <button
                         onClick={handleCaptureScreenshot}
-                        className="text-blue-500 hover:text-blue-600 text-sm mr-4"
+                        className="text-[#11529A] hover:opacity-80 text-sm"
                     >
                         Set current view as thumbnail
                     </button>

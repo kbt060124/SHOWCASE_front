@@ -103,6 +103,26 @@ const Modal: React.FC<ModalProps> = ({
                 <h1 className="text-lg font-bold flex-1 text-center">
                     WAREHOUSE
                 </h1>
+                {isEditMode ? (
+                    <button
+                        onClick={() => {
+                            const formElement = document.querySelector("form");
+                            if (formElement) {
+                                formElement.requestSubmit();
+                            }
+                        }}
+                        className="text-[#11529A] hover:opacity-80 text-sm absolute right-4"
+                    >
+                        Update
+                    </button>
+                ) : (
+                    <button
+                        onClick={() => setIsEditMode(true)}
+                        className="text-[#11529A] hover:opacity-80 text-sm absolute right-4"
+                    >
+                        Edit
+                    </button>
+                )}
             </div>
 
             {/* コンテンツ部分 */}
