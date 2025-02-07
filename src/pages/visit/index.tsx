@@ -11,7 +11,7 @@ interface SearchResult {
     };
 }
 
-function Visit() {
+const Visit = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
@@ -41,7 +41,7 @@ function Visit() {
     return (
         <div className="min-h-screen bg-white">
             {/* ユーザー検索セクション */}
-            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <h2 className="text-xl font-bold mb-6">ユーザー検索</h2>
                 <div className="flex gap-4 mb-6">
                     <input
@@ -101,6 +101,6 @@ function Visit() {
             </div>
         </div>
     );
-}
+};
 
 export default Visit;

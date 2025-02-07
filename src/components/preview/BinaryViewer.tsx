@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { Scene, Engine } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
@@ -14,7 +14,27 @@ const BinaryViewer: React.FC<BinaryViewerProps> = ({
     onCaptureScreenshot,
 }) => {
     const [modelData, setModelData] = useState<ArrayBuffer | null>(null);
-    const sceneRef = React.useRef<Scene | null>(null);
+    const sceneRef = useRef<Scene | null>(null);
+    const [canvasHeight, setCanvasHeight] = useState<number>(0);
+
+    useEffect(() => {
+        const calculateHeight = () => {
+            // ビューポートの高さの60%を計算
+            const vh = window.innerHeight;
+            setCanvasHeight(Math.round(vh * 0.6));
+        };
+
+        // 初回計算
+        calculateHeight();
+
+        // リサイズイベントのリスナーを追加
+        window.addEventListener("resize", calculateHeight);
+
+        // クリーンアップ
+        return () => {
+            window.removeEventListener("resize", calculateHeight);
+        };
+    }, []);
 
     useEffect(() => {
         const reader = new FileReader();
@@ -39,73 +59,82 @@ const BinaryViewer: React.FC<BinaryViewerProps> = ({
         };
     }, [file]);
 
-    const captureScreenshot = () => {
-        if (!sceneRef.current) {
-            console.error("Scene is not ready");
-            return;
-        }
+    const handleCaptureScreenshot = () => {
+        if (!sceneRef.current) return;
 
         const engine = sceneRef.current.getEngine() as Engine;
         const canvas = engine.getRenderingCanvas();
 
         if (canvas) {
-            const originalWidth = canvas.width;
-            const originalHeight = canvas.height;
+            const offscreenCanvas = document.createElement("canvas");
+            const targetSize = 1024;
 
-            canvas.width = 1024;
-            canvas.height = 1024;
+            const aspectRatio = canvas.width / canvas.height;
 
-            sceneRef.current.render();
+            if (aspectRatio > 1) {
+                offscreenCanvas.width = targetSize;
+                offscreenCanvas.height = Math.round(targetSize / aspectRatio);
+            } else {
+                offscreenCanvas.height = targetSize;
+                offscreenCanvas.width = Math.round(targetSize * aspectRatio);
+            }
 
-            canvas.toBlob(
-                (blob) => {
-                    if (blob) {
-                        const file = new File([blob], "thumbnail.png", {
-                            type: "image/png",
-                        });
-                        onCaptureScreenshot(file);
-                    }
+            const ctx = offscreenCanvas.getContext("2d");
 
-                    canvas.width = originalWidth;
-                    canvas.height = originalHeight;
-                    sceneRef.current?.render();
-                },
-                "image/png",
-                0.95
-            );
+            if (ctx) {
+                sceneRef.current.render();
+
+                ctx.drawImage(
+                    canvas,
+                    0,
+                    0,
+                    canvas.width,
+                    canvas.height,
+                    0,
+                    0,
+                    offscreenCanvas.width,
+                    offscreenCanvas.height
+                );
+
+                offscreenCanvas.toBlob(
+                    (blob) => {
+                        if (blob) {
+                            const file = new File([blob], "thumbnail.png", {
+                                type: "image/png",
+                            });
+                            onCaptureScreenshot(file);
+                        }
+                    },
+                    "image/png",
+                    0.95
+                );
+            }
         }
     };
 
     return (
-        <div className="flex-1 min-h-[250px] sm:min-h-[300px] overflow-hidden relative">
+        <>
             {modelData && (
-                <>
-                    <div className="absolute top-2 left-2 z-10">
-                        <button
-                            onClick={captureScreenshot}
-                            className="bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600"
-                        >
-                            現在の表示をサムネイルとして設定
-                        </button>
-                    </div>
-                    <div
-                        className="w-full h-full pt-12"
-                        style={{ minHeight: "500px" }}
-                    >
-                        <SceneComponent
-                            antialias
-                            onSceneReady={(scene) => {
-                                console.log("Scene ready:", scene);
-                                sceneRef.current = scene;
-                                setupUploadScene(scene, modelData);
-                            }}
-                            id="upload-preview"
-                            className="w-full h-full"
-                        />
-                    </div>
-                </>
+                <SceneComponent
+                    antialias
+                    onSceneReady={(scene) => {
+                        sceneRef.current = scene;
+                        setupUploadScene(scene, modelData);
+                    }}
+                    id="upload-preview"
+                    height={`${canvasHeight}px`}
+                    className="w-full h-full"
+                />
             )}
-        </div>
+            <div className="px-4 pt-2">
+                <button
+                    onClick={handleCaptureScreenshot}
+                    className="text-[#11529A] hover:opacity-80 text-sm"
+                >
+                    Set current view as thumbnail
+                </button>
+            </div>
+        </>
     );
 };
 

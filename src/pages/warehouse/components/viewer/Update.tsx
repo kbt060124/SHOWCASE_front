@@ -13,7 +13,7 @@ interface Warehouse {
     updated_at: string | null;
 }
 
-interface FormProps {
+interface UpdateProps {
     warehouse: Warehouse;
     onSubmit: (data: {
         name: string;
@@ -24,11 +24,11 @@ interface FormProps {
     onCancel: () => void;
 }
 
-const Form: React.FC<FormProps> = ({
+const Update: React.FC<UpdateProps> = ({
     warehouse,
     onSubmit,
     thumbnail,
-    onCancel,
+    // onCancel,
 }) => {
     const [name, setName] = React.useState(warehouse.name);
     const [memo, setMemo] = React.useState(warehouse.memo || "");
@@ -48,15 +48,15 @@ const Form: React.FC<FormProps> = ({
     };
 
     return (
-        <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 bg-gray-50 rounded-lg shrink-0">
+        <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 rounded-lg shrink-0">
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
-                    <h3 className="font-semibold text-gray-700">サムネイル</h3>
+                    <h3 className="font-semibold text-gray-700">Thumbnail</h3>
                     {thumbnailUrl ? (
                         <img
                             src={thumbnailUrl}
                             alt="新しいサムネイル"
-                            className="mt-1 sm:mt-2 w-full rounded-md"
+                            className="mt-1 sm:mt-2 w-32 h-32 object-cover"
                         />
                     ) : (
                         <img
@@ -64,12 +64,12 @@ const Form: React.FC<FormProps> = ({
                                 warehouse.user_id
                             }/${warehouse.id}/${warehouse.thumbnail}`}
                             alt="現在のサムネイル"
-                            className="mt-1 sm:mt-2 w-full rounded-md"
+                            className="mt-1 sm:mt-2 w-32 h-32 object-cover"
                         />
                     )}
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-700">名前</h3>
+                    <h3 className="font-semibold text-gray-700">Name</h3>
                     <input
                         type="text"
                         value={name}
@@ -79,7 +79,7 @@ const Form: React.FC<FormProps> = ({
                     />
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-700">メモ</h3>
+                    <h3 className="font-semibold text-gray-700">Memo</h3>
                     <textarea
                         value={memo}
                         onChange={(e) => setMemo(e.target.value)}
@@ -87,24 +87,9 @@ const Form: React.FC<FormProps> = ({
                         rows={4}
                     />
                 </div>
-                <div className="flex gap-2">
-                    <button
-                        type="submit"
-                        className="flex-1 bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                    >
-                        更新
-                    </button>
-                    <button
-                        type="button"
-                        onClick={onCancel}
-                        className="flex-1 bg-gray-300 text-gray-700 py-2 px-4 rounded-md hover:bg-gray-400"
-                    >
-                        キャンセル
-                    </button>
-                </div>
             </form>
         </div>
     );
 };
 
-export default Form;
+export default Update;
