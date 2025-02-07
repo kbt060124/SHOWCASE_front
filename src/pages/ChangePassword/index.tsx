@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/utils/useAuth";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 
-function ChangePassword() {
+const ChangePassword = () => {
     const { user, changePassword, error: authError } = useAuth();
     const [currentPassword, setCurrentPassword] = useState("");
     const [newPassword, setNewPassword] = useState("");
@@ -153,6 +153,6 @@ function ChangePassword() {
             </div>
         </div>
     );
-}
+};
 
 export default ChangePassword;

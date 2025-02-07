@@ -5,7 +5,7 @@ interface HeaderProps {
     nickname?: string;
 }
 
-function Header({ nickname }: HeaderProps) {
+const Header = ({ nickname }: HeaderProps) => {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -74,6 +74,6 @@ function Header({ nickname }: HeaderProps) {
             </div>
         </header>
     );
-}
+};
 
 export default Header;

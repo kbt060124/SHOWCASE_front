@@ -17,16 +17,16 @@ interface Warehouse {
     updated_at: string | null;
 }
 
-function getCookie(name: string): string {
+const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) {
         return parts.pop()?.split(";").shift() || "";
     }
     return "";
-}
+};
 
-function Warehouse() {
+const Warehouse = () => {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
@@ -198,6 +198,6 @@ function Warehouse() {
             )}
         </div>
     );
-}
+};
 
 export default Warehouse;

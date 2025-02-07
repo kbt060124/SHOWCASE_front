@@ -11,7 +11,7 @@ interface SearchResult {
     };
 }
 
-function Visit() {
+const Visit = () => {
     const [searchQuery, setSearchQuery] = useState("");
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
@@ -101,6 +101,6 @@ function Visit() {
             </div>
         </div>
     );
-}
+};
 
 export default Visit;

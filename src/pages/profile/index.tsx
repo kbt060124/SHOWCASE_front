@@ -36,7 +36,7 @@ interface EditForm {
     user_thumbnail?: Blob;
 }
 
-function Profile() {
+const Profile = () => {
     const { user_id } = useParams();
     const [user, setUser] = useState<User | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -390,6 +390,6 @@ function Profile() {
             )}
         </div>
     );
-}
+};
 
 export default Profile;

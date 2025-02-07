@@ -9,11 +9,7 @@ interface SideMenuProps {
     nickname?: string;
 }
 
-function SideMenu({
-    isOpen,
-    menuRef,
-    nickname = "User",
-}: SideMenuProps) {
+const SideMenu = ({ isOpen, menuRef, nickname = "User" }: SideMenuProps) => {
     const { logout } = useAuth();
     const navigate = useNavigate();
 
@@ -73,6 +69,6 @@ function SideMenu({
             </div>
         </div>
     );
-}
+};
 
 export default SideMenu;
