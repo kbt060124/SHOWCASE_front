@@ -24,11 +24,6 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     onEdit,
     onDelete,
 }) => {
-    const formatDate = (dateString: string | null) => {
-        return dateString
-            ? new Date(dateString).toLocaleDateString("ja-JP")
-            : "日時不明";
-    };
 
     return (
         <div className="w-full p-4 bg-white">
