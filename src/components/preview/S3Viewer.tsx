@@ -58,15 +58,29 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
         if (canvas) {
             // オフスクリーンキャンバスを作成
             const offscreenCanvas = document.createElement("canvas");
-            offscreenCanvas.width = 1024;
-            offscreenCanvas.height = 1024;
+            const targetSize = 1024;
+
+            // 元のキャンバスのアスペクト比を計算
+            const aspectRatio = canvas.width / canvas.height;
+
+            // アスペクト比に基づいてサイズを設定
+            if (aspectRatio > 1) {
+                // 横長の場合
+                offscreenCanvas.width = targetSize;
+                offscreenCanvas.height = Math.round(targetSize / aspectRatio);
+            } else {
+                // 縦長の場合
+                offscreenCanvas.height = targetSize;
+                offscreenCanvas.width = Math.round(targetSize * aspectRatio);
+            }
+
             const ctx = offscreenCanvas.getContext("2d");
 
             if (ctx) {
                 // 現在のシーンを一度レンダリング
                 sceneRef.current.render();
 
-                // 現在のキャンバスの内容をオフスクリーンキャンバスにコピー
+                // アスペクト比を維持しながらリサイズ
                 ctx.drawImage(
                     canvas,
                     0,
@@ -75,8 +89,8 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                     canvas.height,
                     0,
                     0,
-                    1024,
-                    1024
+                    offscreenCanvas.width,
+                    offscreenCanvas.height
                 );
 
                 offscreenCanvas.toBlob(
@@ -117,7 +131,7 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                     <button
                         onClick={handleCaptureScreenshot}
                         className="text-blue-500 hover:text-blue-600 text-sm mr-4"
-                        >
+                    >
                         Set current view as thumbnail
                     </button>
                 </div>

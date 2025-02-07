@@ -48,7 +48,7 @@ const Form: React.FC<FormProps> = ({
     };
 
     return (
-        <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 bg-gray-50 rounded-lg shrink-0">
+        <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 rounded-lg shrink-0">
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
                     <h3 className="font-semibold text-gray-700">Thumbnail</h3>
