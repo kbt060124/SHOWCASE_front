@@ -6,13 +6,13 @@ interface UploadFormData {
     thumbnail: File | null;
 }
 
-interface FormProps {
+interface StoreProps {
     initialName: string;
     onSubmit: (data: UploadFormData) => void;
     thumbnail: File | null;
 }
 
-const Form: React.FC<FormProps> = ({ initialName, onSubmit, thumbnail }) => {
+const Store: React.FC<StoreProps> = ({ initialName, onSubmit, thumbnail }) => {
     const [name, setName] = React.useState(initialName);
     const [memo, setMemo] = React.useState("");
     const [thumbnailUrl, setThumbnailUrl] = React.useState<string | null>(null);
@@ -83,4 +83,4 @@ const Form: React.FC<FormProps> = ({ initialName, onSubmit, thumbnail }) => {
     );
 };
 
-export default Form;
+export default Store;

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import InfoPanel from "@/pages/warehouse/components/modal/InfoPanel";
+import InfoPanel from "@/pages/warehouse/components/viewer/InfoPanel";
 import S3Viewer from "@/components/preview/S3Viewer";
-import Form from "@/pages/warehouse/components/modal/Form";
+import Update from "@/pages/warehouse/components/viewer/Update";
 import api from "@/utils/axios";
 
 interface Warehouse {
@@ -17,14 +17,14 @@ interface Warehouse {
     updated_at: string | null;
 }
 
-interface ModalProps {
+interface ViewerProps {
     warehouse: Warehouse;
     onClose: () => void;
     onDelete: (id: bigint) => void;
     onUpdate: (updatedWarehouse: Warehouse) => void;
 }
 
-const Modal: React.FC<ModalProps> = ({
+const Viewer: React.FC<ViewerProps> = ({
     warehouse,
     onClose,
     onDelete,
@@ -136,7 +136,7 @@ const Modal: React.FC<ModalProps> = ({
                     onCaptureScreenshot={setThumbnail}
                 />
                 {isEditMode ? (
-                    <Form
+                    <Update
                         warehouse={warehouse}
                         onSubmit={handleSubmit}
                         thumbnail={thumbnail}
@@ -154,4 +154,4 @@ const Modal: React.FC<ModalProps> = ({
     );
 };
 
-export default Modal;
+export default Viewer;

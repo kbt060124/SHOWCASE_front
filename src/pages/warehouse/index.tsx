@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import UploadForm from "@/pages/warehouse/components/upload";
-import Modal from "@/pages/warehouse/components/modal";
+import Viewer from "@/pages/warehouse/components/viewer";
 import { useAuth } from "@/utils/useAuth";
 import api from "@/utils/axios";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
@@ -184,7 +184,7 @@ const Warehouse = () => {
             </label>
 
             {selectedWarehouse && (
-                <Modal
+                <Viewer
                     warehouse={selectedWarehouse}
                     onClose={closeModal}
                     onDelete={handleDelete}

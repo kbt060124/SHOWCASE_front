@@ -13,7 +13,7 @@ interface Warehouse {
     updated_at: string | null;
 }
 
-interface FormProps {
+interface UpdateProps {
     warehouse: Warehouse;
     onSubmit: (data: {
         name: string;
@@ -24,7 +24,7 @@ interface FormProps {
     onCancel: () => void;
 }
 
-const Form: React.FC<FormProps> = ({
+const Update: React.FC<UpdateProps> = ({
     warehouse,
     onSubmit,
     thumbnail,
@@ -92,4 +92,4 @@ const Form: React.FC<FormProps> = ({
     );
 };
 
-export default Form;
+export default Update;
