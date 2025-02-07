@@ -1,7 +1,6 @@
 import React from "react";
-import CloseButton from "../modal/CloseButton";
 import BinaryViewer from "@/components/preview/BinaryViewer";
-import Form from "@/pages/warehouse/components/upload/Form";
+import Store from "@/pages/warehouse/components/upload/Store";
 import { useAuth } from "@/utils/useAuth";
 
 interface UploadModalProps {
@@ -17,7 +16,7 @@ interface UploadFormData {
     thumbnail: File | null;
 }
 
-const UploadModal: React.FC<UploadModalProps> = ({
+const Upload: React.FC<UploadModalProps> = ({
     file,
     onClose,
     onSubmit,
@@ -66,15 +65,46 @@ const UploadModal: React.FC<UploadModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
-            <div className="bg-white p-3 sm:p-4 rounded-lg w-full max-h-[95vh] flex flex-col relative">
-                <CloseButton onClose={onClose} />
-                <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
+        <div
+            className="fixed inset-0 bg-white flex flex-col"
+            style={{ zIndex: 1100 }}
+        >
+            {/* ヘッダー部分 */}
+            <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
+                <button
+                    onClick={onClose}
+                    className="text-2xl font-bold absolute left-4"
+                >
+                    &#x3C;
+                </button>
+                <h1 className="text-lg font-bold flex-1 text-center">
+                    WAREHOUSE
+                </h1>
+                <div className="absolute right-4 w-[48px] text-center">
+                    <button
+                        onClick={() => {
+                            const formElement = document.querySelector("form");
+                            if (formElement) {
+                                formElement.requestSubmit();
+                            }
+                        }}
+                        className="text-[#11529A] hover:opacity-80 text-sm"
+                    >
+                        Store
+                    </button>
+                </div>
+            </div>
+
+            {/* コンテンツ部分 */}
+            <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
+                <div className="flex-1">
                     <BinaryViewer
                         file={file}
                         onCaptureScreenshot={setThumbnail}
                     />
-                    <Form
+                </div>
+                <div className="flex-1">
+                    <Store
                         initialName={file.name.replace(".glb", "")}
                         onSubmit={handleSubmit}
                         thumbnail={thumbnail}
@@ -85,4 +115,4 @@ const UploadModal: React.FC<UploadModalProps> = ({
     );
 };
 
-export default UploadModal;
+export default Upload;

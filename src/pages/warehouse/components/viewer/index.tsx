@@ -1,8 +1,7 @@
 import React, { useState } from "react";
-import CloseButton from "@/pages/warehouse/components/modal/CloseButton";
-import InfoPanel from "@/pages/warehouse/components/modal/InfoPanel";
+import InfoPanel from "@/pages/warehouse/components/viewer/InfoPanel";
 import S3Viewer from "@/components/preview/S3Viewer";
-import Form from "@/pages/warehouse/components/modal/Form";
+import Update from "@/pages/warehouse/components/viewer/Update";
 import api from "@/utils/axios";
 
 interface Warehouse {
@@ -18,14 +17,14 @@ interface Warehouse {
     updated_at: string | null;
 }
 
-interface ModalProps {
+interface ViewerProps {
     warehouse: Warehouse;
     onClose: () => void;
     onDelete: (id: bigint) => void;
     onUpdate: (updatedWarehouse: Warehouse) => void;
 }
 
-const Modal: React.FC<ModalProps> = ({
+const Viewer: React.FC<ViewerProps> = ({
     warehouse,
     onClose,
     onDelete,
@@ -89,33 +88,70 @@ const Modal: React.FC<ModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
-            <div className="bg-white p-3 sm:p-4 rounded-lg w-full max-h-[95vh] flex flex-col relative">
-                <CloseButton onClose={onClose} />
-                <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
-                    <S3Viewer
-                        warehouse={warehouse}
-                        isEditMode={isEditMode}
-                        onCaptureScreenshot={setThumbnail}
-                    />
+        <div
+            className="fixed inset-0 bg-white flex flex-col"
+            style={{ zIndex: 1100 }}
+        >
+            {/* ヘッダー部分 */}
+            <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
+                <button
+                    onClick={onClose}
+                    className="text-2xl font-bold absolute left-4"
+                >
+                    &#x3C;
+                </button>
+                <h1 className="text-lg font-bold flex-1 text-center">
+                    WAREHOUSE
+                </h1>
+                <div className="absolute right-4 w-[48px] text-center">
                     {isEditMode ? (
-                        <Form
-                            warehouse={warehouse}
-                            onSubmit={handleSubmit}
-                            thumbnail={thumbnail}
-                            onCancel={() => setIsEditMode(false)}
-                        />
+                        <button
+                            onClick={() => {
+                                const formElement =
+                                    document.querySelector("form");
+                                if (formElement) {
+                                    formElement.requestSubmit();
+                                }
+                            }}
+                            className="text-[#11529A] hover:opacity-80 text-sm"
+                        >
+                            Update
+                        </button>
                     ) : (
-                        <InfoPanel
-                            warehouse={warehouse}
-                            onEdit={() => setIsEditMode(true)}
-                            onDelete={handleDelete}
-                        />
+                        <button
+                            onClick={() => setIsEditMode(true)}
+                            className="text-[#11529A] hover:opacity-80 text-sm"
+                        >
+                            Edit
+                        </button>
                     )}
                 </div>
+            </div>
+
+            {/* コンテンツ部分 */}
+            <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
+                <S3Viewer
+                    warehouse={warehouse}
+                    isEditMode={isEditMode}
+                    onCaptureScreenshot={setThumbnail}
+                />
+                {isEditMode ? (
+                    <Update
+                        warehouse={warehouse}
+                        onSubmit={handleSubmit}
+                        thumbnail={thumbnail}
+                        onCancel={() => setIsEditMode(false)}
+                    />
+                ) : (
+                    <InfoPanel
+                        warehouse={warehouse}
+                        onEdit={() => setIsEditMode(true)}
+                        onDelete={handleDelete}
+                    />
+                )}
             </div>
         </div>
     );
 };
 
-export default Modal;
+export default Viewer;

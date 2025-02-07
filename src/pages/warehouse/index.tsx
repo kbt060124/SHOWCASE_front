@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import UploadForm from "@/pages/warehouse/components/upload";
-import Modal from "@/pages/warehouse/components/modal";
+import Upload from "@/pages/warehouse/components/upload";
+import Viewer from "@/pages/warehouse/components/viewer";
 import { useAuth } from "@/utils/useAuth";
 import api from "@/utils/axios";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 interface Warehouse {
     id: bigint;
@@ -17,16 +18,16 @@ interface Warehouse {
     updated_at: string | null;
 }
 
-function getCookie(name: string): string {
+const getCookie = (name: string): string => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) {
         return parts.pop()?.split(";").shift() || "";
     }
     return "";
-}
+};
 
-function Warehouse() {
+const Warehouse = () => {
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
@@ -143,24 +144,12 @@ function Warehouse() {
     };
 
     return (
-        <div className="container mx-auto px-4">
-            <div className="flex justify-between item-center mb-4">
-                <h1 className="text-2xl font-bold">Warehouse</h1>
-                <label className="cursor-pointer bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-full">
-                    <input
-                        type="file"
-                        className="hidden"
-                        accept=".glb"
-                        onChange={handleFileUpload}
-                    />
-                    <span className="text-xl">+</span>
-                </label>
-            </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-2 sm:gap-4">
+        <div className="container mx-auto relative min-h-screen">
+            <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2">
                 {warehouses.map((warehouse) => (
                     <div
                         key={warehouse.id}
-                        className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer"
+                        className="bg-white shadow-md overflow-hidden cursor-pointer"
                         onClick={() => openModal(warehouse)}
                     >
                         <img
@@ -168,19 +157,34 @@ function Warehouse() {
                                 warehouse.user_id
                             }/${warehouse.id}/${warehouse.thumbnail}`}
                             alt={warehouse.name}
-                            className="w-full h-24 sm:h-32 object-cover"
+                            className="w-full aspect-square object-cover"
                         />
-                        <div className="p-2 sm:p-3">
-                            <h2 className="text-sm sm:text-base font-semibold truncate">
-                                {warehouse.name}
-                            </h2>
-                        </div>
                     </div>
                 ))}
             </div>
 
+            <label
+                className="fixed cursor-pointer"
+                style={{
+                    bottom: `${MENU_BAR_HEIGHT + 16}px`,
+                    right: "16px",
+                }}
+            >
+                <input
+                    type="file"
+                    className="hidden"
+                    accept=".glb"
+                    onChange={handleFileUpload}
+                />
+                <img
+                    src="/images/add_KCGradation.png"
+                    alt="アップロード"
+                    className="w-12 h-12 hover:opacity-80 transition-opacity"
+                />
+            </label>
+
             {selectedWarehouse && (
-                <Modal
+                <Viewer
                     warehouse={selectedWarehouse}
                     onClose={closeModal}
                     onDelete={handleDelete}
@@ -189,7 +193,7 @@ function Warehouse() {
             )}
 
             {uploadFile && (
-                <UploadForm
+                <Upload
                     isOpen={isUploadPreviewOpen}
                     onClose={() => setIsUploadPreviewOpen(false)}
                     file={uploadFile}
@@ -198,6 +202,6 @@ function Warehouse() {
             )}
         </div>
     );
-}
+};
 
 export default Warehouse;

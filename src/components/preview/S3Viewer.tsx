@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { setupWarehouseScene } from "@/utils/sceneSetup";
 import { Scene, Engine } from "@babylonjs/core";
@@ -28,6 +28,26 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
     onCaptureScreenshot,
 }) => {
     const sceneRef = useRef<Scene | null>(null);
+    const [canvasHeight, setCanvasHeight] = useState<number>(0);
+
+    useEffect(() => {
+        const calculateHeight = () => {
+            // ビューポートの高さの60%を計算
+            const vh = window.innerHeight;
+            setCanvasHeight(Math.round(vh * 0.6));
+        };
+
+        // 初回計算
+        calculateHeight();
+
+        // リサイズイベントのリスナーを追加
+        window.addEventListener("resize", calculateHeight);
+
+        // クリーンアップ
+        return () => {
+            window.removeEventListener("resize", calculateHeight);
+        };
+    }, []);
 
     const handleCaptureScreenshot = () => {
         if (!sceneRef.current || !onCaptureScreenshot) return;
@@ -38,15 +58,29 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
         if (canvas) {
             // オフスクリーンキャンバスを作成
             const offscreenCanvas = document.createElement("canvas");
-            offscreenCanvas.width = 1024;
-            offscreenCanvas.height = 1024;
+            const targetSize = 1024;
+
+            // 元のキャンバスのアスペクト比を計算
+            const aspectRatio = canvas.width / canvas.height;
+
+            // アスペクト比に基づいてサイズを設定
+            if (aspectRatio > 1) {
+                // 横長の場合
+                offscreenCanvas.width = targetSize;
+                offscreenCanvas.height = Math.round(targetSize / aspectRatio);
+            } else {
+                // 縦長の場合
+                offscreenCanvas.height = targetSize;
+                offscreenCanvas.width = Math.round(targetSize * aspectRatio);
+            }
+
             const ctx = offscreenCanvas.getContext("2d");
 
             if (ctx) {
                 // 現在のシーンを一度レンダリング
                 sceneRef.current.render();
 
-                // 現在のキャンバスの内容をオフスクリーンキャンバスにコピー
+                // アスペクト比を維持しながらリサイズ
                 ctx.drawImage(
                     canvas,
                     0,
@@ -55,8 +89,8 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                     canvas.height,
                     0,
                     0,
-                    1024,
-                    1024
+                    offscreenCanvas.width,
+                    offscreenCanvas.height
                 );
 
                 offscreenCanvas.toBlob(
@@ -76,34 +110,33 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
     };
 
     return (
-        <div className="flex-1 min-h-[250px] sm:min-h-[300px] overflow-hidden relative">
+        <>
+            <SceneComponent
+                antialias
+                onSceneReady={(scene) => {
+                    sceneRef.current = scene;
+                    setupWarehouseScene(
+                        scene,
+                        `${import.meta.env.VITE_S3_URL}/warehouse/${
+                            warehouse.user_id
+                        }/${warehouse.id}/${warehouse.filename}`
+                    );
+                }}
+                id={`canvas-${warehouse.id}`}
+                height={`${canvasHeight}px`}
+                className="w-full h-full"
+            />
             {isEditMode && onCaptureScreenshot && (
-                <div className="absolute top-2 left-2 z-10">
+                <div className="px-4 pt-2">
                     <button
                         onClick={handleCaptureScreenshot}
-                        className="bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600"
+                        className="text-[#11529A] hover:opacity-80 text-sm"
                     >
-                        現在の表示をサムネイルとして設定
+                        Set current view as thumbnail
                     </button>
                 </div>
             )}
-            <div className="w-full h-full pt-12" style={{ minHeight: "500px" }}>
-                <SceneComponent
-                    antialias
-                    onSceneReady={(scene) => {
-                        sceneRef.current = scene;
-                        setupWarehouseScene(
-                            scene,
-                            `${import.meta.env.VITE_S3_URL}/warehouse/${
-                                warehouse.user_id
-                            }/${warehouse.id}/${warehouse.filename}`
-                        );
-                    }}
-                    id={`canvas-${warehouse.id}`}
-                    className="w-full h-full"
-                />
-            </div>
-        </div>
+        </>
     );
 };
 

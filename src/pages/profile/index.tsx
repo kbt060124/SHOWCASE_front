@@ -36,7 +36,7 @@ interface EditForm {
     user_thumbnail?: Blob;
 }
 
-function Profile() {
+const Profile = () => {
     const { user_id } = useParams();
     const [user, setUser] = useState<User | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
@@ -172,9 +172,9 @@ function Profile() {
     }
 
     return (
-        <div className="min-h-screen bg-white relative pb-20 sm:pb-0">
+        <div className="min-h-screen bg-white relative sm:pb-0">
             <Header nickname={user?.profile.nickname} />
-            <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
+            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <div className="flex items-start space-x-4">
                     {/* プロフィール画像 */}
                     <div className="relative w-24 h-24">
@@ -390,6 +390,6 @@ function Profile() {
             )}
         </div>
     );
-}
+};
 
 export default Profile;

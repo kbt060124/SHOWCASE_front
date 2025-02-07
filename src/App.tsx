@@ -31,12 +31,11 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 // メニューバーを表示しないパスのリスト
-const noNavPaths = ["/login", "/register", "/profile/create"];
+const noNavPaths = ["/login", "/register", "/change-password"];
 
-function App() {
+const App = () => {
     const location = useLocation();
-    const showNav =
-        !noNavPaths.includes(location.pathname)
+    const showNav = !noNavPaths.includes(location.pathname);
 
     useEffect(() => {
         // CSRFトークンを取得
@@ -52,48 +51,65 @@ function App() {
     }, []);
 
     return (
-        <div>
-            <Routes>
-                <Route path="/login" element={<Login />} />
-                <Route path="/register" element={<Register />} />
-                <Route path="/change-password" element={<ChangePassword />} />
-                <Route
-                    path="/studio/:room_id"
-                    element={
-                        <ProtectedRoute>
-                            <Studio />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/warehouse"
-                    element={
-                        <ProtectedRoute>
-                            <Warehouse />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/profile/:user_id"
-                    element={
-                        <ProtectedRoute>
-                            <Profile />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route
-                    path="/mainstage/:room_id"
-                    element={
-                        <ProtectedRoute>
-                            <Mainstage />
-                        </ProtectedRoute>
-                    }
-                />
-                <Route path="/visit" element={<Visit />} />
-            </Routes>
+        <div
+            style={{
+                display: "flex",
+                flexDirection: "column",
+                minHeight: "100vh", // ビューポートの高さいっぱいに広げる
+            }}
+        >
+            <div style={{ flex: 1 }}>
+                {" "}
+                {/* メインコンテンツエリア */}
+                <Routes>
+                    <Route
+                        path="/"
+                        element={<Navigate to="/warehouse" replace />}
+                    />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/register" element={<Register />} />
+                    <Route
+                        path="/change-password"
+                        element={<ChangePassword />}
+                    />
+                    <Route
+                        path="/studio/:room_id"
+                        element={
+                            <ProtectedRoute>
+                                <Studio />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/warehouse"
+                        element={
+                            <ProtectedRoute>
+                                <Warehouse />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/profile/:user_id"
+                        element={
+                            <ProtectedRoute>
+                                <Profile />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/mainstage/:room_id"
+                        element={
+                            <ProtectedRoute>
+                                <Mainstage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route path="/visit" element={<Visit />} />
+                </Routes>
+            </div>
             {showNav && <MenuBar />}
         </div>
     );
-}
+};
 
 export default App;
