@@ -45,7 +45,7 @@ const MenuBar = () => {
                 left: 0,
                 right: 0,
                 zIndex: 1000,
-                height: MENU_BAR_HEIGHT
+                height: MENU_BAR_HEIGHT,
             }}
             elevation={3}
         >

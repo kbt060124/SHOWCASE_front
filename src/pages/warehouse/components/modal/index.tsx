@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import CloseButton from "@/pages/warehouse/components/modal/CloseButton";
 import InfoPanel from "@/pages/warehouse/components/modal/InfoPanel";
 import S3Viewer from "@/components/preview/S3Viewer";
 import Form from "@/pages/warehouse/components/modal/Form";
@@ -89,30 +88,39 @@ const Modal: React.FC<ModalProps> = ({
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-2 sm:p-4">
-            <div className="bg-white p-3 sm:p-4 rounded-lg w-full max-h-[95vh] flex flex-col relative">
-                <CloseButton onClose={onClose} />
-                <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
-                    <S3Viewer
+        <div
+            className="fixed inset-0 bg-white flex flex-col"
+            style={{ zIndex: 1100 }}
+        >
+            {/* ヘッダー部分 */}
+            <div className="h-12 flex items-center px-4 border-b">
+                <button onClick={onClose} className="text-2xl font-bold">
+                    &#x3C;
+                </button>
+                <h1 className="ml-4 text-lg font-bold">WAREHOUSE</h1>
+            </div>
+
+            {/* コンテンツ部分 */}
+            <div className="flex-grow flex-col overflow-auto">
+                <S3Viewer
+                    warehouse={warehouse}
+                    isEditMode={isEditMode}
+                    onCaptureScreenshot={setThumbnail}
+                />
+                {isEditMode ? (
+                    <Form
                         warehouse={warehouse}
-                        isEditMode={isEditMode}
-                        onCaptureScreenshot={setThumbnail}
+                        onSubmit={handleSubmit}
+                        thumbnail={thumbnail}
+                        onCancel={() => setIsEditMode(false)}
                     />
-                    {isEditMode ? (
-                        <Form
-                            warehouse={warehouse}
-                            onSubmit={handleSubmit}
-                            thumbnail={thumbnail}
-                            onCancel={() => setIsEditMode(false)}
-                        />
-                    ) : (
-                        <InfoPanel
-                            warehouse={warehouse}
-                            onEdit={() => setIsEditMode(true)}
-                            onDelete={handleDelete}
-                        />
-                    )}
-                </div>
+                ) : (
+                    <InfoPanel
+                        warehouse={warehouse}
+                        onEdit={() => setIsEditMode(true)}
+                        onDelete={handleDelete}
+                    />
+                )}
             </div>
         </div>
     );

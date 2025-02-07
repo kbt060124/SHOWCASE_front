@@ -76,7 +76,7 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
     };
 
     return (
-        <div className="flex-1 min-h-[250px] sm:min-h-[300px] overflow-hidden relative">
+        <div className="flex-1 overflow-hidden relative">
             {isEditMode && onCaptureScreenshot && (
                 <div className="absolute top-2 left-2 z-10">
                     <button
@@ -87,22 +87,21 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                     </button>
                 </div>
             )}
-            <div className="w-full h-full pt-12" style={{ minHeight: "500px" }}>
-                <SceneComponent
-                    antialias
-                    onSceneReady={(scene) => {
-                        sceneRef.current = scene;
-                        setupWarehouseScene(
-                            scene,
-                            `${import.meta.env.VITE_S3_URL}/warehouse/${
-                                warehouse.user_id
-                            }/${warehouse.id}/${warehouse.filename}`
-                        );
-                    }}
-                    id={`canvas-${warehouse.id}`}
-                    className="w-full h-full"
-                />
-            </div>
+            <SceneComponent
+                antialias
+                onSceneReady={(scene) => {
+                    sceneRef.current = scene;
+                    setupWarehouseScene(
+                        scene,
+                        `${import.meta.env.VITE_S3_URL}/warehouse/${
+                            warehouse.user_id
+                        }/${warehouse.id}/${warehouse.filename}`
+                    );
+                }}
+                id={`canvas-${warehouse.id}`}
+                height="80%"
+                className="w-full h-full"
+            />
         </div>
     );
 };

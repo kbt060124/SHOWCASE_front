@@ -31,43 +31,24 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     };
 
     return (
-        <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 bg-gray-50 rounded-lg shrink-0">
-            <div className="space-y-3 sm:space-y-4">
-                <div className="flex justify-between items-center">
-                    <h3 className="font-semibold text-gray-700">情報</h3>
-                    <button
-                        onClick={onEdit}
-                        className="text-blue-500 hover:text-blue-600"
-                    >
-                        編集
-                    </button>
-                </div>
+        <div className="w-full p-4 bg-white">
+            <div className="space-y-4">
                 <div>
-                    <h3 className="font-semibold text-gray-700">名前</h3>
-                    <p className="mt-1 sm:mt-2 text-gray-600 text-sm sm:text-base">
-                        {warehouse.name}
-                    </p>
+                    <h2 className="text-xl font-bold">{warehouse.name}</h2>
+                    <p className="text-gray-600">{warehouse.memo || ""}</p>
                 </div>
-                <div>
-                    <h3 className="font-semibold text-gray-700">詳細情報</h3>
-                    <p className="mt-1 sm:mt-2 text-gray-600 text-sm sm:text-base">
-                        {warehouse.memo || "メモはありません"}
-                    </p>
-                </div>
-                <div>
-                    <h3 className="font-semibold text-gray-700">作成日時</h3>
-                    <p className="mt-1 sm:mt-2 text-gray-600 text-sm sm:text-base">
-                        {formatDate(warehouse.created_at)}
-                    </p>
-                </div>
-                <div>
-                    <button
-                        onClick={onDelete}
-                        className="w-full py-2 px-4 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-                    >
-                        削除
-                    </button>
-                </div>
+                <button
+                    onClick={onEdit}
+                    className="text-blue-500 hover:text-blue-600 text-sm mr-4"
+                >
+                    Edit
+                </button>
+                <button
+                    onClick={onDelete}
+                    className="text-[#8C252B] hover:opacity-80 text-sm"
+                >
+                    Delete item
+                </button>
             </div>
         </div>
     );
