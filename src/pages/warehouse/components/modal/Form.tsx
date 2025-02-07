@@ -51,12 +51,12 @@ const Form: React.FC<FormProps> = ({
         <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 bg-gray-50 rounded-lg shrink-0">
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
-                    <h3 className="font-semibold text-gray-700">サムネイル</h3>
+                    <h3 className="font-semibold text-gray-700">Thumbnail</h3>
                     {thumbnailUrl ? (
                         <img
                             src={thumbnailUrl}
                             alt="新しいサムネイル"
-                            className="mt-1 sm:mt-2 w-full rounded-md"
+                            className="mt-1 sm:mt-2 w-32 h-32 object-cover"
                         />
                     ) : (
                         <img
@@ -64,12 +64,12 @@ const Form: React.FC<FormProps> = ({
                                 warehouse.user_id
                             }/${warehouse.id}/${warehouse.thumbnail}`}
                             alt="現在のサムネイル"
-                            className="mt-1 sm:mt-2 w-full rounded-md"
+                            className="mt-1 sm:mt-2 w-32 h-32 object-cover"
                         />
                     )}
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-700">名前</h3>
+                    <h3 className="font-semibold text-gray-700">Name</h3>
                     <input
                         type="text"
                         value={name}
@@ -79,7 +79,7 @@ const Form: React.FC<FormProps> = ({
                     />
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-700">メモ</h3>
+                    <h3 className="font-semibold text-gray-700">Memo</h3>
                     <textarea
                         value={memo}
                         onChange={(e) => setMemo(e.target.value)}

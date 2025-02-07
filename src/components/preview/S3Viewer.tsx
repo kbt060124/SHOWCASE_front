@@ -96,7 +96,7 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
     };
 
     return (
-        <div className="flex-1 relative flex flex-col">
+        <>
             <SceneComponent
                 antialias
                 onSceneReady={(scene) => {
@@ -117,12 +117,12 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                     <button
                         onClick={handleCaptureScreenshot}
                         className="text-blue-500 hover:text-blue-600 text-sm mr-4"
-                    >
+                        >
                         Set current view as thumbnail
                     </button>
                 </div>
             )}
-        </div>
+        </>
     );
 };
 
