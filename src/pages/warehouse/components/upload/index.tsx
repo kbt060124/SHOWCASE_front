@@ -16,7 +16,7 @@ interface UploadFormData {
     thumbnail: File | null;
 }
 
-const UploadModal: React.FC<UploadModalProps> = ({
+const Upload: React.FC<UploadModalProps> = ({
     file,
     onClose,
     onSubmit,
@@ -77,7 +77,9 @@ const UploadModal: React.FC<UploadModalProps> = ({
                 >
                     &#x3C;
                 </button>
-                <h1 className="text-lg font-bold flex-1 text-center">WAREHOUSE</h1>
+                <h1 className="text-lg font-bold flex-1 text-center">
+                    WAREHOUSE
+                </h1>
                 <div className="absolute right-4 w-[48px] text-center">
                     <button
                         onClick={() => {
@@ -88,22 +90,29 @@ const UploadModal: React.FC<UploadModalProps> = ({
                         }}
                         className="text-[#11529A] hover:opacity-80 text-sm"
                     >
-                        Save
+                        Store
                     </button>
                 </div>
             </div>
 
             {/* コンテンツ部分 */}
             <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
-                <BinaryViewer file={file} onCaptureScreenshot={setThumbnail} />
-                <Store
-                    initialName={file.name.replace(".glb", "")}
-                    onSubmit={handleSubmit}
-                    thumbnail={thumbnail}
-                />
+                <div className="flex-1">
+                    <BinaryViewer
+                        file={file}
+                        onCaptureScreenshot={setThumbnail}
+                    />
+                </div>
+                <div className="flex-1">
+                    <Store
+                        initialName={file.name.replace(".glb", "")}
+                        onSubmit={handleSubmit}
+                        thumbnail={thumbnail}
+                    />
+                </div>
             </div>
         </div>
     );
 };
 
-export default UploadModal;
+export default Upload;

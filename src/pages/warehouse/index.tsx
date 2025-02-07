@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import UploadForm from "@/pages/warehouse/components/upload";
+import Upload from "@/pages/warehouse/components/upload";
 import Viewer from "@/pages/warehouse/components/viewer";
 import { useAuth } from "@/utils/useAuth";
 import api from "@/utils/axios";
@@ -193,7 +193,7 @@ const Warehouse = () => {
             )}
 
             {uploadFile && (
-                <UploadForm
+                <Upload
                     isOpen={isUploadPreviewOpen}
                     onClose={() => setIsUploadPreviewOpen(false)}
                     file={uploadFile}

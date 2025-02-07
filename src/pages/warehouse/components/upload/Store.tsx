@@ -36,25 +36,24 @@ const Store: React.FC<StoreProps> = ({ initialName, onSubmit, thumbnail }) => {
     };
 
     return (
-        <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 bg-gray-50 rounded-lg shrink-0">
+        <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 rounded-lg shrink-0">
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
                 <div>
-                    <h3 className="font-semibold text-gray-700">サムネイル</h3>
-                    {thumbnailUrl && (
+                    <h3 className="font-semibold text-gray-700">Thumbnail</h3>
+                    {thumbnailUrl ? (
                         <img
                             src={thumbnailUrl}
-                            alt="サムネイルプレビュー"
-                            className="mt-1 sm:mt-2 w-full rounded-md"
+                            alt="新しいサムネイル"
+                            className="mt-1 sm:mt-2 w-32 h-32 object-cover"
                         />
-                    )}
-                    {!thumbnailUrl && (
-                        <p className="mt-1 sm:mt-2 text-sm text-gray-500">
-                            3Dモデルのプレビューから設定してください
-                        </p>
+                    ) : (
+                        <div className="mt-1 sm:mt-2 w-32 h-32 bg-gray-100 flex items-center justify-center text-gray-500 text-sm">
+                            No thumbnail
+                        </div>
                     )}
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-700">名前</h3>
+                    <h3 className="font-semibold text-gray-700">Name</h3>
                     <input
                         type="text"
                         value={name}
@@ -64,7 +63,7 @@ const Store: React.FC<StoreProps> = ({ initialName, onSubmit, thumbnail }) => {
                     />
                 </div>
                 <div>
-                    <h3 className="font-semibold text-gray-700">メモ</h3>
+                    <h3 className="font-semibold text-gray-700">Memo</h3>
                     <textarea
                         value={memo}
                         onChange={(e) => setMemo(e.target.value)}
@@ -72,12 +71,6 @@ const Store: React.FC<StoreProps> = ({ initialName, onSubmit, thumbnail }) => {
                         rows={4}
                     />
                 </div>
-                <button
-                    type="submit"
-                    className="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600"
-                >
-                    アップロード
-                </button>
             </form>
         </div>
     );
