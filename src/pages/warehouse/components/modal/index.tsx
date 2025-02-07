@@ -93,7 +93,7 @@ const Modal: React.FC<ModalProps> = ({
             style={{ zIndex: 1100 }}
         >
             {/* ヘッダー部分 */}
-            <div className="h-12 flex items-center px-4 border-b relative">
+            <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
                 <button
                     onClick={onClose}
                     className="text-2xl font-bold absolute left-4"
@@ -103,26 +103,29 @@ const Modal: React.FC<ModalProps> = ({
                 <h1 className="text-lg font-bold flex-1 text-center">
                     WAREHOUSE
                 </h1>
-                {isEditMode ? (
-                    <button
-                        onClick={() => {
-                            const formElement = document.querySelector("form");
-                            if (formElement) {
-                                formElement.requestSubmit();
-                            }
-                        }}
-                        className="text-[#11529A] hover:opacity-80 text-sm absolute right-4"
-                    >
-                        Update
-                    </button>
-                ) : (
-                    <button
-                        onClick={() => setIsEditMode(true)}
-                        className="text-[#11529A] hover:opacity-80 text-sm absolute right-4"
-                    >
-                        Edit
-                    </button>
-                )}
+                <div className="absolute right-4 w-[48px] text-center">
+                    {isEditMode ? (
+                        <button
+                            onClick={() => {
+                                const formElement =
+                                    document.querySelector("form");
+                                if (formElement) {
+                                    formElement.requestSubmit();
+                                }
+                            }}
+                            className="text-[#11529A] hover:opacity-80 text-sm"
+                        >
+                            Update
+                        </button>
+                    ) : (
+                        <button
+                            onClick={() => setIsEditMode(true)}
+                            className="text-[#11529A] hover:opacity-80 text-sm"
+                        >
+                            Edit
+                        </button>
+                    )}
+                </div>
             </div>
 
             {/* コンテンツ部分 */}
