@@ -9,18 +9,16 @@ interface SideMenuProps {
     nickname?: string;
 }
 
-function SideMenu({
-    isOpen,
-    menuRef,
-    nickname = "User",
-}: SideMenuProps) {
+function SideMenu({ isOpen, menuRef, nickname = "User" }: SideMenuProps) {
     const { logout } = useAuth();
     const navigate = useNavigate();
 
     const handleLogout = async () => {
         try {
-            await logout();
-            navigate("/login");
+            const success = await logout();
+            if (success) {
+                navigate("/login");
+            }
         } catch (error) {
             console.error("ログアウトに失敗しました:", error);
         }
