@@ -4,6 +4,8 @@ import { useAuth } from "@/utils/useAuth";
 import api from "@/utils/axios";
 import { useEffect, useState } from "react";
 
+export const MENU_BAR_HEIGHT = 56;
+
 const MenuBar = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -43,6 +45,7 @@ const MenuBar = () => {
                 left: 0,
                 right: 0,
                 zIndex: 1000,
+                height: MENU_BAR_HEIGHT
             }}
             elevation={3}
         >
