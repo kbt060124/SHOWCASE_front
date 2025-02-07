@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { setupWarehouseScene } from "@/utils/sceneSetup";
 import { Scene, Engine } from "@babylonjs/core";
@@ -28,6 +28,26 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
     onCaptureScreenshot,
 }) => {
     const sceneRef = useRef<Scene | null>(null);
+    const [canvasHeight, setCanvasHeight] = useState<number>(0);
+
+    useEffect(() => {
+        const calculateHeight = () => {
+            // ビューポートの高さの60%を計算
+            const vh = window.innerHeight;
+            setCanvasHeight(Math.round(vh * 0.6));
+        };
+
+        // 初回計算
+        calculateHeight();
+
+        // リサイズイベントのリスナーを追加
+        window.addEventListener("resize", calculateHeight);
+
+        // クリーンアップ
+        return () => {
+            window.removeEventListener("resize", calculateHeight);
+        };
+    }, []);
 
     const handleCaptureScreenshot = () => {
         if (!sceneRef.current || !onCaptureScreenshot) return;
@@ -76,17 +96,7 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
     };
 
     return (
-        <div className="flex-1 overflow-hidden relative">
-            {isEditMode && onCaptureScreenshot && (
-                <div className="absolute top-2 left-2 z-10">
-                    <button
-                        onClick={handleCaptureScreenshot}
-                        className="bg-green-500 text-white py-1 px-3 rounded-md hover:bg-green-600"
-                    >
-                        現在の表示をサムネイルとして設定
-                    </button>
-                </div>
-            )}
+        <div className="flex-1 relative flex flex-col">
             <SceneComponent
                 antialias
                 onSceneReady={(scene) => {
@@ -99,9 +109,19 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                     );
                 }}
                 id={`canvas-${warehouse.id}`}
-                height="80%"
+                height={`${canvasHeight}px`}
                 className="w-full h-full"
             />
+            {isEditMode && onCaptureScreenshot && (
+                <div className="px-4 pt-2">
+                    <button
+                        onClick={handleCaptureScreenshot}
+                        className="text-blue-500 hover:text-blue-600 text-sm mr-4"
+                    >
+                        Set current view as thumbnail
+                    </button>
+                </div>
+            )}
         </div>
     );
 };

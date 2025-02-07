@@ -24,9 +24,8 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
     onEdit,
     onDelete,
 }) => {
-
     return (
-        <div className="w-full p-4 bg-white">
+        <div className="w-full px-4 pt-2 pb-4 bg-white">
             <div className="space-y-4">
                 <div>
                     <h2 className="text-xl font-bold">{warehouse.name}</h2>
