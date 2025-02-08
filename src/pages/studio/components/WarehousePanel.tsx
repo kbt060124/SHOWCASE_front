@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import api from "@/utils/axios";
-import CloseIcon from "@mui/icons-material/Close";
 import S3Viewer from "@/components/preview/S3Viewer";
 
 interface Warehouse {
@@ -76,7 +75,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                     &#x3C;
                 </button>
                 <h1 className="text-lg font-bold flex-1 text-center">
-                    WAREHOUSE
+                    STUDIO
                 </h1>
                 <div className="absolute right-4 w-[48px] text-center">
                     <button
