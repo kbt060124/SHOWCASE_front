@@ -298,6 +298,15 @@ const Studio: FC = () => {
         }
     };
 
+    // メッシュの存在確認用の関数を追加
+    const hasDisplayItem = useCallback(() => {
+        if (!sceneRef) return false;
+        return sceneRef.meshes.some(
+            (mesh) =>
+                Tags.HasTags(mesh) && Tags.MatchesQuery(mesh, "warehouse_item")
+        );
+    }, [sceneRef]);
+
     return (
         <div className="h-screen w-screen flex">
             {isWarehousePanelOpen && (
@@ -327,21 +336,21 @@ const Studio: FC = () => {
                             disabled={isSaving}
                             className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50"
                         >
-                            {isSaving ? "保存中..." : "保存"}
+                            {isSaving ? "Saving..." : "Save"}
                         </button>
                     </div>
                 )}
-                {!isWarehousePanelOpen && (
-                    <div className="absolute top-10 left-4 z-10">
+                {!isWarehousePanelOpen && !hasDisplayItem() && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                         <button
                             onClick={() => setIsWarehousePanelOpen(true)}
-                            className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
+                            className="transition-colors pointer-events-auto"
                             aria-label="倉庫を開く"
                         >
                             <img
-                                src="/images/warehouse-icon.png"
+                                src="/images/add_KCGradation.png"
                                 alt=""
-                                className="w-6 h-6"
+                                className="w-12 h-12"
                             />
                         </button>
                     </div>
