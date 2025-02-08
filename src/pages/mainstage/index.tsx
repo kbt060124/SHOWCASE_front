@@ -9,6 +9,8 @@ import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
+import SendIcon from "@mui/icons-material/Send";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 interface Profile {
     user_thumbnail: string;
@@ -132,7 +134,7 @@ const Mainstage: FC = () => {
 
     return (
         <div className="h-screen w-screen flex flex-col">
-            <div className="w-full h-[calc(100vh-80px)]">
+            <div className="w-full h-[calc(100vh-56px)]">
                 <SceneComponent
                     antialias
                     onSceneReady={handleSceneReady}
@@ -184,20 +186,19 @@ const Mainstage: FC = () => {
 
                     {/* コメントモーダル */}
                     {isCommentModalOpen && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <div className="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
+                        <div
+                            className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-[1001]"
+                            onClick={(e) => {
+                                if (e.target === e.currentTarget) {
+                                    setIsCommentModalOpen(false);
+                                }
+                            }}
+                        >
+                            <div className="bg-white rounded-t-lg p-6 w-full h-[50vh] overflow-y-auto mx-4">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-xl font-bold">
-                                        コメント
+                                    <h2 className="text-xl font-bold m-auto">
+                                        Comments
                                     </h2>
-                                    <button
-                                        onClick={() =>
-                                            setIsCommentModalOpen(false)
-                                        }
-                                        className="text-gray-500 hover:text-gray-700"
-                                    >
-                                        ✕
-                                    </button>
                                 </div>
 
                                 <div className="space-y-4 mb-4">
@@ -206,14 +207,27 @@ const Mainstage: FC = () => {
                                             key={comment.id}
                                             className="flex justify-between items-start"
                                         >
-                                            <div>
-                                                <div className="font-bold">
-                                                    {
+                                            <div className="flex items-center gap-3">
+                                                <img
+                                                    src={
+                                                        comment.user.profile
+                                                            .user_thumbnail
+                                                    }
+                                                    alt={
                                                         comment.user.profile
                                                             .nickname
                                                     }
+                                                    className="w-10 h-10 rounded-full"
+                                                />
+                                                <div>
+                                                    <div className="font-bold">
+                                                        {
+                                                            comment.user.profile
+                                                                .nickname
+                                                        }
+                                                    </div>
+                                                    <div>{comment.comment}</div>
                                                 </div>
-                                                <div>{comment.comment}</div>
                                             </div>
                                             {comment.user.id === user?.id && (
                                                 <button
@@ -222,34 +236,45 @@ const Mainstage: FC = () => {
                                                             comment.id
                                                         )
                                                     }
-                                                    className="text-red-500 text-sm"
+                                                    className="text-gray-400 hover:opacity-80"
                                                 >
-                                                    削除
+                                                    <DeleteIcon fontSize="small" />
                                                 </button>
                                             )}
                                         </div>
                                     ))}
                                 </div>
 
-                                <div className="flex gap-2">
-                                    <input
-                                        type="text"
-                                        value={newComment}
-                                        onChange={(e) =>
-                                            setNewComment(e.target.value)
+                                <div className="flex gap-3 items-center">
+                                    <img
+                                        src={
+                                            roomData.user.profile.user_thumbnail
                                         }
-                                        placeholder="コメントを入力..."
-                                        className="flex-1 border rounded-lg px-3 py-2"
+                                        alt={roomData.user.profile.nickname}
+                                        className="w-8 h-8 rounded-full"
                                     />
-                                    <button
-                                        onClick={() =>
-                                            handleCommentSubmit(Number(room_id))
-                                        }
-                                        disabled={!newComment.trim()}
-                                        className="bg-blue-500 text-white px-4 py-2 rounded-lg disabled:opacity-50"
-                                    >
-                                        投稿
-                                    </button>
+                                    <div className="flex-1 relative">
+                                        <input
+                                            type="text"
+                                            value={newComment}
+                                            onChange={(e) =>
+                                                setNewComment(e.target.value)
+                                            }
+                                            placeholder="コメントを入力..."
+                                            className="w-full border rounded-full px-4 py-2 pr-12"
+                                        />
+                                        <button
+                                            onClick={() =>
+                                                handleCommentSubmit(
+                                                    Number(room_id)
+                                                )
+                                            }
+                                            disabled={!newComment.trim()}
+                                            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-600 disabled:text-gray-300"
+                                        >
+                                            <SendIcon fontSize="small" />
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -265,21 +290,12 @@ const Mainstage: FC = () => {
                                 }
                             }}
                         >
-                            <div className="bg-white rounded-t-lg p-6 w-full h-[50vh] overflow-y-auto">
+                            <div className="bg-white rounded-t-lg p-6 w-full h-[50vh] overflow-y-auto mx-4">
                                 <div className="flex justify-between items-center mb-4">
-                                    <h2 className="text-xl font-bold">
-                                        いいね一覧
+                                    <h2 className="text-xl font-bold m-auto">
+                                        Likes
                                     </h2>
-                                    <button
-                                        onClick={() =>
-                                            setIsLikeModalOpen(false)
-                                        }
-                                        className="text-gray-500 hover:text-gray-700"
-                                    >
-                                        ✕
-                                    </button>
                                 </div>
-
                                 <div className="space-y-4">
                                     {roomData?.liked.map((like: any) => (
                                         <div
