@@ -67,7 +67,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     };
 
     return (
-        <div className="h-full flex flex-col">
+        <>
             <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
                 <button
                     onClick={onClose}
@@ -88,18 +88,16 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                     </button>
                 </div>
             </div>
-            {selectedWarehouse && (
-                <div className="h-[300px] border-b">
+            <div className="flex-grow flex flex-col overflow-auto">
+                {selectedWarehouse && (
                     <S3Viewer warehouse={selectedWarehouse} />
-                </div>
-            )}
-            <div className="p-4 overflow-y-auto">
-                <div className="grid grid-cols-4 gap-4">
+                )}
+                <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2">
                     {warehouses.map((warehouse) => (
                         <div
                             key={warehouse.id}
                             onClick={() => handleThumbnailClick(warehouse)}
-                            className="cursor-pointer hover:opacity-80 transition-opacity"
+                            className="bg-white shadow-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
                         >
                             <img
                                 src={`${
@@ -108,13 +106,13 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                                     warehouse.id
                                 }/${warehouse.thumbnail}`}
                                 alt={warehouse.name}
-                                className="w-full object-cover shadow-md"
+                                className="w-full aspect-square object-cover"
                             />
                         </div>
                     ))}
                 </div>
             </div>
-        </div>
+        </>
     );
 };
 
