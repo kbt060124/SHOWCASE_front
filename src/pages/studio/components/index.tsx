@@ -82,7 +82,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
 
     return (
         <>
-            <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
+            <div className="fixed top-0 left-0 right-0 h-12 min-h-[48px] flex items-center px-4 border-b bg-white z-10">
                 <button
                     onClick={handleBackClick}
                     className="text-2xl font-bold absolute left-4"
@@ -110,33 +110,35 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                     )}
                 </div>
             </div>
-            <div className="flex-grow flex flex-col overflow-auto">
-                {selectedWarehouse && (
-                    <S3Viewer warehouse={selectedWarehouse} />
-                )}
-                {showItem ? (
-                    <Item warehouse={selectedWarehouse} />
-                ) : (
-                    <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2">
-                        {warehouses.map((warehouse) => (
-                            <div
-                                key={warehouse.id}
-                                onClick={() => handleThumbnailClick(warehouse)}
-                                className="bg-white shadow-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                            >
-                                <img
-                                    src={`${
-                                        import.meta.env.VITE_S3_URL
-                                    }/warehouse/${warehouse.user_id}/${
-                                        warehouse.id
-                                    }/${warehouse.thumbnail}`}
-                                    alt={warehouse.name}
-                                    className="w-full aspect-square object-cover"
-                                />
-                            </div>
-                        ))}
-                    </div>
-                )}
+            <div className="pt-12 h-screen overflow-hidden">
+                <div className="h-full overflow-y-auto">
+                    {selectedWarehouse && (
+                        <S3Viewer warehouse={selectedWarehouse} />
+                    )}
+                    {showItem ? (
+                        <Item warehouse={selectedWarehouse} />
+                    ) : (
+                        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2 p-2">
+                            {warehouses.map((warehouse) => (
+                                <div
+                                    key={warehouse.id}
+                                    onClick={() => handleThumbnailClick(warehouse)}
+                                    className="bg-white shadow-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                                >
+                                    <img
+                                        src={`${
+                                            import.meta.env.VITE_S3_URL
+                                        }/warehouse/${warehouse.user_id}/${
+                                            warehouse.id
+                                        }/${warehouse.thumbnail}`}
+                                        alt={warehouse.name}
+                                        className="w-full aspect-square object-cover"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
             </div>
         </>
     );
