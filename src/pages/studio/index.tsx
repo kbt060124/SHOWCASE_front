@@ -358,17 +358,19 @@ const Studio: FC = () => {
                     style={{ bottom: `${MENU_BAR_HEIGHT + 16}px` }}
                     className="absolute right-4 z-[1001]"
                 >
-                    <button
-                        onClick={() => setIsEditMode(!isEditMode)}
-                        className="p-2 transition-colors"
-                        aria-label="編集モード"
-                    >
-                        <img
-                            src="/icons/edit_black.png"
-                            alt="Edit"
-                            className="w-6 h-6"
-                        />
-                    </button>
+                    {hasDisplayItem() && (
+                        <button
+                            onClick={() => setIsEditMode(!isEditMode)}
+                            className="p-2 transition-colors"
+                            aria-label="編集モード"
+                        >
+                            <img
+                                src="/icons/edit_black.png"
+                                alt="Edit"
+                                className="w-6 h-6"
+                            />
+                        </button>
+                    )}
                 </div>
                 {isEditMode && (
                     <div
