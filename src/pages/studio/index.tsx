@@ -6,6 +6,7 @@ import WarehousePanel from "@/pages/studio/WarehousePanel";
 import api from "@/utils/axios";
 import { useParams } from "react-router-dom";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface SavedMeshData {
     itemId: number;
@@ -311,15 +312,25 @@ const Studio: FC = () => {
                 </div>
             )}
             <div className="w-full relative">
-                <div className="absolute top-4 right-4 z-5">
-                    <button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition-colors disabled:bg-gray-400"
-                    >
-                        {isSaving ? "保存中..." : "保存"}
-                    </button>
-                </div>
+                {isEditMode && (
+                    <div className="absolute top-1 left-0 right-0 flex items-center justify-between px-4 z-[1001]">
+                        <button
+                            onClick={() => setIsEditMode(false)}
+                            className="p-1 hover:opacity-80 transition-opacity"
+                            aria-label="編集モードを終了"
+                        >
+                            <CloseIcon />
+                        </button>
+                        <h1 className="text-lg font-bold">STUDIO</h1>
+                        <button
+                            onClick={handleSave}
+                            disabled={isSaving}
+                            className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50"
+                        >
+                            {isSaving ? "保存中..." : "保存"}
+                        </button>
+                    </div>
+                )}
                 {!isWarehousePanelOpen && (
                     <div className="absolute top-10 left-4 z-10">
                         <button
