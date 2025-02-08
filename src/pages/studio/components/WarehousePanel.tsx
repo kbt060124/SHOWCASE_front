@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "@/utils/axios";
 import CloseIcon from "@mui/icons-material/Close";
-import S3Viewer from "../../components/preview/S3Viewer";
+import S3Viewer from "@/components/preview/S3Viewer";
 
 interface Warehouse {
     id: bigint;
@@ -67,50 +67,52 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     };
 
     return (
-        <div className="p-4 h-full flex flex-col">
-            <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold">倉庫</h2>
-                <div className="flex items-center gap-4">
+        <div className="h-full flex flex-col">
+            <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
+                <button
+                    onClick={onClose}
+                    className="text-2xl font-bold absolute left-4"
+                >
+                    &#x3C;
+                </button>
+                <h1 className="text-lg font-bold flex-1 text-center">
+                    WAREHOUSE
+                </h1>
+                <div className="absolute right-4 w-[48px] text-center">
                     <button
                         onClick={handleAddToStudio}
                         disabled={!selectedWarehouse}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg disabled:bg-gray-300 disabled:cursor-not-allowed"
+                        className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50"
                     >
-                        Studioに配置
-                    </button>
-                    <button
-                        onClick={onClose}
-                        className="text-gray-500 hover:text-gray-700"
-                        aria-label="閉じる"
-                    >
-                        <CloseIcon />
+                        Add
                     </button>
                 </div>
             </div>
             {selectedWarehouse && (
-                <div className="mb-4 h-[300px]">
+                <div className="h-[300px] border-b">
                     <S3Viewer warehouse={selectedWarehouse} />
                 </div>
             )}
-            <div className="grid grid-cols-4 gap-4 overflow-y-auto flex-1">
-                {warehouses.map((warehouse) => (
-                    <div
-                        key={warehouse.id}
-                        onClick={() => handleThumbnailClick(warehouse)}
-                        className="cursor-pointer hover:opacity-80 transition-opacity"
-                    >
-                        <img
-                            src={`${import.meta.env.VITE_S3_URL}/warehouse/${
-                                warehouse.user_id
-                            }/${warehouse.id}/${warehouse.thumbnail}`}
-                            alt={warehouse.name}
-                            className="w-full object-cover rounded-lg shadow-md"
-                        />
-                        <p className="mt-2 text-sm font-medium">
-                            {warehouse.name}
-                        </p>
-                    </div>
-                ))}
+            <div className="p-4 overflow-y-auto">
+                <div className="grid grid-cols-4 gap-4">
+                    {warehouses.map((warehouse) => (
+                        <div
+                            key={warehouse.id}
+                            onClick={() => handleThumbnailClick(warehouse)}
+                            className="cursor-pointer hover:opacity-80 transition-opacity"
+                        >
+                            <img
+                                src={`${
+                                    import.meta.env.VITE_S3_URL
+                                }/warehouse/${warehouse.user_id}/${
+                                    warehouse.id
+                                }/${warehouse.thumbnail}`}
+                                alt={warehouse.name}
+                                className="w-full object-cover shadow-md"
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
         </div>
     );

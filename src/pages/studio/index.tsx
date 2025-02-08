@@ -2,7 +2,7 @@ import React, { useState, useCallback, FC } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { studioSceneSetup, studioItemSetup } from "@/utils/studioSceneSetup";
 import { Scene, Tags, Quaternion, Vector3 } from "@babylonjs/core";
-import WarehousePanel from "@/pages/studio/WarehousePanel";
+import WarehousePanel from "@/pages/studio/components/WarehousePanel";
 import api from "@/utils/axios";
 import { useParams } from "react-router-dom";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
@@ -298,7 +298,6 @@ const Studio: FC = () => {
         }
     };
 
-    // メッシュの存在確認用の関数を追加
     const hasDisplayItem = useCallback(() => {
         if (!sceneRef) return false;
         return sceneRef.meshes.some(
@@ -311,7 +310,7 @@ const Studio: FC = () => {
         <div className="h-screen w-screen flex">
             {isWarehousePanelOpen && (
                 <div
-                    className="fixed inset-0 z-10 bg-white"
+                    className="fixed inset-0 z-[1100] bg-white"
                     onClick={handleClickOutside}
                 >
                     <WarehousePanel
