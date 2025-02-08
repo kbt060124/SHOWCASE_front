@@ -15,8 +15,10 @@ const SideMenu = ({ isOpen, menuRef, nickname = "User" }: SideMenuProps) => {
 
     const handleLogout = async () => {
         try {
-            await logout();
-            navigate("/login");
+            const success = await logout();
+            if (success) {
+                navigate("/login");
+            }
         } catch (error) {
             console.error("ログアウトに失敗しました:", error);
         }
