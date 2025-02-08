@@ -72,11 +72,19 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
         setShowItem(true);
     };
 
+    const handleBackClick = () => {
+        if (showItem) {
+            setShowItem(false);
+        } else {
+            onClose();
+        }
+    };
+
     return (
         <>
             <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
                 <button
-                    onClick={onClose}
+                    onClick={handleBackClick}
                     className="text-2xl font-bold absolute left-4"
                 >
                     &#x3C;
