@@ -2,9 +2,11 @@ import React, { useState, useCallback, FC } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { studioSceneSetup, studioItemSetup } from "@/utils/studioSceneSetup";
 import { Scene, Tags, Quaternion, Vector3 } from "@babylonjs/core";
-import WarehousePanel from "@/pages/studio/WarehousePanel";
+import WarehousePanel from "@/pages/studio/components";
 import api from "@/utils/axios";
 import { useParams } from "react-router-dom";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface SavedMeshData {
     itemId: number;
@@ -102,13 +104,17 @@ const Studio: FC = () => {
     const handleSave = async () => {
         if (!sceneRef) return;
         setIsSaving(true);
+        console.log("保存処理開始");
 
         try {
-            // シーンのキャプチャを取得
             const engine = sceneRef.getEngine();
             const canvas = engine.getRenderingCanvas();
 
             if (canvas) {
+                console.log("キャンバス取得成功、サイズ変更前:", {
+                    width: canvas.width,
+                    height: canvas.height,
+                });
                 const originalWidth = canvas.width;
                 const originalHeight = canvas.height;
 
@@ -122,21 +128,23 @@ const Studio: FC = () => {
                     canvas.toBlob(
                         async (blob) => {
                             if (blob) {
+                                console.log("Blobサイズ:", blob.size);
                                 const file = new File([blob], "thumbnail.png", {
                                     type: "image/png",
                                 });
 
-                                // FormDataの作成と送信を修正
                                 const formData = new FormData();
-                                formData.append("thumbnail", file, "thumbnail.png"); // ファイル名を明示的に指定
+                                formData.append(
+                                    "thumbnail",
+                                    file,
+                                    "thumbnail.png"
+                                );
 
-                                // FormDataの内容を確認
-                                console.log("FormDataの内容:");
-                                for (const pair of formData.entries()) {
-                                    console.log(pair[0], pair[1]);
-                                }
-
-                                await api.post(
+                                console.log(
+                                    "サムネイルアップロード開始:",
+                                    `/api/room/upload/thumbnail/${room_id}`
+                                );
+                                const thumbnailResponse = await api.post(
                                     `/api/room/upload/thumbnail/${room_id}`,
                                     formData,
                                     {
@@ -145,6 +153,10 @@ const Studio: FC = () => {
                                                 "multipart/form-data",
                                         },
                                     }
+                                );
+                                console.log(
+                                    "サムネイルアップロード結果:",
+                                    thumbnailResponse.data
                                 );
                             }
 
@@ -202,15 +214,34 @@ const Studio: FC = () => {
                 }
             });
 
-            // 複数のメッシュデータを送信
-            await api.put(`/api/room/update/${room_id}`, savedData);
+            console.log("メッシュデータ保存開始:", savedData);
+            const updateResponse = await api.put(
+                `/api/room/update/${room_id}`,
+                savedData
+            );
+            console.log("メッシュデータ保存結果:", updateResponse.data);
 
             alert("保存が完了しました");
         } catch (error) {
-            console.error("保存に失敗しました:", error);
+            console.error("保存エラーの詳細:", error);
+            if (error && typeof error === "object" && "response" in error) {
+                const axiosError = error as {
+                    response?: {
+                        status: number;
+                        data: any;
+                    };
+                };
+                if (axiosError.response) {
+                    console.error("APIレスポンスエラー:", {
+                        status: axiosError.response.status,
+                        data: axiosError.response.data,
+                    });
+                }
+            }
             alert("保存に失敗しました");
         } finally {
             setIsSaving(false);
+            console.log("保存処理完了");
         }
     };
 
@@ -292,11 +323,19 @@ const Studio: FC = () => {
         }
     };
 
+    const hasDisplayItem = useCallback(() => {
+        if (!sceneRef) return false;
+        return sceneRef.meshes.some(
+            (mesh) =>
+                Tags.HasTags(mesh) && Tags.MatchesQuery(mesh, "warehouse_item")
+        );
+    }, [sceneRef]);
+
     return (
         <div className="h-screen w-screen flex">
             {isWarehousePanelOpen && (
                 <div
-                    className="fixed inset-0 z-10 bg-white"
+                    className="fixed inset-0 z-[1100] bg-white"
                     onClick={handleClickOutside}
                 >
                     <WarehousePanel
@@ -306,64 +345,79 @@ const Studio: FC = () => {
                 </div>
             )}
             <div className="w-full relative">
-                <div className="absolute top-4 right-4 z-5">
-                    <button
-                        onClick={handleSave}
-                        disabled={isSaving}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg shadow-md transition-colors disabled:bg-gray-400"
-                    >
-                        {isSaving ? "保存中..." : "保存"}
-                    </button>
-                </div>
-                {!isWarehousePanelOpen && (
-                    <div className="absolute top-10 left-4 z-10">
+                {isEditMode && (
+                    <div className="absolute top-1 left-0 right-0 flex items-center justify-between px-4 z-[1100]">
+                        <button
+                            onClick={() => setIsEditMode(false)}
+                            className="p-1 hover:opacity-80 transition-opacity"
+                            aria-label="編集モードを終了"
+                        >
+                            <CloseIcon />
+                        </button>
+                        <h1 className="text-lg font-bold">STUDIO</h1>
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log("Saveボタンがクリックされました");
+                                if (sceneRef) {
+                                    console.log("sceneRefが存在します");
+                                } else {
+                                    console.log("sceneRefが存在しません");
+                                }
+                                handleSave();
+                            }}
+                            disabled={isSaving}
+                            className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50 relative"
+                        >
+                            {isSaving ? "Saving..." : "Save"}
+                        </button>
+                    </div>
+                )}
+                {!isWarehousePanelOpen && !hasDisplayItem() && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                         <button
                             onClick={() => setIsWarehousePanelOpen(true)}
-                            className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
+                            className="transition-colors pointer-events-auto"
                             aria-label="倉庫を開く"
                         >
                             <img
-                                src="/images/warehouse-icon.png"
+                                src="/images/add_KCGradation.png"
                                 alt=""
-                                className="w-6 h-6"
+                                className="w-12 h-12"
                             />
                         </button>
                     </div>
                 )}
-                <div className="absolute top-10 right-4 z-5">
-                    <button
-                        onClick={() => setIsEditMode(!isEditMode)}
-                        className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
-                        aria-label="編集モード"
-                    >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            className="w-6 h-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
+                <div
+                    style={{ bottom: `${MENU_BAR_HEIGHT + 16}px` }}
+                    className="absolute right-4 z-[1001]"
+                >
+                    {hasDisplayItem() && (
+                        <button
+                            onClick={() => setIsEditMode(!isEditMode)}
+                            className="p-2 transition-colors"
+                            aria-label="編集モード"
                         >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            <img
+                                src="/icons/edit_black.png"
+                                alt="Edit"
+                                className="w-6 h-6"
                             />
-                        </svg>
-                    </button>
+                        </button>
+                    )}
                 </div>
                 {isEditMode && (
                     <div
-                        className="fixed inset-0 z-10"
+                        className="fixed inset-0 z-[1001]"
                         onClick={handleClickOutside}
                     >
-                        <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-20">
+                        <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-[1002]">
                             <div className="max-w-7xl mx-auto px-4 py-3">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="grid grid-cols-2 sm:flex sm:items-center gap-4">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                サイズ
+                                                Scale
                                             </label>
                                             <input
                                                 type="range"
@@ -384,7 +438,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                横の向き
+                                                Vertical Rotation
                                             </label>
                                             <input
                                                 type="range"
@@ -405,7 +459,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                縦の向き
+                                                Horizontal Rotation
                                             </label>
                                             <input
                                                 type="range"
@@ -426,7 +480,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                高さ
+                                                Height
                                             </label>
                                             <input
                                                 type="range"
@@ -448,9 +502,9 @@ const Studio: FC = () => {
                                     </div>
                                     <button
                                         onClick={handleReturnToWarehouse}
-                                        className="w-full sm:w-auto bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                                        className="w-full sm:w-auto px-4 py-2 transition-colors"
                                     >
-                                        Warehouseに戻す
+                                        Return Item to Warehouse
                                     </button>
                                 </div>
                             </div>
