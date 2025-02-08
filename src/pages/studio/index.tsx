@@ -2,7 +2,7 @@ import React, { useState, useCallback, FC } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { studioSceneSetup, studioItemSetup } from "@/utils/studioSceneSetup";
 import { Scene, Tags, Quaternion, Vector3 } from "@babylonjs/core";
-import WarehousePanel from "@/pages/studio/components/WarehousePanel";
+import WarehousePanel from "@/pages/studio/components";
 import api from "@/utils/axios";
 import { useParams } from "react-router-dom";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";

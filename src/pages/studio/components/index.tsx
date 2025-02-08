@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "@/utils/axios";
 import S3Viewer from "@/components/preview/S3Viewer";
+import Item from "./Item";
 
 interface Warehouse {
     id: bigint;
@@ -27,6 +28,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
+    const [showItem, setShowItem] = useState(false);
 
     useEffect(() => {
         const fetchWarehouses = async () => {
@@ -35,6 +37,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                 const response = await api.get<Warehouse[]>(
                     `/api/item/${userId}`
                 );
+                console.log("warehouse", response.data);
                 setWarehouses(response.data);
                 // デフォルトで最初のモデルを選択
                 if (response.data.length > 0) {
@@ -65,6 +68,10 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
         }
     };
 
+    const handleNextClick = () => {
+        setShowItem(true);
+    };
+
     return (
         <>
             <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
@@ -74,42 +81,54 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                 >
                     &#x3C;
                 </button>
-                <h1 className="text-lg font-bold flex-1 text-center">
-                    STUDIO
-                </h1>
+                <h1 className="text-lg font-bold flex-1 text-center">STUDIO</h1>
                 <div className="absolute right-4 w-[48px] text-center">
-                    <button
-                        onClick={handleAddToStudio}
-                        disabled={!selectedWarehouse}
-                        className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50"
-                    >
-                        Add
-                    </button>
+                    {showItem ? (
+                        <button
+                            onClick={handleAddToStudio}
+                            disabled={!selectedWarehouse}
+                            className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50"
+                        >
+                            Display
+                        </button>
+                    ) : (
+                        <button
+                            onClick={handleNextClick}
+                            disabled={!selectedWarehouse}
+                            className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50"
+                        >
+                            Next
+                        </button>
+                    )}
                 </div>
             </div>
             <div className="flex-grow flex flex-col overflow-auto">
                 {selectedWarehouse && (
                     <S3Viewer warehouse={selectedWarehouse} />
                 )}
-                <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2">
-                    {warehouses.map((warehouse) => (
-                        <div
-                            key={warehouse.id}
-                            onClick={() => handleThumbnailClick(warehouse)}
-                            className="bg-white shadow-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
-                        >
-                            <img
-                                src={`${
-                                    import.meta.env.VITE_S3_URL
-                                }/warehouse/${warehouse.user_id}/${
-                                    warehouse.id
-                                }/${warehouse.thumbnail}`}
-                                alt={warehouse.name}
-                                className="w-full aspect-square object-cover"
-                            />
-                        </div>
-                    ))}
-                </div>
+                {showItem ? (
+                    <Item warehouse={selectedWarehouse} />
+                ) : (
+                    <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2">
+                        {warehouses.map((warehouse) => (
+                            <div
+                                key={warehouse.id}
+                                onClick={() => handleThumbnailClick(warehouse)}
+                                className="bg-white shadow-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
+                            >
+                                <img
+                                    src={`${
+                                        import.meta.env.VITE_S3_URL
+                                    }/warehouse/${warehouse.user_id}/${
+                                        warehouse.id
+                                    }/${warehouse.thumbnail}`}
+                                    alt={warehouse.name}
+                                    className="w-full aspect-square object-cover"
+                                />
+                            </div>
+                        ))}
+                    </div>
+                )}
             </div>
         </>
     );
