@@ -8,6 +8,7 @@ import api from "@/utils/axios";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 interface Profile {
     user_thumbnail: string;
@@ -141,48 +142,43 @@ const Mainstage: FC = () => {
             </div>
             {roomData && roomData.user && roomData.user.profile && (
                 <>
-                    <div className="h-20 flex items-center p-4 bg-white border-t">
-                        <img
-                            src={roomData.user.profile.user_thumbnail}
-                            alt={roomData.user.profile.nickname}
-                            className="w-12 h-12 rounded-full"
-                        />
-                        <div className="ml-4">
-                            <div className="font-bold">
-                                {roomData.user.profile.nickname}
-                            </div>
-                            <div className="flex space-x-4">
-                                <div
-                                    className="flex items-center cursor-pointer"
-                                    onClick={() => handleLike(isLiked)}
-                                >
-                                    {user?.id === roomData?.user_id ? (
-                                        roomData?.liked.length > 0 ? (
-                                            <FavoriteIcon
-                                                fontSize="small"
-                                                className="text-red-500"
-                                            />
-                                        ) : (
-                                            <FavoriteBorderIcon fontSize="small" />
-                                        )
-                                    ) : isLiked ? (
-                                        <FavoriteIcon
-                                            fontSize="small"
-                                            className="text-red-500"
-                                        />
-                                    ) : (
-                                        <FavoriteBorderIcon fontSize="small" />
-                                    )}
-                                    <span>{roomData?.liked.length}</span>
-                                </div>
-                                <div
-                                    className="flex items-center cursor-pointer"
-                                    onClick={() => setIsCommentModalOpen(true)}
-                                >
-                                    <ChatBubbleOutlineIcon fontSize="small" />
-                                    <span>{roomData.comments.length}</span>
-                                </div>
-                            </div>
+                    <div
+                        style={{ bottom: `${MENU_BAR_HEIGHT + 32}px` }}
+                        className="absolute right-4 flex flex-col gap-2"
+                    >
+                        <div
+                            className="flex flex-col items-center cursor-pointer p-2"
+                            onClick={() => handleLike(isLiked)}
+                        >
+                            {user?.id === roomData?.user_id ? (
+                                roomData?.liked.length > 0 ? (
+                                    <FavoriteIcon
+                                        fontSize="small"
+                                        className="text-red-500"
+                                    />
+                                ) : (
+                                    <FavoriteBorderIcon fontSize="small" />
+                                )
+                            ) : isLiked ? (
+                                <FavoriteIcon
+                                    fontSize="small"
+                                    className="text-red-500"
+                                />
+                            ) : (
+                                <FavoriteBorderIcon fontSize="small" />
+                            )}
+                            <span className="text-sm">
+                                {roomData?.liked.length}
+                            </span>
+                        </div>
+                        <div
+                            className="flex flex-col items-center cursor-pointer p-2"
+                            onClick={() => setIsCommentModalOpen(true)}
+                        >
+                            <ChatBubbleOutlineIcon fontSize="small" />
+                            <span className="text-sm">
+                                {roomData.comments.length}
+                            </span>
                         </div>
                     </div>
 
