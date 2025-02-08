@@ -104,13 +104,17 @@ const Studio: FC = () => {
     const handleSave = async () => {
         if (!sceneRef) return;
         setIsSaving(true);
+        console.log("保存処理開始");
 
         try {
-            // シーンのキャプチャを取得
             const engine = sceneRef.getEngine();
             const canvas = engine.getRenderingCanvas();
 
             if (canvas) {
+                console.log("キャンバス取得成功、サイズ変更前:", {
+                    width: canvas.width,
+                    height: canvas.height,
+                });
                 const originalWidth = canvas.width;
                 const originalHeight = canvas.height;
 
@@ -124,25 +128,23 @@ const Studio: FC = () => {
                     canvas.toBlob(
                         async (blob) => {
                             if (blob) {
+                                console.log("Blobサイズ:", blob.size);
                                 const file = new File([blob], "thumbnail.png", {
                                     type: "image/png",
                                 });
 
-                                // FormDataの作成と送信を修正
                                 const formData = new FormData();
                                 formData.append(
                                     "thumbnail",
                                     file,
                                     "thumbnail.png"
-                                ); // ファイル名を明示的に指定
+                                );
 
-                                // FormDataの内容を確認
-                                console.log("FormDataの内容:");
-                                for (const pair of formData.entries()) {
-                                    console.log(pair[0], pair[1]);
-                                }
-
-                                await api.post(
+                                console.log(
+                                    "サムネイルアップロード開始:",
+                                    `/api/room/upload/thumbnail/${room_id}`
+                                );
+                                const thumbnailResponse = await api.post(
                                     `/api/room/upload/thumbnail/${room_id}`,
                                     formData,
                                     {
@@ -151,6 +153,10 @@ const Studio: FC = () => {
                                                 "multipart/form-data",
                                         },
                                     }
+                                );
+                                console.log(
+                                    "サムネイルアップロード結果:",
+                                    thumbnailResponse.data
                                 );
                             }
 
@@ -208,15 +214,34 @@ const Studio: FC = () => {
                 }
             });
 
-            // 複数のメッシュデータを送信
-            await api.put(`/api/room/update/${room_id}`, savedData);
+            console.log("メッシュデータ保存開始:", savedData);
+            const updateResponse = await api.put(
+                `/api/room/update/${room_id}`,
+                savedData
+            );
+            console.log("メッシュデータ保存結果:", updateResponse.data);
 
             alert("保存が完了しました");
         } catch (error) {
-            console.error("保存に失敗しました:", error);
+            console.error("保存エラーの詳細:", error);
+            if (error && typeof error === "object" && "response" in error) {
+                const axiosError = error as {
+                    response?: {
+                        status: number;
+                        data: any;
+                    };
+                };
+                if (axiosError.response) {
+                    console.error("APIレスポンスエラー:", {
+                        status: axiosError.response.status,
+                        data: axiosError.response.data,
+                    });
+                }
+            }
             alert("保存に失敗しました");
         } finally {
             setIsSaving(false);
+            console.log("保存処理完了");
         }
     };
 
@@ -321,7 +346,7 @@ const Studio: FC = () => {
             )}
             <div className="w-full relative">
                 {isEditMode && (
-                    <div className="absolute top-1 left-0 right-0 flex items-center justify-between px-4 z-[1001]">
+                    <div className="absolute top-1 left-0 right-0 flex items-center justify-between px-4 z-[1100]">
                         <button
                             onClick={() => setIsEditMode(false)}
                             className="p-1 hover:opacity-80 transition-opacity"
@@ -331,9 +356,18 @@ const Studio: FC = () => {
                         </button>
                         <h1 className="text-lg font-bold">STUDIO</h1>
                         <button
-                            onClick={handleSave}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                console.log("Saveボタンがクリックされました");
+                                if (sceneRef) {
+                                    console.log("sceneRefが存在します");
+                                } else {
+                                    console.log("sceneRefが存在しません");
+                                }
+                                handleSave();
+                            }}
                             disabled={isSaving}
-                            className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50"
+                            className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50 relative"
                         >
                             {isSaving ? "Saving..." : "Save"}
                         </button>
