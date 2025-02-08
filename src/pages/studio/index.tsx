@@ -5,6 +5,7 @@ import { Scene, Tags, Quaternion, Vector3 } from "@babylonjs/core";
 import WarehousePanel from "@/pages/studio/WarehousePanel";
 import api from "@/utils/axios";
 import { useParams } from "react-router-dom";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 interface SavedMeshData {
     itemId: number;
@@ -128,7 +129,11 @@ const Studio: FC = () => {
 
                                 // FormDataの作成と送信を修正
                                 const formData = new FormData();
-                                formData.append("thumbnail", file, "thumbnail.png"); // ファイル名を明示的に指定
+                                formData.append(
+                                    "thumbnail",
+                                    file,
+                                    "thumbnail.png"
+                                ); // ファイル名を明示的に指定
 
                                 // FormDataの内容を確認
                                 console.log("FormDataの内容:");
@@ -330,40 +335,34 @@ const Studio: FC = () => {
                         </button>
                     </div>
                 )}
-                <div className="absolute top-10 right-4 z-5">
+                <div
+                    style={{ bottom: `${MENU_BAR_HEIGHT + 16}px` }}
+                    className="absolute right-4 z-[1001]"
+                >
                     <button
                         onClick={() => setIsEditMode(!isEditMode)}
-                        className="bg-white/80 backdrop-blur-sm p-2 rounded-full shadow hover:bg-white/90 transition-colors"
+                        className="p-2 transition-colors"
                         aria-label="編集モード"
                     >
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
+                        <img
+                            src="/icons/edit_black.png"
+                            alt="Edit"
                             className="w-6 h-6"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            stroke="currentColor"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                            />
-                        </svg>
+                        />
                     </button>
                 </div>
                 {isEditMode && (
                     <div
-                        className="fixed inset-0 z-10"
+                        className="fixed inset-0 z-[1001]"
                         onClick={handleClickOutside}
                     >
-                        <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-20">
+                        <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-[1002]">
                             <div className="max-w-7xl mx-auto px-4 py-3">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="grid grid-cols-2 sm:flex sm:items-center gap-4">
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                サイズ
+                                                Scale
                                             </label>
                                             <input
                                                 type="range"
@@ -384,7 +383,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                横の向き
+                                                Vertical Rotation
                                             </label>
                                             <input
                                                 type="range"
@@ -405,7 +404,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                縦の向き
+                                                Horizontal Rotation
                                             </label>
                                             <input
                                                 type="range"
@@ -426,7 +425,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                高さ
+                                                Height
                                             </label>
                                             <input
                                                 type="range"
@@ -448,9 +447,9 @@ const Studio: FC = () => {
                                     </div>
                                     <button
                                         onClick={handleReturnToWarehouse}
-                                        className="w-full sm:w-auto bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700 transition-colors"
+                                        className="w-full sm:w-auto px-4 py-2 transition-colors"
                                     >
-                                        Warehouseに戻す
+                                        Return Item to Warehouse
                                     </button>
                                 </div>
                             </div>
