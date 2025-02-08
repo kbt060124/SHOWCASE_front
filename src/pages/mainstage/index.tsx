@@ -257,8 +257,15 @@ const Mainstage: FC = () => {
 
                     {/* いいねリストモーダル */}
                     {isLikeModalOpen && (
-                        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                            <div className="bg-white rounded-lg p-6 w-96 max-h-[80vh] overflow-y-auto">
+                        <div
+                            className="fixed inset-0 bg-black bg-opacity-50 flex items-end justify-center z-[1001]"
+                            onClick={(e) => {
+                                if (e.target === e.currentTarget) {
+                                    setIsLikeModalOpen(false);
+                                }
+                            }}
+                        >
+                            <div className="bg-white rounded-t-lg p-6 w-full h-[50vh] overflow-y-auto">
                                 <div className="flex justify-between items-center mb-4">
                                     <h2 className="text-xl font-bold">
                                         いいね一覧
