@@ -3,6 +3,9 @@ import { useParams } from "react-router-dom";
 import api from "@/utils/axios";
 import ImageCropper from "./components/ImageCropper";
 import Header from "./components/Header";
+import { useAuth } from "@/utils/useAuth";
+import VisitorView from "./components/VisitorView";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 interface Profile {
     nickname: string;
@@ -36,8 +39,22 @@ interface EditForm {
     user_thumbnail?: Blob;
 }
 
+interface Warehouse {
+    id: bigint;
+    name: string;
+    item_id: bigint;
+    user_id: bigint;
+    thumbnail: string;
+    memo: string | null;
+    total_size: number;
+    filename: string;
+    created_at: string | null;
+    updated_at: string | null;
+}
+
 const Profile = () => {
     const { user_id } = useParams();
+    const { user: currentUser } = useAuth();
     const [user, setUser] = useState<User | null>(null);
     const [rooms, setRooms] = useState<Room[]>([]);
     const [loading, setLoading] = useState(true);
@@ -54,6 +71,7 @@ const Profile = () => {
     const [dummyRooms, setDummyRooms] = useState<
         { id: string; imageNumber: number }[]
     >([]);
+    const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
 
     useEffect(() => {
         if (user?.profile) {
@@ -96,6 +114,19 @@ const Profile = () => {
             setDummyRooms([]);
         }
     }, [rooms]);
+
+    useEffect(() => {
+        const fetchWarehouses = async () => {
+            try {
+                const response = await api.get(`/api/item/${user_id}`);
+                setWarehouses(response.data);
+            } catch (error) {
+                console.error("倉庫データの取得に失敗しました:", error);
+            }
+        };
+
+        fetchWarehouses();
+    }, [user_id]);
 
     const handleUpdate = async () => {
         try {
@@ -167,228 +198,257 @@ const Profile = () => {
         setIsEditing(true);
     };
 
+    // 自分のプロフィールかどうかを判定
+    const isOwnProfile = currentUser?.id === Number(user_id);
+
     if (loading) {
         return <div>読み込み中...</div>;
     }
 
     return (
-        <div className="min-h-screen bg-white relative sm:pb-0">
-            <Header nickname={user?.profile.nickname} />
-            <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
-                <div className="flex items-start space-x-4">
-                    {/* プロフィール画像 */}
-                    <div className="relative w-24 h-24">
-                        <img
-                            src={
-                                editForm.user_thumbnail
-                                    ? URL.createObjectURL(
-                                          editForm.user_thumbnail
-                                      )
-                                    : user?.profile.user_thumbnail &&
-                                      user.profile.user_thumbnail !==
-                                          "default_thumbnail.png"
-                                    ? `${import.meta.env.VITE_S3_URL}/user/${
-                                          user.id
-                                      }/${user.profile.user_thumbnail}`
-                                    : "/default-avatar.png"
-                            }
-                            alt="プロフィール画像"
-                            className="w-full h-full rounded-full object-cover"
-                        />
-                        {isEditing && (
-                            <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1.5 cursor-pointer hover:bg-blue-600">
-                                <input
-                                    type="file"
-                                    accept="image/*"
-                                    className="hidden"
-                                    onChange={handleImageSelect}
+        <>
+            {isOwnProfile ? (
+                <div
+                    className="bg-white relative"
+                    style={{ paddingBottom: `${MENU_BAR_HEIGHT}px` }}
+                >
+                    <Header nickname={user?.profile.nickname} />
+                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
+                        <div className="flex items-start space-x-4">
+                            {/* プロフィール画像 */}
+                            <div className="relative w-24 h-24">
+                                <img
+                                    src={
+                                        editForm.user_thumbnail
+                                            ? URL.createObjectURL(
+                                                  editForm.user_thumbnail
+                                              )
+                                            : user?.profile.user_thumbnail &&
+                                              user.profile.user_thumbnail !==
+                                                  "default_thumbnail.png"
+                                            ? `${
+                                                  import.meta.env.VITE_S3_URL
+                                              }/user/${user.id}/${
+                                                  user.profile.user_thumbnail
+                                              }`
+                                            : "/default-avatar.png"
+                                    }
+                                    alt="プロフィール画像"
+                                    className="w-full h-full rounded-full object-cover"
                                 />
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    className="h-4 w-4 text-white"
-                                    viewBox="0 0 20 20"
-                                    fill="currentColor"
-                                >
-                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793z" />
-                                    <path d="M11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
-                                </svg>
-                            </label>
-                        )}
-                    </div>
-
-                    {/* プロフィール情報 */}
-                    <div className="flex-1">
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="flex items-center space-x-2">
-                                <h1 className="text-xl font-semibold">
-                                    {isEditing ? (
+                                {isEditing && (
+                                    <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1.5 cursor-pointer hover:bg-blue-600">
                                         <input
-                                            type="text"
-                                            value={editForm.nickname}
-                                            onChange={(e) =>
-                                                setEditForm({
-                                                    ...editForm,
-                                                    nickname: e.target.value,
-                                                })
-                                            }
-                                            className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
+                                            type="file"
+                                            accept="image/*"
+                                            className="hidden"
+                                            onChange={handleImageSelect}
                                         />
-                                    ) : (
-                                        user?.profile.nickname
-                                    )}
-                                </h1>
-                                {!isEditing && (
-                                    <button
-                                        onClick={handleEditClick}
-                                        className="text-gray-500 hover:text-gray-700"
-                                    >
                                         <svg
                                             xmlns="http://www.w3.org/2000/svg"
-                                            className="h-5 w-5"
+                                            className="h-4 w-4 text-white"
                                             viewBox="0 0 20 20"
                                             fill="currentColor"
                                         >
                                             <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793z" />
                                             <path d="M11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
                                         </svg>
-                                    </button>
+                                    </label>
+                                )}
+                            </div>
+
+                            {/* プロフィール情報 */}
+                            <div className="flex-1">
+                                <div className="flex justify-between items-center mb-4">
+                                    <div className="flex items-center space-x-2">
+                                        <h1 className="text-xl font-semibold">
+                                            {isEditing ? (
+                                                <input
+                                                    type="text"
+                                                    value={editForm.nickname}
+                                                    onChange={(e) =>
+                                                        setEditForm({
+                                                            ...editForm,
+                                                            nickname:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
+                                                />
+                                            ) : (
+                                                user?.profile.nickname
+                                            )}
+                                        </h1>
+                                        {!isEditing && (
+                                            <button
+                                                onClick={handleEditClick}
+                                                className="text-gray-500 hover:text-gray-700"
+                                            >
+                                                <svg
+                                                    xmlns="http://www.w3.org/2000/svg"
+                                                    className="h-5 w-5"
+                                                    viewBox="0 0 20 20"
+                                                    fill="currentColor"
+                                                >
+                                                    <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793z" />
+                                                    <path d="M11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                                                </svg>
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {isEditing ? (
+                                    <>
+                                        <div className="space-y-4">
+                                            <div className="flex flex-col sm:flex-row sm:space-x-2">
+                                                <input
+                                                    type="text"
+                                                    value={editForm.last_name}
+                                                    onChange={(e) =>
+                                                        setEditForm({
+                                                            ...editForm,
+                                                            last_name:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    className="border-b border-gray-300 focus:border-blue-500 focus:outline-none mb-2 sm:mb-0"
+                                                    placeholder="姓"
+                                                />
+                                                <input
+                                                    type="text"
+                                                    value={editForm.first_name}
+                                                    onChange={(e) =>
+                                                        setEditForm({
+                                                            ...editForm,
+                                                            first_name:
+                                                                e.target.value,
+                                                        })
+                                                    }
+                                                    className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
+                                                    placeholder="名"
+                                                />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                value={editForm.attribute}
+                                                onChange={(e) =>
+                                                    setEditForm({
+                                                        ...editForm,
+                                                        attribute:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
+                                                placeholder="属性"
+                                            />
+                                            <textarea
+                                                value={editForm.introduction}
+                                                onChange={(e) =>
+                                                    setEditForm({
+                                                        ...editForm,
+                                                        introduction:
+                                                            e.target.value,
+                                                    })
+                                                }
+                                                className="w-full h-24 border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:outline-none"
+                                                placeholder="自己紹介"
+                                            />
+                                        </div>
+                                    </>
+                                ) : (
+                                    <div className="space-y-2">
+                                        <p className="text-gray-600">
+                                            {`${user?.profile.last_name} ${user?.profile.first_name}`}
+                                        </p>
+                                        {user?.profile.introduction && (
+                                            <p className="text-gray-700">
+                                                {user.profile.introduction}
+                                            </p>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>
 
-                        {isEditing ? (
-                            <>
-                                <div className="space-y-4">
-                                    <div className="flex flex-col sm:flex-row sm:space-x-2">
-                                        <input
-                                            type="text"
-                                            value={editForm.last_name}
-                                            onChange={(e) =>
-                                                setEditForm({
-                                                    ...editForm,
-                                                    last_name: e.target.value,
-                                                })
-                                            }
-                                            className="border-b border-gray-300 focus:border-blue-500 focus:outline-none mb-2 sm:mb-0"
-                                            placeholder="姓"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={editForm.first_name}
-                                            onChange={(e) =>
-                                                setEditForm({
-                                                    ...editForm,
-                                                    first_name: e.target.value,
-                                                })
-                                            }
-                                            className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
-                                            placeholder="名"
-                                        />
-                                    </div>
-                                    <input
-                                        type="text"
-                                        value={editForm.attribute}
-                                        onChange={(e) =>
-                                            setEditForm({
-                                                ...editForm,
-                                                attribute: e.target.value,
-                                            })
-                                        }
-                                        className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
-                                        placeholder="属性"
-                                    />
-                                    <textarea
-                                        value={editForm.introduction}
-                                        onChange={(e) =>
-                                            setEditForm({
-                                                ...editForm,
-                                                introduction: e.target.value,
-                                            })
-                                        }
-                                        className="w-full h-24 border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:outline-none"
-                                        placeholder="自己紹介"
-                                    />
-                                </div>
-                            </>
-                        ) : (
-                            <div className="space-y-2">
-                                <p className="text-gray-600">
-                                    {`${user?.profile.last_name} ${user?.profile.first_name}`}
-                                </p>
-                                {user?.profile.introduction && (
-                                    <p className="text-gray-700">
-                                        {user.profile.introduction}
-                                    </p>
-                                )}
+                        {/* 保存・キャンセルボタン */}
+                        {isEditing && (
+                            <div className="flex justify-center space-x-4 my-8">
+                                <button
+                                    onClick={handleUpdate}
+                                    className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-32"
+                                >
+                                    保存
+                                </button>
+                                <button
+                                    onClick={() => setIsEditing(false)}
+                                    className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 w-32"
+                                >
+                                    キャンセル
+                                </button>
                             </div>
                         )}
-                    </div>
-                </div>
 
-                {/* 保存・キャンセルボタン */}
-                {isEditing && (
-                    <div className="flex justify-center space-x-4 my-8">
-                        <button
-                            onClick={handleUpdate}
-                            className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-32"
-                        >
-                            保存
-                        </button>
-                        <button
-                            onClick={() => setIsEditing(false)}
-                            className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 w-32"
-                        >
-                            キャンセル
-                        </button>
-                    </div>
-                )}
+                        {/* ギャラリーグリッド */}
+                        <div className="mt-8 grid grid-cols-3 gap-1">
+                            {/* 実際の部屋 */}
+                            {rooms.map((room) => (
+                                <div
+                                    key={room.id}
+                                    className="aspect-square relative group"
+                                >
+                                    <a href={`/mainstage/${room.id}`}>
+                                        <img
+                                            src={`${
+                                                import.meta.env.VITE_S3_URL
+                                            }/room/${user?.id}/${
+                                                room.id
+                                            }/thumbnail.png`}
+                                            alt={`${room.name}のサムネイル`}
+                                            className="w-full h-full object-cover"
+                                        />
+                                        <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
+                                    </a>
+                                </div>
+                            ))}
 
-                {/* ギャラリーグリッド */}
-                <div className="mt-8 grid grid-cols-3 gap-1">
-                    {/* 実際の部屋 */}
-                    {rooms.map((room) => (
-                        <div
-                            key={room.id}
-                            className="aspect-square relative group"
-                        >
-                            <a href={`/mainstage/${room.id}`}>
-                                <img
-                                    src={`${import.meta.env.VITE_S3_URL}/room/${
-                                        user?.id
-                                    }/${room.id}/thumbnail.png`}
-                                    alt={`${room.name}のサムネイル`}
-                                    className="w-full h-full object-cover"
-                                />
-                                <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
-                            </a>
+                            {/* ダミーの部屋 */}
+                            {dummyRooms.map((dummy) => (
+                                <div
+                                    key={dummy.id}
+                                    className="aspect-square relative"
+                                >
+                                    <img
+                                        src={`/images/room/coming_soon${dummy.imageNumber}.png`}
+                                        alt="Coming Soon"
+                                        className="w-full h-full object-cover"
+                                    />
+                                </div>
+                            ))}
                         </div>
-                    ))}
+                    </div>
 
-                    {/* ダミーの部屋 */}
-                    {dummyRooms.map((dummy) => (
-                        <div key={dummy.id} className="aspect-square relative">
-                            <img
-                                src={`/images/room/coming_soon${dummy.imageNumber}.png`}
-                                alt="Coming Soon"
-                                className="w-full h-full object-cover"
-                            />
-                        </div>
-                    ))}
+                    {isCropping && (
+                        <ImageCropper
+                            image={
+                                selectedImage ||
+                                user?.profile.user_thumbnail ||
+                                "/default-avatar.png"
+                            }
+                            onCropComplete={handleCropComplete}
+                            onCancel={() => setIsCropping(false)}
+                        />
+                    )}
                 </div>
-            </div>
-
-            {isCropping && (
-                <ImageCropper
-                    image={
-                        selectedImage ||
-                        user?.profile.user_thumbnail ||
-                        "/default-avatar.png"
-                    }
-                    onCropComplete={handleCropComplete}
-                    onCancel={() => setIsCropping(false)}
+            ) : (
+                // 他のユーザーのプロフィール表示
+                <VisitorView
+                    user={user}
+                    rooms={rooms}
+                    warehouses={warehouses}
                 />
             )}
-        </div>
+        </>
     );
 };
 

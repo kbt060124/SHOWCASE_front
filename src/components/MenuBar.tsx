@@ -11,6 +11,12 @@ const MenuBar = () => {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [roomId, setRoomId] = useState<string>();
+    const [fromVisit, setFromVisit] = useState(false);
+
+    useEffect(() => {
+        const state = location.state as { fromVisit?: boolean } | null;
+        setFromVisit(!!state?.fromVisit);
+    }, [location]);
 
     useEffect(() => {
         const fetchRoom = async () => {
@@ -34,7 +40,8 @@ const MenuBar = () => {
         ) {
             return;
         }
-        navigate(path);
+        navigate(path, { state: {} });
+        setFromVisit(false);
     };
 
     return (
@@ -50,7 +57,7 @@ const MenuBar = () => {
             elevation={3}
         >
             <BottomNavigation
-                value={location.pathname}
+                value={fromVisit ? "/visit" : location.pathname}
                 onChange={(_, newValue) => {
                     handleNavigation(newValue);
                 }}

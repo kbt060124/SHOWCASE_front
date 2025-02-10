@@ -17,12 +17,14 @@ interface InfoPanelProps {
     warehouse: Warehouse;
     onEdit: () => void;
     onDelete: () => void;
+    hasEditPermission: boolean;
 }
 
 const InfoPanel: React.FC<InfoPanelProps> = ({
     warehouse,
     onEdit,
     onDelete,
+    hasEditPermission,
 }) => {
     return (
         <div className="w-full px-4 pt-2 pb-4 bg-white">
@@ -31,12 +33,14 @@ const InfoPanel: React.FC<InfoPanelProps> = ({
                     <h2 className="text-xl font-bold">{warehouse.name}</h2>
                     <p className="text-gray-600">{warehouse.memo || ""}</p>
                 </div>
-                <button
-                    onClick={onDelete}
-                    className="text-[#8C252B] hover:opacity-80 text-sm"
-                >
-                    Delete item
-                </button>
+                {hasEditPermission && (
+                    <button
+                        onClick={onDelete}
+                        className="text-[#8C252B] hover:opacity-80 text-sm"
+                    >
+                        Delete item
+                    </button>
+                )}
             </div>
         </div>
     );

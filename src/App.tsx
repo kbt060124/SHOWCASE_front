@@ -11,7 +11,7 @@ import { useAuth } from "@/utils/useAuth";
 import "@/App.css";
 import api from "@/utils/axios";
 import MenuBar from "./components/MenuBar";
-import ChangePassword from "./pages/ChangePassword";
+import ChangePassword from "./pages/auth/changePassword";
 
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
