@@ -22,7 +22,6 @@ interface InfoPanelProps {
 
 const InfoPanel: React.FC<InfoPanelProps> = ({
     warehouse,
-    onEdit,
     onDelete,
     hasEditPermission,
 }) => {

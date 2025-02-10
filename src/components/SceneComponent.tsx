@@ -47,6 +47,9 @@ const SceneComponent: React.FC<SceneComponentProps> = ({
         // 背景色をより薄い灰色に設定
         scene.clearColor = new Color4(0.9, 0.9, 0.9, 1); // より薄い灰色の背景
 
+        // カメラの初期設定を反転
+        scene.useRightHandedSystem = true;
+
         if (scene.isReady()) {
             onSceneReady(scene);
         } else {

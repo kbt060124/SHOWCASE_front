@@ -63,7 +63,7 @@ export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
 
             // カメラの位置を調整
             const radius = 2; // 固定の距離に設定
-            camera.setPosition(new Vector3(0, 0, -radius));
+            camera.setPosition(new Vector3(0, 0, radius));
 
             // カメラのターゲットをモデルの中心に設定
             camera.setTarget(Vector3.Zero());
