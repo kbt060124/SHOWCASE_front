@@ -115,61 +115,93 @@ const Studio: FC = () => {
                     width: canvas.width,
                     height: canvas.height,
                 });
-                const originalWidth = canvas.width;
-                const originalHeight = canvas.height;
 
-                // キャプチャ用に一時的にキャンバスサイズを変更
-                canvas.width = 1024;
-                canvas.height = 1024;
-                sceneRef.render();
+                // オフスクリーンキャンバスを作成
+                const offscreenCanvas = document.createElement("canvas");
+                const targetSize = 1024;
 
-                // キャプチャの取得と保存を待機
-                await new Promise<void>((resolve) => {
-                    canvas.toBlob(
-                        async (blob) => {
-                            if (blob) {
-                                console.log("Blobサイズ:", blob.size);
-                                const file = new File([blob], "thumbnail.png", {
-                                    type: "image/png",
-                                });
+                // 元のキャンバスのアスペクト比を計算
+                const aspectRatio = canvas.width / canvas.height;
 
-                                const formData = new FormData();
-                                formData.append(
-                                    "thumbnail",
-                                    file,
-                                    "thumbnail.png"
-                                );
-
-                                console.log(
-                                    "サムネイルアップロード開始:",
-                                    `/api/room/upload/thumbnail/${room_id}`
-                                );
-                                const thumbnailResponse = await api.post(
-                                    `/api/room/upload/thumbnail/${room_id}`,
-                                    formData,
-                                    {
-                                        headers: {
-                                            "Content-Type":
-                                                "multipart/form-data",
-                                        },
-                                    }
-                                );
-                                console.log(
-                                    "サムネイルアップロード結果:",
-                                    thumbnailResponse.data
-                                );
-                            }
-
-                            // キャンバスサイズを元に戻す
-                            canvas.width = originalWidth;
-                            canvas.height = originalHeight;
-                            sceneRef.render();
-                            resolve();
-                        },
-                        "image/png",
-                        0.95
+                // アスペクト比に基づいてサイズを設定
+                if (aspectRatio > 1) {
+                    offscreenCanvas.width = targetSize;
+                    offscreenCanvas.height = Math.round(
+                        targetSize / aspectRatio
                     );
-                });
+                } else {
+                    offscreenCanvas.height = targetSize;
+                    offscreenCanvas.width = Math.round(
+                        targetSize * aspectRatio
+                    );
+                }
+
+                const ctx = offscreenCanvas.getContext("2d");
+
+                if (ctx) {
+                    // 現在のシーンを一度レンダリング
+                    sceneRef.render();
+
+                    // アスペクト比を維持しながらリサイズ
+                    ctx.drawImage(
+                        canvas,
+                        0,
+                        0,
+                        canvas.width,
+                        canvas.height,
+                        0,
+                        0,
+                        offscreenCanvas.width,
+                        offscreenCanvas.height
+                    );
+
+                    // キャプチャの取得と保存を待機
+                    await new Promise<void>((resolve) => {
+                        offscreenCanvas.toBlob(
+                            async (blob) => {
+                                if (blob) {
+                                    console.log("Blobサイズ:", blob.size);
+                                    const file = new File(
+                                        [blob],
+                                        "thumbnail.png",
+                                        {
+                                            type: "image/png",
+                                        }
+                                    );
+
+                                    const formData = new FormData();
+                                    formData.append(
+                                        "thumbnail",
+                                        file,
+                                        "thumbnail.png"
+                                    );
+
+                                    console.log(
+                                        "サムネイルアップロード開始:",
+                                        `/api/room/upload/thumbnail/${room_id}`
+                                    );
+                                    const thumbnailResponse = await api.post(
+                                        `/api/room/upload/thumbnail/${room_id}`,
+                                        formData,
+                                        {
+                                            headers: {
+                                                "Content-Type":
+                                                    "multipart/form-data",
+                                            },
+                                        }
+                                    );
+                                    console.log(
+                                        "サムネイルアップロード結果:",
+                                        thumbnailResponse.data
+                                    );
+                                }
+                                resolve();
+                            },
+                            "image/png",
+                            0.95
+                        );
+                    });
+                }
             }
 
             const meshes = sceneRef.meshes;
