@@ -11,6 +11,7 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AddIcon from "@mui/icons-material/Add";
 
 interface Profile {
     user_thumbnail: string;
@@ -32,12 +33,14 @@ const Mainstage: FC = () => {
     const { user } = useAuth();
     const { room_id } = useParams<{ room_id: string }>();
     const navigate = useNavigate();
+    const [scene, setScene] = useState<Scene | null>(null);
     const [roomData, setRoomData] = useState<RoomData | null>(null);
     const [newComment, setNewComment] = useState<string>("");
     const [isCommentModalOpen, setIsCommentModalOpen] =
         useState<boolean>(false);
     const [isLikeModalOpen, setIsLikeModalOpen] = useState<boolean>(false);
     const [profile, setProfile] = useState<Profile | null>(null);
+    const [hasItems, setHasItems] = useState(false);
 
     useEffect(() => {
         const fetchRoomData = async () => {
@@ -48,6 +51,10 @@ const Mainstage: FC = () => {
                     );
                     console.log("response.data.room", response.data.room);
                     setRoomData(response.data.room);
+                    setHasItems(
+                        response.data.room.items &&
+                            response.data.room.items.length > 0
+                    );
                 } catch (error) {
                     console.error("Error fetching room data:", error);
                 }
@@ -155,7 +162,7 @@ const Mainstage: FC = () => {
         <div className="h-screen w-screen flex flex-col relative">
             {/* メインコンテンツ部分 */}
             <div
-                className="w-full"
+                className="w-full relative"
                 style={{
                     height: `calc(100vh - ${MENU_BAR_HEIGHT}px)`,
                 }}
@@ -166,6 +173,22 @@ const Mainstage: FC = () => {
                     id="studio-canvas"
                     className="w-full h-full"
                 />
+                {!isOtherUserPost && !hasItems && (
+                    <div
+                        className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                        onClick={() =>
+                            navigate(`/studio/${room_id}`, {
+                                state: { openWarehousePanel: true },
+                            })
+                        }
+                    >
+                        <img
+                            src="/images/add_KCGradation.png"
+                            alt=""
+                            className="w-12 h-12"
+                        />
+                    </div>
+                )}
             </div>
 
             {/* 他のユーザーの投稿の場合のみヘッダーを表示 */}

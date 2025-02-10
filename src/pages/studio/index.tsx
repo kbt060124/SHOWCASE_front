@@ -4,7 +4,7 @@ import { studioSceneSetup, studioItemSetup } from "@/utils/studioSceneSetup";
 import { Scene, Tags, Quaternion, Vector3 } from "@babylonjs/core";
 import WarehousePanel from "@/pages/studio/components";
 import api from "@/utils/axios";
-import { useParams } from "react-router-dom";
+import { useParams, useLocation } from "react-router-dom";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -31,8 +31,12 @@ interface SavedMeshData {
 
 const Studio: FC = () => {
     const { room_id } = useParams<{ room_id: string }>();
+    const location = useLocation();
+    const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(() => {
+        // locationのstateからwarehousePanelの初期状態を設定
+        return (location.state as { openWarehousePanel?: boolean })?.openWarehousePanel || false;
+    });
     const [sceneRef, setSceneRef] = useState<Scene | null>(null);
-    const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isEditMode, setIsEditMode] = useState(false);
     const [initialScale, setInitialScale] = useState<number>(1);
