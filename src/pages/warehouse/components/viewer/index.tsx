@@ -3,6 +3,7 @@ import InfoPanel from "@/pages/warehouse/components/viewer/InfoPanel";
 import S3Viewer from "@/components/preview/S3Viewer";
 import Update from "@/pages/warehouse/components/viewer/Update";
 import api from "@/utils/axios";
+import { useAuth } from "@/utils/useAuth";
 
 interface Warehouse {
     id: bigint;
@@ -32,6 +33,11 @@ const Viewer: React.FC<ViewerProps> = ({
 }) => {
     const [isEditMode, setIsEditMode] = useState(false);
     const [thumbnail, setThumbnail] = useState<File | null>(null);
+    const { user } = useAuth();
+
+    const hasEditPermission = Boolean(
+        user && warehouse.user_id === BigInt(user.id)
+    );
 
     const handleSubmit = async (formData: {
         name: string;
@@ -104,27 +110,28 @@ const Viewer: React.FC<ViewerProps> = ({
                     WAREHOUSE
                 </h1>
                 <div className="absolute right-4 w-[48px] text-center">
-                    {isEditMode ? (
-                        <button
-                            onClick={() => {
-                                const formElement =
-                                    document.querySelector("form");
-                                if (formElement) {
-                                    formElement.requestSubmit();
-                                }
-                            }}
-                            className="text-[#11529A] hover:opacity-80 text-sm"
-                        >
-                            Update
-                        </button>
-                    ) : (
-                        <button
-                            onClick={() => setIsEditMode(true)}
-                            className="text-[#11529A] hover:opacity-80 text-sm"
-                        >
-                            Edit
-                        </button>
-                    )}
+                    {hasEditPermission &&
+                        (isEditMode ? (
+                            <button
+                                onClick={() => {
+                                    const formElement =
+                                        document.querySelector("form");
+                                    if (formElement) {
+                                        formElement.requestSubmit();
+                                    }
+                                }}
+                                className="text-[#11529A] hover:opacity-80 text-sm"
+                            >
+                                Update
+                            </button>
+                        ) : (
+                            <button
+                                onClick={() => setIsEditMode(true)}
+                                className="text-[#11529A] hover:opacity-80 text-sm"
+                            >
+                                Edit
+                            </button>
+                        ))}
                 </div>
             </div>
 
@@ -147,6 +154,7 @@ const Viewer: React.FC<ViewerProps> = ({
                         warehouse={warehouse}
                         onEdit={() => setIsEditMode(true)}
                         onDelete={handleDelete}
+                        hasEditPermission={hasEditPermission}
                     />
                 )}
             </div>

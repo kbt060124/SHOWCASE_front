@@ -37,6 +37,7 @@ const Mainstage: FC = () => {
     const [isCommentModalOpen, setIsCommentModalOpen] =
         useState<boolean>(false);
     const [isLikeModalOpen, setIsLikeModalOpen] = useState<boolean>(false);
+    const [profile, setProfile] = useState<Profile | null>(null);
 
     useEffect(() => {
         const fetchRoomData = async () => {
@@ -51,9 +52,24 @@ const Mainstage: FC = () => {
                     console.error("Error fetching room data:", error);
                 }
             }
+            console.log(user);
         };
         fetchRoomData();
     }, [room_id]);
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            if (user?.id) {
+                try {
+                    const response = await api.get(`/api/profile/${user.id}`);
+                    setProfile(response.data.user.profile);
+                } catch (error) {
+                    console.error("Error fetching user profile:", error);
+                }
+            }
+        };
+        fetchProfile();
+    }, [user]);
 
     const handleSceneReady = useCallback(
         (scene: Scene) => {
@@ -132,9 +148,18 @@ const Mainstage: FC = () => {
         }
     };
 
+    // 他のユーザーの投稿かどうかを判定
+    const isOtherUserPost = roomData && user?.id !== roomData.user_id;
+
     return (
-        <div className="h-screen w-screen flex flex-col">
-            <div className="w-full h-[calc(100vh-56px)]">
+        <div className="h-screen w-screen flex flex-col relative">
+            {/* メインコンテンツ部分 */}
+            <div
+                className="w-full"
+                style={{
+                    height: `calc(100vh - ${MENU_BAR_HEIGHT}px)`,
+                }}
+            >
                 <SceneComponent
                     antialias
                     onSceneReady={handleSceneReady}
@@ -142,10 +167,49 @@ const Mainstage: FC = () => {
                     className="w-full h-full"
                 />
             </div>
+
+            {/* 他のユーザーの投稿の場合のみヘッダーを表示 */}
+            {isOtherUserPost && (
+                <>
+                    <div className="fixed top-0 left-0 right-0 h-12 min-h-[48px] flex items-center px-4 border-b bg-white z-10">
+                        <button
+                            onClick={() => navigate(-1)}
+                            className="text-2xl font-bold absolute left-4"
+                        >
+                            &#x3C;
+                        </button>
+                    </div>
+
+                    {/* 所有者情報を表示 */}
+                    <div
+                        className="absolute left-0 right-0 h-16 min-h-[64px] flex items-center px-4 bg-white border-t z-50"
+                        style={{ bottom: `${MENU_BAR_HEIGHT}px` }}
+                        onClick={() => navigate(`/profile/${roomData.user_id}`)}
+                    >
+                        <img
+                            src={
+                                roomData.user.profile.user_thumbnail &&
+                                roomData.user.profile.user_thumbnail !==
+                                    "default_thumbnail.png"
+                                    ? `${import.meta.env.VITE_S3_URL}/user/${
+                                          roomData.user_id
+                                      }/${roomData.user.profile.user_thumbnail}`
+                                    : "/default-avatar.png"
+                            }
+                            alt={roomData.user.profile.nickname}
+                            className="w-10 h-10 rounded-full object-cover"
+                        />
+                        <span className="font-bold ml-3">
+                            {roomData.user.profile.nickname}
+                        </span>
+                    </div>
+                </>
+            )}
+
             {roomData && roomData.user && roomData.user.profile && (
                 <>
                     <div
-                        style={{ bottom: `${MENU_BAR_HEIGHT + 32}px` }}
+                        style={{ bottom: `${MENU_BAR_HEIGHT + 80}px` }}
                         className="absolute right-4 flex flex-col gap-2"
                     >
                         <div
@@ -211,7 +275,23 @@ const Mainstage: FC = () => {
                                                 <img
                                                     src={
                                                         comment.user.profile
-                                                            .user_thumbnail
+                                                            .user_thumbnail &&
+                                                        comment.user.profile
+                                                            .user_thumbnail !==
+                                                            "default_thumbnail.png"
+                                                            ? `${
+                                                                  import.meta
+                                                                      .env
+                                                                      .VITE_S3_URL
+                                                              }/user/${
+                                                                  comment.user
+                                                                      .id
+                                                              }/${
+                                                                  comment.user
+                                                                      .profile
+                                                                      .user_thumbnail
+                                                              }`
+                                                            : "/default-avatar.png"
                                                     }
                                                     alt={
                                                         comment.user.profile
@@ -248,9 +328,18 @@ const Mainstage: FC = () => {
                                 <div className="flex gap-3 items-center">
                                     <img
                                         src={
-                                            roomData.user.profile.user_thumbnail
+                                            profile?.user_thumbnail &&
+                                            profile.user_thumbnail !==
+                                                "default_thumbnail.png"
+                                                ? `${
+                                                      import.meta.env
+                                                          .VITE_S3_URL
+                                                  }/user/${user?.id}/${
+                                                      profile.user_thumbnail
+                                                  }`
+                                                : "/default-avatar.png"
                                         }
-                                        alt={roomData.user.profile.nickname}
+                                        alt={profile?.nickname || ""}
                                         className="w-8 h-8 rounded-full"
                                     />
                                     <div className="flex-1 relative">
@@ -309,7 +398,19 @@ const Mainstage: FC = () => {
                                         >
                                             <img
                                                 src={
-                                                    like.profile.user_thumbnail
+                                                    like.profile
+                                                        .user_thumbnail &&
+                                                    like.profile
+                                                        .user_thumbnail !==
+                                                        "default_thumbnail.png"
+                                                        ? `${
+                                                              import.meta.env
+                                                                  .VITE_S3_URL
+                                                          }/user/${user?.id}/${
+                                                              like.profile
+                                                                  .user_thumbnail
+                                                          }`
+                                                        : "/default-avatar.png"
                                                 }
                                                 alt={like.profile.nickname}
                                                 className="w-10 h-10 rounded-full"
