@@ -11,7 +11,6 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
-import AddIcon from "@mui/icons-material/Add";
 
 interface Profile {
     user_thumbnail: string;
@@ -33,7 +32,6 @@ const Mainstage: FC = () => {
     const { user } = useAuth();
     const { room_id } = useParams<{ room_id: string }>();
     const navigate = useNavigate();
-    const [scene, setScene] = useState<Scene | null>(null);
     const [roomData, setRoomData] = useState<RoomData | null>(null);
     const [newComment, setNewComment] = useState<string>("");
     const [isCommentModalOpen, setIsCommentModalOpen] =
