@@ -1,10 +1,10 @@
-import React, { useState, useCallback, FC } from "react";
+import React, { useState, useCallback, FC, useEffect } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { studioSceneSetup, studioItemSetup } from "@/utils/studioSceneSetup";
 import { Scene, Tags, Quaternion, Vector3 } from "@babylonjs/core";
 import WarehousePanel from "@/pages/studio/components";
 import api from "@/utils/axios";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -32,9 +32,12 @@ interface SavedMeshData {
 const Studio: FC = () => {
     const { room_id } = useParams<{ room_id: string }>();
     const location = useLocation();
+    const navigate = useNavigate();
     const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(() => {
-        // locationのstateからwarehousePanelの初期状態を設定
-        return (location.state as { openWarehousePanel?: boolean })?.openWarehousePanel || false;
+        // locationのstateが存在し、かつopenWarehousePanelが明示的にtrueの場合のみパネルを開く
+        return location.state && 'openWarehousePanel' in location.state
+            ? Boolean((location.state as { openWarehousePanel: boolean }).openWarehousePanel)
+            : false;
     });
     const [sceneRef, setSceneRef] = useState<Scene | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -45,6 +48,13 @@ const Studio: FC = () => {
     const [modelRotationX, setModelRotationX] = useState(0);
     const [modelRotationY, setModelRotationY] = useState(0);
     const [modelHeight, setModelHeight] = useState(0);
+
+    useEffect(() => {
+        // locationのstateが存在する場合、stateをクリア
+        if (location.state) {
+            navigate(location.pathname, { replace: true });
+        }
+    }, [location, navigate]);
 
     const handleSceneReady = useCallback(
         (scene: Scene) => {
@@ -334,7 +344,7 @@ const Studio: FC = () => {
                 // Y軸周りの回転のQuaternionを作成（値を反転）
                 const newYRotation = Quaternion.RotationAxis(
                     new Vector3(0, 1, 0),
-                    -value * (Math.PI / 180) + Math.PI // 値を反転して回転方向を逆に
+                    value * (Math.PI / 180) + Math.PI // 値を反転して回転方向を逆に
                 );
 
                 // X軸の回転を保持
