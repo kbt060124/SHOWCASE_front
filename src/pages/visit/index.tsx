@@ -19,6 +19,16 @@ const Visit = () => {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const { user } = useAuth();
     const navigate = useNavigate();
+    const [backgroundImages, setBackgroundImages] = useState<string[]>([]);
+
+    useEffect(() => {
+        // 背景画像の配列を作成（8枚の画像を繰り返し）
+        const images = Array.from(
+            { length: 18 },
+            (_, i) => `/images/room/coming_soon${(i % 8) + 1}.png`
+        );
+        setBackgroundImages(images);
+    }, []);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -27,7 +37,7 @@ const Visit = () => {
             } else {
                 setSearchResults([]);
             }
-        }, 500); // 500ミリ秒のディレイ
+        }, 500);
 
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
@@ -50,7 +60,7 @@ const Visit = () => {
         <div className="min-h-screen bg-white">
             {/* 検索バー */}
             <div className="sticky top-0 bg-white shadow-sm z-10">
-                <div className="max-w-7xl mx-auto px-4 pt-6">
+                <div className="max-w-7xl mx-auto px-4 pt-6 pb-4">
                     <div className="relative">
                         <input
                             type="text"
@@ -66,53 +76,74 @@ const Visit = () => {
                 </div>
             </div>
 
-            {/* 検索結果 */}
-            <div className="max-w-7xl mx-auto px-6 py-4">
-                {searchResults.map((result, index) => (
-                    <div key={result.id}>
-                        <a
-                            href={`/profile/${result.id}`}
-                            onClick={(e) => {
-                                e.preventDefault();
-                                navigate(`/profile/${result.id}`, {
-                                    state: { fromVisit: true },
-                                });
-                            }}
-                            className="block py-4"
-                        >
-                            <div className="flex items-center space-x-4">
-                                <img
-                                    src={
-                                        result.profile?.user_thumbnail &&
-                                        result.profile.user_thumbnail !==
-                                            "default_thumbnail.png"
-                                            ? `${
-                                                  import.meta.env.VITE_S3_URL
-                                              }/user/${result.id}/${
-                                                  result.profile.user_thumbnail
-                                              }`
-                                            : "/default-avatar.png"
-                                    }
-                                    alt={`${result.profile?.nickname}のサムネイル`}
-                                    className="w-12 h-12 rounded-full object-cover"
-                                />
-                                <div>
-                                    <div className="font-medium text-gray-900">
-                                        {result.profile?.nickname}
-                                    </div>
-                                    <p className="text-sm text-gray-600">
-                                        {result.profile?.last_name}{" "}
-                                        {result.profile?.first_name}
-                                    </p>
-                                </div>
-                            </div>
-                        </a>
-                        {index < searchResults.length - 1 && (
-                            <div className="border-b border-gray-200"></div>
-                        )}
+            {/* 背景画像グリッド */}
+            <div className="grid grid-cols-3 gap-1 p-1">
+                {backgroundImages.map((image, index) => (
+                    <div key={index} className="aspect-square">
+                        <img
+                            src={image}
+                            alt={`Background ${index + 1}`}
+                            className="w-full h-full object-cover"
+                        />
                     </div>
                 ))}
             </div>
+
+            {/* 検索結果 */}
+            {searchResults.length > 0 && (
+                <div className="absolute top-[88px] left-0 right-0 bg-white z-20">
+                    <div className="max-w-7xl mx-auto px-6 py-4">
+                        {searchResults.map((result, index) => (
+                            <div key={result.id}>
+                                <a
+                                    href={`/profile/${result.id}`}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        navigate(`/profile/${result.id}`, {
+                                            state: { fromVisit: true },
+                                        });
+                                    }}
+                                    className="block py-4"
+                                >
+                                    <div className="flex items-center space-x-4">
+                                        <img
+                                            src={
+                                                result.profile
+                                                    ?.user_thumbnail &&
+                                                result.profile
+                                                    .user_thumbnail !==
+                                                    "default_thumbnail.png"
+                                                    ? `${
+                                                          import.meta.env
+                                                              .VITE_S3_URL
+                                                      }/user/${result.id}/${
+                                                          result.profile
+                                                              .user_thumbnail
+                                                      }`
+                                                    : "/default-avatar.png"
+                                            }
+                                            alt={`${result.profile?.nickname}のサムネイル`}
+                                            className="w-12 h-12 rounded-full object-cover"
+                                        />
+                                        <div>
+                                            <div className="font-medium text-gray-900">
+                                                {result.profile?.nickname}
+                                            </div>
+                                            <p className="text-sm text-gray-600">
+                                                {result.profile?.last_name}{" "}
+                                                {result.profile?.first_name}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </a>
+                                {index < searchResults.length - 1 && (
+                                    <div className="border-b border-gray-200"></div>
+                                )}
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
