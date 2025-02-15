@@ -1,4 +1,4 @@
-import { useCallback, FC, useEffect, useState } from "react";
+import { useCallback, FC, useEffect, useState, useRef } from "react";
 import SceneComponent from "../../components/SceneComponent";
 import { studioSceneSetup } from "../../utils/studioSceneSetup";
 import { Scene } from "@babylonjs/core";
@@ -11,6 +11,7 @@ import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CircularProgress from "@mui/material/CircularProgress";
 import PersonIcon from "@mui/icons-material/Person";
 
 interface Profile {
@@ -40,6 +41,8 @@ const Mainstage: FC = () => {
     const [isLikeModalOpen, setIsLikeModalOpen] = useState<boolean>(false);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [hasItems, setHasItems] = useState(false);
+    const sceneRef = useRef<Scene | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const fetchRoomData = async () => {
@@ -79,8 +82,16 @@ const Mainstage: FC = () => {
 
     const handleSceneReady = useCallback(
         (scene: Scene) => {
+            sceneRef.current = scene;
             if (room_id) {
-                studioSceneSetup(scene, "/models/display_cabinet.glb", room_id);
+                studioSceneSetup(scene, "/models/display_cabinet.glb", room_id)
+                    .then(() => {
+                        setIsLoading(false);
+                    })
+                    .catch((error) => {
+                        console.error("Scene setup error:", error);
+                        setIsLoading(false);
+                    });
             }
         },
         [room_id]
@@ -172,20 +183,27 @@ const Mainstage: FC = () => {
                     id="studio-canvas"
                     className="w-full h-full"
                 />
-                {!isOtherUserPost && !hasItems && (
-                    <div
-                        className="absolute inset-0 flex items-center justify-center cursor-pointer"
-                        onClick={() =>
-                            navigate(`/studio/${room_id}`, {
-                                state: { openWarehousePanel: true },
-                            })
-                        }
-                    >
-                        <img
-                            src="/images/add_KCGradation.png"
-                            alt=""
-                            className="w-12 h-12"
-                        />
+                {!isOtherUserPost && (
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        {isLoading ? (
+                            <CircularProgress />
+                        ) : !hasItems ? (
+                            <button
+                                onClick={() =>
+                                    navigate(`/studio/${room_id}`, {
+                                        state: { openWarehousePanel: true },
+                                    })
+                                }
+                                className="transition-colors pointer-events-auto"
+                                aria-label="倉庫を開く"
+                            >
+                                <img
+                                    src="/images/add_KCGradation.png"
+                                    alt=""
+                                    className="w-12 h-12"
+                                />
+                            </button>
+                        ) : null}
                     </div>
                 )}
             </div>
