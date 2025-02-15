@@ -24,11 +24,13 @@ const Upload: React.FC<UploadModalProps> = ({
 }) => {
     const { user } = useAuth();
     const [thumbnail, setThumbnail] = React.useState<File | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
 
     // モーダルが閉じられた時にサムネイルをリセットする
     React.useEffect(() => {
         if (!isOpen) {
             setThumbnail(null);
+            setError(null); // エラーもリセット
         }
     }, [isOpen]);
 
@@ -36,16 +38,20 @@ const Upload: React.FC<UploadModalProps> = ({
 
     const handleSubmit = (formData: UploadFormData) => {
         if (!user) return;
-        const submitData = new FormData();
 
-        // デバッグログを追加
-        console.log("送信前のデータ確認:", {
-            file,
-            userId: user.id,
-            name: formData.name,
-            memo: formData.memo,
-            thumbnail: formData.thumbnail,
-        });
+        // バリデーションチェック
+        if (!formData.name.trim()) {
+            setError("名前を入力してください");
+            return;
+        }
+        if (!formData.thumbnail) {
+            setError("サムネイルを選択してください");
+            return;
+        }
+
+        setError(null); // エラーをクリア
+
+        const submitData = new FormData();
 
         submitData.append("file", file);
         submitData.append("user_id", user.id.toString());
@@ -53,12 +59,6 @@ const Upload: React.FC<UploadModalProps> = ({
         submitData.append("memo", formData.memo);
         if (formData.thumbnail) {
             submitData.append("thumbnail", formData.thumbnail);
-        }
-
-        // FormDataの内容を確認
-        console.log("FormDataの内容:");
-        for (const pair of submitData.entries()) {
-            console.log(pair[0], pair[1]);
         }
 
         onSubmit(submitData);
@@ -94,6 +94,13 @@ const Upload: React.FC<UploadModalProps> = ({
                     </button>
                 </div>
             </div>
+
+            {/* エラーメッセージ表示部分 */}
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {error}
+                </div>
+            )}
 
             {/* コンテンツ部分 */}
             <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">

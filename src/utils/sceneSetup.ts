@@ -7,7 +7,10 @@ import {
 } from "@babylonjs/core";
 import "@babylonjs/loaders/glTF";
 
-export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
+export const setupWarehouseScene = (
+    scene: Scene,
+    modelPath: string
+): Promise<void> => {
     // カメラを追加
     const camera = new ArcRotateCamera(
         "camera",
@@ -31,9 +34,8 @@ export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
     // ライトを追加
     new HemisphericLight("light", new Vector3(0, 1, 0), scene);
 
-    SceneLoader.ImportMeshAsync("", "", modelPath, scene)
+    return SceneLoader.ImportMeshAsync("", "", modelPath, scene)
         .then((result) => {
-            console.log("モデルが読み込まれました");
             const rootMesh = result.meshes[0];
 
             // モデルのバウンディングボックスを計算
@@ -68,7 +70,9 @@ export const setupWarehouseScene = (scene: Scene, modelPath: string) => {
             // カメラのターゲットをモデルの中心に設定
             camera.setTarget(Vector3.Zero());
         })
-        .catch(console.error);
+        .catch((error) => {
+            console.error("モデルの読み込みエラー:", error);
+        });
 };
 
 export const setupUploadScene = (scene: Scene, modelData: ArrayBuffer) => {
@@ -123,7 +127,7 @@ export const setupUploadScene = (scene: Scene, modelData: ArrayBuffer) => {
                 rootMesh.position = new Vector3(0, -modelCenter.y, 0);
 
                 const radius = 2;
-                camera.setPosition(new Vector3(0, 0, -radius));
+                camera.setPosition(new Vector3(0, 0, radius));
                 camera.setTarget(Vector3.Zero());
             }
         })

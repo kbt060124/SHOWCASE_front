@@ -37,18 +37,12 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                 const response = await api.get<Warehouse[]>(
                     `/api/item/${userId}`
                 );
-                console.log("warehouse", response.data);
                 setWarehouses(response.data);
                 // デフォルトで最初のモデルを選択
                 if (response.data.length > 0) {
                     setSelectedWarehouse(response.data[0]);
                 }
-            } catch (error) {
-                console.error(
-                    "倉庫データの取得中にエラーが発生しました:",
-                    error
-                );
-            }
+            } catch (error) {}
         };
 
         fetchWarehouses();
@@ -122,7 +116,9 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                             {warehouses.map((warehouse) => (
                                 <div
                                     key={warehouse.id}
-                                    onClick={() => handleThumbnailClick(warehouse)}
+                                    onClick={() =>
+                                        handleThumbnailClick(warehouse)
+                                    }
                                     className="bg-white shadow-md overflow-hidden cursor-pointer hover:opacity-80 transition-opacity"
                                 >
                                     <img

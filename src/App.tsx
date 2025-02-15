@@ -16,14 +16,12 @@ import ChangePassword from "./pages/auth/changePassword";
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, loading } = useAuth();
-    console.log("Protected Route - isAuthenticated:", isAuthenticated);
 
     if (loading) {
         return <div>Loading...</div>;
     }
 
     if (!isAuthenticated) {
-        console.log("Not authenticated, redirecting to login");
         return <Navigate to="/login" replace />;
     }
 

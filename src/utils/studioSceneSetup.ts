@@ -238,7 +238,6 @@ const setupCommonScene = (scene: Scene) => {
 const loadCabinetModel = (scene: Scene, modelPath: string, roomSize: any) => {
     SceneLoader.ImportMeshAsync("", "", modelPath, scene)
         .then((result) => {
-            console.log("モデルが読み込まれました:" + modelPath);
             const rootMesh = result.meshes[0];
 
             // cabinetタグを追加
@@ -446,7 +445,6 @@ export const studioSceneSetup = (
 
     return api.get(`/api/room/studio/${room_id}`).then((response) => {
         const items = [...response.data.room.items];
-        console.log("items", items);
 
         if (items.length > 0) {
             const cabinetParts = findCabinetAndDisplayPart(scene);
@@ -457,9 +455,7 @@ export const studioSceneSetup = (
                 loadItemModel(scene, item, cabinetParts.displayPart, setters)
             );
 
-            return Promise.all(loadPromises).then(() => {
-                console.log("すべてのアイテムが読み込まれました");
-            });
+            return Promise.all(loadPromises).then(() => {});
         }
     });
 };
@@ -478,7 +474,6 @@ export const studioItemSetup = (
     return new Promise<{ scale: number; displayTop: number }>((resolve) => {
         SceneLoader.ImportMeshAsync("", "", modelPath, scene)
             .then((result) => {
-                console.log("モデルが読み込まれました");
                 const rootMesh = result.meshes[0];
 
                 // warehouse_itemタグを追加
