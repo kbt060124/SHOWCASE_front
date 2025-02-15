@@ -7,6 +7,7 @@ import api from "@/utils/axios";
 import { useParams, useLocation, useNavigate } from "react-router-dom";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 import CloseIcon from "@mui/icons-material/Close";
+import { CircularProgress } from "@mui/material";
 
 interface SavedMeshData {
     itemId: number;
@@ -51,6 +52,7 @@ const Studio: FC = () => {
     const [modelRotationX, setModelRotationX] = useState(0);
     const [modelRotationY, setModelRotationY] = useState(0);
     const [modelHeight, setModelHeight] = useState(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         // locationのstateが存在する場合、stateをクリア
@@ -77,7 +79,14 @@ const Studio: FC = () => {
                         setModelHeight,
                         setDisplayTop,
                     }
-                );
+                )
+                    .then(() => {
+                        setIsLoading(false);
+                    })
+                    .catch((error) => {
+                        console.error("Scene setup error:", error);
+                        setIsLoading(false);
+                    });
             }
         },
         [room_id]
@@ -328,38 +337,38 @@ const Studio: FC = () => {
                 setModelScale(value);
                 break;
             case "rotationX":
-                // X軸周りの回転のQuaternionを作成
-                const xRotation = Quaternion.RotationAxis(
-                    new Vector3(1, 0, 0),
-                    value * (Math.PI / 180)
-                );
-                // Y軸の回転を保持
+            case "rotationY":
+                // 現在のX軸とY軸の回転値を使用
+                const xRad =
+                    (type === "rotationX" ? value : modelRotationX) *
+                    (Math.PI / 180);
+                // Y軸の回転方向を反転（マイナスを除去）
+                const yRad =
+                    (type === "rotationY" ? value : modelRotationY) *
+                        (Math.PI / 180) +
+                    Math.PI;
+
+                // Y軸の回転を先に適用
                 const yRotation = Quaternion.RotationAxis(
                     new Vector3(0, 1, 0),
-                    -modelRotationY * (Math.PI / 180) + Math.PI // マイナスを追加
+                    yRad
                 );
-                // 回転を合成
+                // X軸の回転を後に適用
+                const xRotation = Quaternion.RotationAxis(
+                    new Vector3(1, 0, 0),
+                    xRad
+                );
+
+                // 回転を合成（Y軸の回転を先に、X軸の回転を後に）
                 warehouseItem.rotationQuaternion =
                     yRotation.multiply(xRotation);
-                setModelRotationX(value);
-                break;
-            case "rotationY":
-                // Y軸周りの回転のQuaternionを作成（値を反転）
-                const newYRotation = Quaternion.RotationAxis(
-                    new Vector3(0, 1, 0),
-                    value * (Math.PI / 180) + Math.PI // 値を反転して回転方向を逆に
-                );
 
-                // X軸の回転を保持
-                const currentXRotation = Quaternion.RotationAxis(
-                    new Vector3(1, 0, 0),
-                    modelRotationX * (Math.PI / 180)
-                );
-
-                // 回転を合成
-                warehouseItem.rotationQuaternion =
-                    newYRotation.multiply(currentXRotation);
-                setModelRotationY(value);
+                // 状態を更新
+                if (type === "rotationX") {
+                    setModelRotationX(value);
+                } else {
+                    setModelRotationY(value);
+                }
                 break;
             case "height":
                 if (displayTop !== undefined) {
@@ -422,21 +431,6 @@ const Studio: FC = () => {
                         </button>
                     </div>
                 )}
-                {!isWarehousePanelOpen && !hasDisplayItem() && (
-                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                        <button
-                            onClick={() => setIsWarehousePanelOpen(true)}
-                            className="transition-colors pointer-events-auto"
-                            aria-label="倉庫を開く"
-                        >
-                            <img
-                                src="/images/add_KCGradation.png"
-                                alt=""
-                                className="w-12 h-12"
-                            />
-                        </button>
-                    </div>
-                )}
                 <div
                     style={{ bottom: `${MENU_BAR_HEIGHT + 16}px` }}
                     className="absolute right-4 z-[1001]"
@@ -460,7 +454,10 @@ const Studio: FC = () => {
                         className="fixed inset-0 z-[1001]"
                         onClick={handleClickOutside}
                     >
-                        <div className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-[1002]">
+                        <div
+                            className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-[1002]"
+                            style={{ bottom: `${MENU_BAR_HEIGHT}px` }}
+                        >
                             <div className="max-w-7xl mx-auto px-4 py-3">
                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                                     <div className="grid grid-cols-2 sm:flex sm:items-center gap-4">
@@ -560,6 +557,23 @@ const Studio: FC = () => {
                         </div>
                     </div>
                 )}
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                    {isLoading ? (
+                        <CircularProgress />
+                    ) : !hasDisplayItem() ? (
+                        <button
+                            onClick={() => setIsWarehousePanelOpen(true)}
+                            className="transition-colors pointer-events-auto"
+                            aria-label="倉庫を開く"
+                        >
+                            <img
+                                src="/images/add_KCGradation.png"
+                                alt=""
+                                className="w-12 h-12"
+                            />
+                        </button>
+                    ) : null}
+                </div>
                 <SceneComponent
                     antialias
                     onSceneReady={handleSceneReady}
