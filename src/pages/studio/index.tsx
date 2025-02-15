@@ -35,8 +35,11 @@ const Studio: FC = () => {
     const navigate = useNavigate();
     const [isWarehousePanelOpen, setIsWarehousePanelOpen] = useState(() => {
         // locationのstateが存在し、かつopenWarehousePanelが明示的にtrueの場合のみパネルを開く
-        return location.state && 'openWarehousePanel' in location.state
-            ? Boolean((location.state as { openWarehousePanel: boolean }).openWarehousePanel)
+        return location.state && "openWarehousePanel" in location.state
+            ? Boolean(
+                  (location.state as { openWarehousePanel: boolean })
+                      .openWarehousePanel
+              )
             : false;
     });
     const [sceneRef, setSceneRef] = useState<Scene | null>(null);
@@ -378,7 +381,7 @@ const Studio: FC = () => {
     }, [sceneRef]);
 
     return (
-        <div className="h-screen w-screen flex">
+        <div className="h-[100dvh] w-screen flex overflow-hidden">
             {isWarehousePanelOpen && (
                 <div
                     className="fixed inset-0 z-[1100] bg-white"
@@ -390,7 +393,7 @@ const Studio: FC = () => {
                     />
                 </div>
             )}
-            <div className="w-full relative">
+            <div className="w-full relative flex flex-col">
                 {isEditMode && (
                     <div className="absolute top-1 left-0 right-0 flex items-center justify-between px-4 z-[1100]">
                         <button
@@ -561,7 +564,7 @@ const Studio: FC = () => {
                     antialias
                     onSceneReady={handleSceneReady}
                     id="studio-canvas"
-                    className="w-full h-full"
+                    className="w-full flex-1"
                 />
             </div>
         </div>
