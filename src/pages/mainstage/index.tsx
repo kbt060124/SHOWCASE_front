@@ -172,19 +172,22 @@ const Mainstage: FC = () => {
                     className="w-full h-full"
                 />
                 {!isOtherUserPost && !hasItems && (
-                    <div
-                        className="absolute inset-0 flex items-center justify-center cursor-pointer"
-                        onClick={() =>
-                            navigate(`/studio/${room_id}`, {
-                                state: { openWarehousePanel: true },
-                            })
-                        }
-                    >
-                        <img
-                            src="/images/add_KCGradation.png"
-                            alt=""
-                            className="w-12 h-12"
-                        />
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <button
+                            onClick={() =>
+                                navigate(`/studio/${room_id}`, {
+                                    state: { openWarehousePanel: true },
+                                })
+                            }
+                            className="transition-colors pointer-events-auto"
+                            aria-label="倉庫を開く"
+                        >
+                            <img
+                                src="/images/add_KCGradation.png"
+                                alt=""
+                                className="w-12 h-12"
+                            />
+                        </button>
                     </div>
                 )}
             </div>
