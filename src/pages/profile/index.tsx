@@ -73,6 +73,9 @@ const Profile = () => {
         { id: string; imageNumber: number }[]
     >([]);
     const [warehouses, setWarehouses] = useState<Warehouse[]>([]);
+    const [thumbnailError, setThumbnailError] = useState<{
+        [key: string]: boolean;
+    }>({});
 
     useEffect(() => {
         if (user?.profile) {
@@ -197,6 +200,13 @@ const Profile = () => {
             });
         }
         setIsEditing(true);
+    };
+
+    const handleThumbnailError = (roomId: number) => {
+        setThumbnailError((prev) => ({
+            ...prev,
+            [roomId]: true,
+        }));
     };
 
     // 自分のプロフィールかどうかを判定
@@ -399,13 +409,21 @@ const Profile = () => {
                                 >
                                     <a href={`/mainstage/${room.id}`}>
                                         <img
-                                            src={`${
-                                                import.meta.env.VITE_S3_URL
-                                            }/room/${user?.id}/${
-                                                room.id
-                                            }/thumbnail.png`}
+                                            src={
+                                                thumbnailError[room.id]
+                                                    ? "/images/room/default_thumbnail.png"
+                                                    : `${
+                                                          import.meta.env
+                                                              .VITE_S3_URL
+                                                      }/room/${user?.id}/${
+                                                          room.id
+                                                      }/thumbnail.png`
+                                            }
                                             alt={`${room.name}のサムネイル`}
                                             className="w-full h-full object-cover"
+                                            onError={() =>
+                                                handleThumbnailError(room.id)
+                                            }
                                         />
                                         <div className="absolute inset-0 bg-black bg-opacity-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200" />
                                     </a>
