@@ -3,6 +3,7 @@ import api from "@/utils/axios";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAuth } from "@/utils/useAuth";
 import { useNavigate } from "react-router-dom";
+import PersonIcon from "@mui/icons-material/Person";
 
 interface SearchResult {
     id: number;
@@ -120,25 +121,27 @@ const Visit = () => {
                                     className="block py-4"
                                 >
                                     <div className="flex items-center space-x-4">
-                                        <img
-                                            src={
-                                                result.profile
-                                                    ?.user_thumbnail &&
-                                                result.profile
-                                                    .user_thumbnail !==
-                                                    "default_thumbnail.png"
-                                                    ? `${
-                                                          import.meta.env
-                                                              .VITE_S3_URL
-                                                      }/user/${result.id}/${
-                                                          result.profile
-                                                              .user_thumbnail
-                                                      }`
-                                                    : "/default-avatar.png"
-                                            }
-                                            alt={`${result.profile?.nickname}のサムネイル`}
-                                            className="w-12 h-12 rounded-full object-cover"
-                                        />
+                                        {result.profile?.user_thumbnail ===
+                                        "default_thumbnail.png" ? (
+                                            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
+                                                <PersonIcon
+                                                    sx={{
+                                                        fontSize: 64,
+                                                        color: "gray",
+                                                    }}
+                                                />
+                                            </div>
+                                        ) : (
+                                            <img
+                                                src={`${
+                                                    import.meta.env.VITE_S3_URL
+                                                }/user/${result.id}/${
+                                                    result.profile?.user_thumbnail
+                                                }`}
+                                                alt={`${result.profile?.nickname}のサムネイル`}
+                                                className="w-16 h-16 rounded-full object-cover"
+                                            />
+                                        )}
                                         <div>
                                             <div className="font-medium text-gray-900">
                                                 {result.profile?.nickname}

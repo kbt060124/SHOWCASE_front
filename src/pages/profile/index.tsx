@@ -6,6 +6,7 @@ import Header from "./components/Header";
 import { useAuth } from "@/utils/useAuth";
 import VisitorView from "./components/VisitorView";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
+import PersonIcon from "@mui/icons-material/Person";
 
 interface Profile {
     nickname: string;
@@ -217,25 +218,24 @@ const Profile = () => {
                         <div className="flex items-start space-x-4">
                             {/* プロフィール画像 */}
                             <div className="relative w-24 h-24">
-                                <img
-                                    src={
-                                        editForm.user_thumbnail
-                                            ? URL.createObjectURL(
-                                                  editForm.user_thumbnail
-                                              )
-                                            : user?.profile.user_thumbnail &&
-                                              user.profile.user_thumbnail !==
-                                                  "default_thumbnail.png"
-                                            ? `${
-                                                  import.meta.env.VITE_S3_URL
-                                              }/user/${user.id}/${
-                                                  user.profile.user_thumbnail
-                                              }`
-                                            : "/default-avatar.png"
-                                    }
-                                    alt="プロフィール画像"
-                                    className="w-full h-full rounded-full object-cover"
-                                />
+                                {user?.profile.user_thumbnail ===
+                                "default_thumbnail.png" ? (
+                                    <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
+                                        <PersonIcon
+                                            sx={{ fontSize: 64, color: "gray" }}
+                                        />
+                                    </div>
+                                ) : (
+                                    <img
+                                        src={`${
+                                            import.meta.env.VITE_S3_URL
+                                        }/user/${user?.id}/${
+                                            user?.profile.user_thumbnail
+                                        }`}
+                                        alt="プロフィール画像"
+                                        className="w-full h-full rounded-full object-cover"
+                                    />
+                                )}
                                 {isEditing && (
                                     <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1.5 cursor-pointer hover:bg-blue-600">
                                         <input
