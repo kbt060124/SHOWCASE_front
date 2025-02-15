@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import SceneComponent from "@/components/SceneComponent";
 import { setupWarehouseScene } from "@/utils/sceneSetup";
 import { Scene, Engine } from "@babylonjs/core";
+import { CircularProgress } from "@mui/material";
 
 interface Warehouse {
     id: bigint;
@@ -29,6 +30,7 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
 }) => {
     const sceneRef = useRef<Scene | null>(null);
     const [canvasHeight, setCanvasHeight] = useState<number>(0);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
         const calculateHeight = () => {
@@ -120,12 +122,24 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                         `${import.meta.env.VITE_S3_URL}/warehouse/${
                             warehouse.user_id
                         }/${warehouse.id}/${warehouse.filename}`
-                    );
+                    )
+                        .then(() => {
+                            setIsLoading(false);
+                        })
+                        .catch((error) => {
+                            console.error("Scene setup error:", error);
+                            setIsLoading(false);
+                        });
                 }}
                 id={`canvas-${warehouse.id}`}
                 height={`${canvasHeight}px`}
                 className="w-full h-full"
             />
+            {isLoading && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                    <CircularProgress />
+                </div>
+            )}
             {isEditMode && onCaptureScreenshot && (
                 <div className="px-4 pt-2">
                     <button
