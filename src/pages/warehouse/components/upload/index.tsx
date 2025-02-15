@@ -24,11 +24,13 @@ const Upload: React.FC<UploadModalProps> = ({
 }) => {
     const { user } = useAuth();
     const [thumbnail, setThumbnail] = React.useState<File | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
 
     // モーダルが閉じられた時にサムネイルをリセットする
     React.useEffect(() => {
         if (!isOpen) {
             setThumbnail(null);
+            setError(null); // エラーもリセット
         }
     }, [isOpen]);
 
@@ -36,6 +38,19 @@ const Upload: React.FC<UploadModalProps> = ({
 
     const handleSubmit = (formData: UploadFormData) => {
         if (!user) return;
+
+        // バリデーションチェック
+        if (!formData.name.trim()) {
+            setError("名前を入力してください");
+            return;
+        }
+        if (!formData.thumbnail) {
+            setError("サムネイルを選択してください");
+            return;
+        }
+
+        setError(null); // エラーをクリア
+
         const submitData = new FormData();
 
         // デバッグログを追加
@@ -94,6 +109,13 @@ const Upload: React.FC<UploadModalProps> = ({
                     </button>
                 </div>
             </div>
+
+            {/* エラーメッセージ表示部分 */}
+            {error && (
+                <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                    {error}
+                </div>
+            )}
 
             {/* コンテンツ部分 */}
             <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">

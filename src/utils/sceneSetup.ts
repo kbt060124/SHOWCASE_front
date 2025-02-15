@@ -123,7 +123,7 @@ export const setupUploadScene = (scene: Scene, modelData: ArrayBuffer) => {
                 rootMesh.position = new Vector3(0, -modelCenter.y, 0);
 
                 const radius = 2;
-                camera.setPosition(new Vector3(0, 0, -radius));
+                camera.setPosition(new Vector3(0, 0, radius));
                 camera.setTarget(Vector3.Zero());
             }
         })
