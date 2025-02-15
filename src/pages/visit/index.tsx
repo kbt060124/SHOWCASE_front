@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import api from "@/utils/axios";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAuth } from "@/utils/useAuth";
@@ -20,6 +20,8 @@ const Visit = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [backgroundImages, setBackgroundImages] = useState<string[]>([]);
+    const searchBarRef = useRef<HTMLDivElement>(null);
+    const [searchBarHeight, setSearchBarHeight] = useState(0);
 
     useEffect(() => {
         // 背景画像の配列を作成（8枚の画像を繰り返し）
@@ -42,6 +44,12 @@ const Visit = () => {
         return () => clearTimeout(delayDebounceFn);
     }, [searchQuery]);
 
+    useEffect(() => {
+        if (searchBarRef.current) {
+            setSearchBarHeight(searchBarRef.current.offsetHeight);
+        }
+    }, []);
+
     const handleSearch = async () => {
         try {
             const response = await api.get("/api/profile/search", {
@@ -59,7 +67,10 @@ const Visit = () => {
     return (
         <div className="min-h-screen bg-white">
             {/* 検索バー */}
-            <div className="sticky top-0 bg-white shadow-sm z-10">
+            <div
+                ref={searchBarRef}
+                className="sticky top-0 bg-white shadow-sm z-10"
+            >
                 <div className="max-w-7xl mx-auto px-4 pt-6 pb-4">
                     <div className="relative">
                         <input
@@ -91,7 +102,10 @@ const Visit = () => {
 
             {/* 検索結果 */}
             {searchResults.length > 0 && (
-                <div className="absolute top-[88px] left-0 right-0 bg-white z-20">
+                <div
+                    className="absolute left-0 right-0 bg-white z-20"
+                    style={{ top: searchBarHeight }}
+                >
                     <div className="max-w-7xl mx-auto px-6 py-4">
                         {searchResults.map((result, index) => (
                             <div key={result.id}>
