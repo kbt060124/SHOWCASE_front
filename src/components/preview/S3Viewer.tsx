@@ -136,7 +136,7 @@ const S3Viewer: React.FC<S3ViewerProps> = ({
                 className="w-full h-full"
             />
             {isLoading && (
-                <div className="absolute inset-0 flex items-center justify-center">
+                <div className="absolute inset-x-0 top-1/3 flex items-center justify-center">
                     <CircularProgress />
                 </div>
             )}
