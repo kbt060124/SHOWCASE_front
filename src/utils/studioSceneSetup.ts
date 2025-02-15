@@ -438,13 +438,13 @@ export const studioSceneSetup = (
         setModelHeight: (height: number) => void;
         setDisplayTop: (top: number) => void;
     }
-) => {
+): Promise<void> => {
     const { roomSize } = setupCommonScene(scene);
     setupRoom(scene, roomSize);
 
     loadCabinetModel(scene, modelPath, roomSize);
 
-    api.get(`/api/room/studio/${room_id}`).then((response) => {
+    return api.get(`/api/room/studio/${room_id}`).then((response) => {
         const items = [...response.data.room.items];
         console.log("items", items);
 
@@ -453,8 +453,12 @@ export const studioSceneSetup = (
             if (!cabinetParts) return;
 
             // 各アイテムに対してモデルをロード
-            items.forEach((item) => {
-                loadItemModel(scene, item, cabinetParts.displayPart, setters);
+            const loadPromises = items.map((item) =>
+                loadItemModel(scene, item, cabinetParts.displayPart, setters)
+            );
+
+            return Promise.all(loadPromises).then(() => {
+                console.log("すべてのアイテムが読み込まれました");
             });
         }
     });
