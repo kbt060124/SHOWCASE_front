@@ -36,7 +36,7 @@ const Viewer: React.FC<ViewerProps> = ({
     const { user } = useAuth();
 
     const hasEditPermission = Boolean(
-        user && warehouse.user_id === BigInt(user.id)
+        user && Number(warehouse.user_id) === user.id
     );
 
     const handleSubmit = async (formData: {
