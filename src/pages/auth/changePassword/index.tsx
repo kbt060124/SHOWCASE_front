@@ -10,6 +10,8 @@ const ChangePassword = () => {
     const [newPasswordConfirmation, setNewPasswordConfirmation] = useState("");
     const [showCurrentPassword, setShowCurrentPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showNewPasswordConfirmation, setShowNewPasswordConfirmation] =
+        useState(false);
     const [success, setSuccess] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -113,7 +115,11 @@ const ChangePassword = () => {
                         </label>
                         <div className="relative">
                             <input
-                                type="password"
+                                type={
+                                    showNewPasswordConfirmation
+                                        ? "text"
+                                        : "password"
+                                }
                                 value={newPasswordConfirmation}
                                 onChange={(e) =>
                                     setNewPasswordConfirmation(e.target.value)
@@ -124,7 +130,9 @@ const ChangePassword = () => {
                             <button
                                 type="button"
                                 onClick={() =>
-                                    setShowNewPassword(!showNewPassword)
+                                    setShowNewPasswordConfirmation(
+                                        !showNewPasswordConfirmation
+                                    )
                                 }
                                 className="absolute right-3 top-1/2 transform -translate-y-1/2"
                             >
