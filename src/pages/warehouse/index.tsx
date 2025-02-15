@@ -43,7 +43,6 @@ const Warehouse = () => {
             try {
                 const response = await api.get(`/api/item/${user.id}`);
                 setWarehouses(response.data);
-                console.log("取得した倉庫データ:", response.data);
             } catch (error) {
                 console.error(
                     "倉庫データの取得中にエラーが発生しました:",

@@ -51,7 +51,6 @@ const Mainstage: FC = () => {
                     const response = await api.get(
                         `/api/room/mainstage/${room_id}`
                     );
-                    console.log("response.data.room", response.data.room);
                     setRoomData(response.data.room);
                     setHasItems(
                         response.data.room.items &&
@@ -61,7 +60,6 @@ const Mainstage: FC = () => {
                     console.error("Error fetching room data:", error);
                 }
             }
-            console.log(user);
         };
         fetchRoomData();
     }, [room_id]);

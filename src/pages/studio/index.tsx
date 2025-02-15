@@ -121,18 +121,12 @@ const Studio: FC = () => {
     const handleSave = async () => {
         if (!sceneRef) return;
         setIsSaving(true);
-        console.log("保存処理開始");
 
         try {
             const engine = sceneRef.getEngine();
             const canvas = engine.getRenderingCanvas();
 
             if (canvas) {
-                console.log("キャンバス取得成功、サイズ変更前:", {
-                    width: canvas.width,
-                    height: canvas.height,
-                });
-
                 // オフスクリーンキャンバスを作成
                 const offscreenCanvas = document.createElement("canvas");
                 const targetSize = 1024;
@@ -177,7 +171,6 @@ const Studio: FC = () => {
                         offscreenCanvas.toBlob(
                             async (blob) => {
                                 if (blob) {
-                                    console.log("Blobサイズ:", blob.size);
                                     const file = new File(
                                         [blob],
                                         "thumbnail.png",
@@ -192,11 +185,6 @@ const Studio: FC = () => {
                                         file,
                                         "thumbnail.png"
                                     );
-
-                                    console.log(
-                                        "サムネイルアップロード開始:",
-                                        `/api/room/upload/thumbnail/${room_id}`
-                                    );
                                     const thumbnailResponse = await api.post(
                                         `/api/room/upload/thumbnail/${room_id}`,
                                         formData,
@@ -206,10 +194,6 @@ const Studio: FC = () => {
                                                     "multipart/form-data",
                                             },
                                         }
-                                    );
-                                    console.log(
-                                        "サムネイルアップロード結果:",
-                                        thumbnailResponse.data
                                     );
                                 }
                                 resolve();
@@ -263,12 +247,6 @@ const Studio: FC = () => {
                 }
             });
 
-            console.log("メッシュデータ保存開始:", savedData);
-            const updateResponse = await api.put(
-                `/api/room/update/${room_id}`,
-                savedData
-            );
-            console.log("メッシュデータ保存結果:", updateResponse.data);
 
             alert("保存が完了しました");
         } catch (error) {
@@ -290,7 +268,6 @@ const Studio: FC = () => {
             alert("保存に失敗しました");
         } finally {
             setIsSaving(false);
-            console.log("保存処理完了");
         }
     };
 
@@ -407,12 +384,6 @@ const Studio: FC = () => {
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
-                                console.log("Saveボタンがクリックされました");
-                                if (sceneRef) {
-                                    console.log("sceneRefが存在します");
-                                } else {
-                                    console.log("sceneRefが存在しません");
-                                }
                                 handleSave();
                             }}
                             disabled={isSaving}

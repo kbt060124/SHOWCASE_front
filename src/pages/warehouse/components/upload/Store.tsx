@@ -18,13 +18,10 @@ const Store: React.FC<StoreProps> = ({ initialName, onSubmit, thumbnail }) => {
     const [thumbnailUrl, setThumbnailUrl] = React.useState<string | null>(null);
 
     useEffect(() => {
-        console.log("Thumbnail changed:", thumbnail);
         if (thumbnail) {
             const url = URL.createObjectURL(thumbnail);
-            console.log("Created thumbnail URL:", url);
             setThumbnailUrl(url);
             return () => {
-                console.log("Cleaning up URL:", url);
                 URL.revokeObjectURL(url);
             };
         }

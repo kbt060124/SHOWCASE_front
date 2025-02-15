@@ -36,7 +36,6 @@ export const setupWarehouseScene = (
 
     return SceneLoader.ImportMeshAsync("", "", modelPath, scene)
         .then((result) => {
-            console.log("モデルが読み込まれました");
             const rootMesh = result.meshes[0];
 
             // モデルのバウンディングボックスを計算

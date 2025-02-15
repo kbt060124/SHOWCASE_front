@@ -13,7 +13,6 @@ const Login = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            console.log("User is authenticated, redirecting...");
             const checkProfileAndRedirect = async () => {
                 try {
                     const { data } = await api.get(`/api/room/${user?.id}`);

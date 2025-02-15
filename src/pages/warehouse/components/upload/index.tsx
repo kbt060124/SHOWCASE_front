@@ -53,27 +53,12 @@ const Upload: React.FC<UploadModalProps> = ({
 
         const submitData = new FormData();
 
-        // デバッグログを追加
-        console.log("送信前のデータ確認:", {
-            file,
-            userId: user.id,
-            name: formData.name,
-            memo: formData.memo,
-            thumbnail: formData.thumbnail,
-        });
-
         submitData.append("file", file);
         submitData.append("user_id", user.id.toString());
         submitData.append("name", formData.name);
         submitData.append("memo", formData.memo);
         if (formData.thumbnail) {
             submitData.append("thumbnail", formData.thumbnail);
-        }
-
-        // FormDataの内容を確認
-        console.log("FormDataの内容:");
-        for (const pair of submitData.entries()) {
-            console.log(pair[0], pair[1]);
         }
 
         onSubmit(submitData);
