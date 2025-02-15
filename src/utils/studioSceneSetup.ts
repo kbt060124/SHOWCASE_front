@@ -470,7 +470,7 @@ export const studioItemSetup = (
     modelPath: string,
     itemId: bigint
 ): Promise<{ scale: number; displayTop: number }> => {
-    // setupCommonScene(scene);
+    setupCommonScene(scene);
 
     const cabinetParts = findCabinetAndDisplayPart(scene);
     if (!cabinetParts) return Promise.resolve({ scale: 1, displayTop: 0 });
