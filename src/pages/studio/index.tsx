@@ -381,7 +381,7 @@ const Studio: FC = () => {
     }, [sceneRef]);
 
     return (
-        <div className="h-[100dvh] w-screen flex overflow-hidden">
+        <div className="h-[100dvh] w-screen flex overflow-hidden fixed inset-0">
             {isWarehousePanelOpen && (
                 <div
                     className="fixed inset-0 z-[1100] bg-white"
