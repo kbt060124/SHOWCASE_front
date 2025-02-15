@@ -395,7 +395,7 @@ const loadItemModel = async (
             if (rotationX < -180) rotationX += 360;
 
             // Y軸の回転角度を計算（-180から180の範囲に正規化）
-            let rotationY = (-euler.y * 180) / Math.PI - 180;
+            let rotationY = (euler.y * 180) / Math.PI + 180;
             if (rotationY > 180) {
                 rotationY -= 360;
             } else if (rotationY < -180) {
