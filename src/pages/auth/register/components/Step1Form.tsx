@@ -27,24 +27,38 @@ export const Step1Form: React.FC<Step1FormProps> = ({
     setShowPasswordConfirmation,
 }) => {
     const inputClassName =
-        "appearance-none block w-full px-3 py-3 border border-gray-300 rounded-md placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-blue-500 focus:border-blue-500";
+        "appearance-none block w-full border-b-2 border-gray-300 focus:outline-none focus:border-blue-500";
 
     return (
         <div className="space-y-4">
             <div>
+                <label
+                    htmlFor="email"
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    E-mail
+                </label>
                 <input
+                    id="email"
                     type="email"
                     className={inputClassName}
-                    placeholder="E-mail"
+                    placeholder="example@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                 />
             </div>
             <div className="relative">
+                <label
+                    htmlFor="password"
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    Password
+                </label>
                 <input
+                    id="password"
                     type={showPassword ? "text" : "password"}
                     className={inputClassName}
-                    placeholder="Password"
+                    placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                 />
@@ -57,10 +71,17 @@ export const Step1Form: React.FC<Step1FormProps> = ({
                 </button>
             </div>
             <div className="relative">
+                <label
+                    htmlFor="passwordConfirmation"
+                    className="block text-sm font-medium text-gray-700"
+                >
+                    Confirm Password
+                </label>
                 <input
+                    id="passwordConfirmation"
                     type={showPasswordConfirmation ? "text" : "password"}
                     className={inputClassName}
-                    placeholder="Confirm Password"
+                    placeholder="••••••••"
                     value={passwordConfirmation}
                     onChange={(e) => setPasswordConfirmation(e.target.value)}
                 />
