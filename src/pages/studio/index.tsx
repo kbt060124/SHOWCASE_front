@@ -194,7 +194,7 @@ const Studio: FC = () => {
                                         file,
                                         "thumbnail.png"
                                     );
-                                    const thumbnailResponse = await api.post(
+                                    await api.post(
                                         `/api/room/upload/thumbnail/${room_id}`,
                                         formData,
                                         {
@@ -255,7 +255,6 @@ const Studio: FC = () => {
                     savedData.push(meshData);
                 }
             });
-
 
             alert("保存が完了しました");
         } catch (error) {
