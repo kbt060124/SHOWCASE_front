@@ -3,7 +3,6 @@ import api from "@/utils/axios";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAuth } from "@/utils/useAuth";
 import { useNavigate } from "react-router-dom";
-import PersonIcon from "@mui/icons-material/Person";
 
 interface SearchResult {
     id: number;
@@ -118,30 +117,31 @@ const Visit = () => {
                                             state: { fromVisit: true },
                                         });
                                     }}
-                                    className="block py-4"
+                                    className="block py-2"
                                 >
                                     <div className="flex items-center space-x-4">
-                                        {result.profile?.user_thumbnail ===
-                                        "default_thumbnail.png" ? (
-                                            <div className="w-16 h-16 rounded-full bg-gray-200 flex items-center justify-center">
-                                                <PersonIcon
-                                                    sx={{
-                                                        fontSize: 64,
-                                                        color: "gray",
-                                                    }}
-                                                />
-                                            </div>
-                                        ) : (
-                                            <img
-                                                src={`${
-                                                    import.meta.env.VITE_S3_URL
-                                                }/user/${result.id}/${
-                                                    result.profile?.user_thumbnail
-                                                }`}
-                                                alt={`${result.profile?.nickname}のサムネイル`}
-                                                className="w-16 h-16 rounded-full object-cover"
-                                            />
-                                        )}
+                                        <img
+                                            src={
+                                                result.profile
+                                                    ?.user_thumbnail ===
+                                                "default_thumbnail.png"
+                                                    ? "/images/user/default_thumbnail.png"
+                                                    : `${
+                                                          import.meta.env
+                                                              .VITE_S3_URL
+                                                      }/user/${result.id}/${
+                                                          result.profile
+                                                              ?.user_thumbnail
+                                                      }`
+                                            }
+                                            alt={`${result.profile?.nickname}のサムネイル`}
+                                            className={`w-16 h-16 rounded-full object-cover ${
+                                                result.profile
+                                                    ?.user_thumbnail ===
+                                                    "default_thumbnail.png" &&
+                                                "bg-gray-100 p-2"
+                                            }`}
+                                        />
                                         <div>
                                             <div className="font-medium text-gray-900">
                                                 {result.profile?.nickname}
