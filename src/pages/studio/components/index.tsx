@@ -2,6 +2,8 @@ import React, { useEffect, useState } from "react";
 import api from "@/utils/axios";
 import S3Viewer from "@/components/preview/S3Viewer";
 import Item from "./Item";
+import { useAuth } from "@/utils/useAuth";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 interface Warehouse {
     id: bigint;
@@ -29,13 +31,14 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
     const [showItem, setShowItem] = useState(false);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchWarehouses = async () => {
+            if (!user) return;
             try {
-                const userId = 1;
                 const response = await api.get<Warehouse[]>(
-                    `/api/item/${userId}`
+                    `/api/item/${user.id}`
                 );
                 setWarehouses(response.data);
                 // デフォルトで最初のモデルを選択
@@ -46,7 +49,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
         };
 
         fetchWarehouses();
-    }, []);
+    }, [user]);
 
     const handleThumbnailClick = (warehouse: Warehouse) => {
         setSelectedWarehouse(warehouse);
@@ -112,7 +115,10 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                     {showItem ? (
                         <Item warehouse={selectedWarehouse} />
                     ) : (
-                        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2 p-2">
+                        <div
+                            className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2 p-2 overflow-y-auto max-h-[calc(100vh-12rem)]"
+                            style={{ marginBottom: `${MENU_BAR_HEIGHT}px` }}
+                        >
                             {warehouses.map((warehouse) => (
                                 <div
                                     key={warehouse.id}
