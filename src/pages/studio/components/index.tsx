@@ -41,7 +41,6 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                 );
                 setWarehouses(response.data);
                 // デフォルトで最初のモデルを選択
-                console.log(response.data);
                 if (response.data.length > 0) {
                     setSelectedWarehouse(response.data[0]);
                 }
