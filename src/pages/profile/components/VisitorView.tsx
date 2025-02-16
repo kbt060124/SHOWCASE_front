@@ -2,7 +2,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Viewer from "@/pages/warehouse/components/viewer";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
-import PersonIcon from "@mui/icons-material/Person";
 
 interface User {
     id: number;
@@ -79,20 +78,21 @@ const VisitorView = ({ user, rooms, warehouses }: VisitorViewProps) => {
             {/* プロフィール情報 */}
             <div className="p-6">
                 <div className="flex items-center space-x-4">
-                    {user.profile?.user_thumbnail ===
-                    "default_thumbnail.png" ? (
-                        <div className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center">
-                            <PersonIcon sx={{ fontSize: 64, color: "gray" }} />
-                        </div>
-                    ) : (
-                        <img
-                            src={`${import.meta.env.VITE_S3_URL}/user/${
-                                user.id
-                            }/${user.profile.user_thumbnail}`}
-                            alt="プロフィール画像"
-                            className="w-24 h-24 rounded-full object-cover"
-                        />
-                    )}
+                    <img
+                        src={
+                            user.profile?.user_thumbnail ===
+                            "default_thumbnail.png"
+                                ? "/images/user/default_thumbnail.png"
+                                : `${import.meta.env.VITE_S3_URL}/user/${
+                                      user.id
+                                  }/${user.profile.user_thumbnail}`
+                        }
+                        alt="プロフィール画像"
+                        className={`w-24 h-24 rounded-full object-cover ${
+                            user.profile?.user_thumbnail ===
+                                "default_thumbnail.png" && "bg-gray-100 p-4"
+                        }`}
+                    />
                     <div>
                         <h1 className="text-xl font-bold">
                             {user.profile?.nickname || ""}

@@ -6,7 +6,6 @@ import Header from "./components/Header";
 import { useAuth } from "@/utils/useAuth";
 import VisitorView from "./components/VisitorView";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
-import PersonIcon from "@mui/icons-material/Person";
 
 interface Profile {
     nickname: string;
@@ -52,6 +51,50 @@ interface Warehouse {
     created_at: string | null;
     updated_at: string | null;
 }
+
+const getProfileImageUrl = (
+    editFormThumbnail: Blob | undefined,
+    user: User | null,
+    isEditing: boolean
+) => {
+    // 編集モード中で、かつ新しい画像が設定されている場合
+    if (isEditing && editFormThumbnail) {
+        return URL.createObjectURL(editFormThumbnail);
+    }
+
+    // デフォルトサムネイルの場合
+    if (
+        !user?.profile.user_thumbnail ||
+        user.profile.user_thumbnail === "default_thumbnail.png"
+    ) {
+        return "/images/user/default_thumbnail.png";
+    }
+
+    // S3の画像を表示
+    return `${import.meta.env.VITE_S3_URL}/user/${user.id}/${
+        user.profile.user_thumbnail
+    }`;
+};
+
+const getProfileImageClasses = (
+    editFormThumbnail: Blob | undefined,
+    userThumbnail: string | undefined,
+    isEditing: boolean
+) => {
+    const baseClasses = "w-full h-full rounded-full object-cover";
+
+    // 編集モード中で新しい画像が設定されている場合は基本クラスのみ
+    if (isEditing && editFormThumbnail) {
+        return baseClasses;
+    }
+
+    // デフォルトサムネイルの場合のみ特別なスタイルを適用
+    if (!userThumbnail || userThumbnail === "default_thumbnail.png") {
+        return `${baseClasses} bg-gray-100 p-4`;
+    }
+
+    return baseClasses;
+};
 
 const Profile = () => {
     const { user_id } = useParams();
@@ -209,6 +252,14 @@ const Profile = () => {
         }));
     };
 
+    const handleCancel = () => {
+        setIsEditing(false);
+        setEditForm({
+            ...editForm,
+            user_thumbnail: undefined,
+        });
+    };
+
     // 自分のプロフィールかどうかを判定
     const isOwnProfile = currentUser?.id === Number(user_id);
 
@@ -227,25 +278,20 @@ const Profile = () => {
                     <div className="max-w-7xl mx-auto sm:px-6 lg:px-8">
                         <div className="flex items-start space-x-4">
                             {/* プロフィール画像 */}
-                            <div className="relative w-24 h-24">
-                                {user?.profile.user_thumbnail ===
-                                "default_thumbnail.png" ? (
-                                    <div className="w-full h-full rounded-full bg-gray-200 flex items-center justify-center">
-                                        <PersonIcon
-                                            sx={{ fontSize: 64, color: "gray" }}
-                                        />
-                                    </div>
-                                ) : (
-                                    <img
-                                        src={`${
-                                            import.meta.env.VITE_S3_URL
-                                        }/user/${user?.id}/${
-                                            user?.profile.user_thumbnail
-                                        }`}
-                                        alt="プロフィール画像"
-                                        className="w-full h-full rounded-full object-cover"
-                                    />
-                                )}
+                            <div className="relative w-24 h-24 ml-2">
+                                <img
+                                    src={getProfileImageUrl(
+                                        editForm.user_thumbnail,
+                                        user,
+                                        isEditing
+                                    )}
+                                    alt="プロフィール画像"
+                                    className={getProfileImageClasses(
+                                        editForm.user_thumbnail,
+                                        user?.profile.user_thumbnail,
+                                        isEditing
+                                    )}
+                                />
                                 {isEditing && (
                                     <label className="absolute bottom-0 right-0 bg-blue-500 rounded-full p-1.5 cursor-pointer hover:bg-blue-600">
                                         <input
@@ -391,7 +437,7 @@ const Profile = () => {
                                     保存
                                 </button>
                                 <button
-                                    onClick={() => setIsEditing(false)}
+                                    onClick={handleCancel}
                                     className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 w-32"
                                 >
                                     キャンセル
