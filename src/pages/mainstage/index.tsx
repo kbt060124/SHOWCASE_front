@@ -12,7 +12,6 @@ import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 import SendIcon from "@mui/icons-material/Send";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CircularProgress from "@mui/material/CircularProgress";
-import PersonIcon from "@mui/icons-material/Person";
 
 interface Profile {
     user_thumbnail: string;
@@ -224,22 +223,21 @@ const Mainstage: FC = () => {
                         style={{ bottom: `${MENU_BAR_HEIGHT}px` }}
                         onClick={() => navigate(`/profile/${roomData.user_id}`)}
                     >
-                        {roomData.user.profile.user_thumbnail ===
-                        "default_thumbnail.png" ? (
-                            <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                <PersonIcon
-                                    sx={{ fontSize: 24, color: "gray" }}
-                                />
-                            </div>
-                        ) : (
-                            <img
-                                src={`${import.meta.env.VITE_S3_URL}/user/${
-                                    roomData.user_id
-                                }/${roomData.user.profile.user_thumbnail}`}
-                                alt={roomData.user.profile.nickname}
-                                className="w-10 h-10 rounded-full object-cover"
-                            />
-                        )}
+                        <img
+                            src={
+                                roomData.user.profile.user_thumbnail ===
+                                "default_thumbnail.png"
+                                    ? "/images/user/default_thumbnail.png"
+                                    : `${import.meta.env.VITE_S3_URL}/user/${
+                                          roomData.user_id
+                                      }/${roomData.user.profile.user_thumbnail}`
+                            }
+                            alt="プロフィール画像"
+                            className={`w-10 h-10 rounded-full object-cover ${
+                                roomData.user.profile.user_thumbnail ===
+                                    "default_thumbnail.png" && "bg-gray-100 p-1"
+                            }`}
+                        />
                         <span className="font-bold ml-3">
                             {roomData.user.profile.nickname}
                         </span>
@@ -313,35 +311,37 @@ const Mainstage: FC = () => {
                                             className="flex justify-between items-start"
                                         >
                                             <div className="flex items-center gap-3">
-                                                {comment.user.profile
-                                                    .user_thumbnail ===
-                                                "default_thumbnail.png" ? (
-                                                    <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                                        <PersonIcon
-                                                            sx={{
-                                                                fontSize: 24,
-                                                                color: "gray",
-                                                            }}
-                                                        />
-                                                    </div>
-                                                ) : (
-                                                    <img
-                                                        src={`${
-                                                            import.meta.env
-                                                                .VITE_S3_URL
-                                                        }/user/${
-                                                            comment.user.id
-                                                        }/${
-                                                            comment.user.profile
-                                                                .user_thumbnail
-                                                        }`}
-                                                        alt={
-                                                            comment.user.profile
-                                                                .nickname
-                                                        }
-                                                        className="w-10 h-10 rounded-full object-cover"
-                                                    />
-                                                )}
+                                                <img
+                                                    src={
+                                                        comment.user.profile
+                                                            .user_thumbnail ===
+                                                        "default_thumbnail.png"
+                                                            ? "/images/user/default_thumbnail.png"
+                                                            : `${
+                                                                  import.meta
+                                                                      .env
+                                                                      .VITE_S3_URL
+                                                              }/user/${
+                                                                  comment.user
+                                                                      .id
+                                                              }/${
+                                                                  comment.user
+                                                                      .profile
+                                                                      .user_thumbnail
+                                                              }`
+                                                    }
+                                                    alt={
+                                                        comment.user.profile
+                                                            .nickname
+                                                    }
+                                                    className={`w-10 h-10 rounded-full object-cover ${
+                                                        comment.user.profile
+                                                            .user_thumbnail ===
+                                                            "default_thumbnail.png" &&
+                                                        "bg-gray-200 p-2"
+                                                    }`}
+                                                />
+
                                                 <div>
                                                     <div className="font-bold">
                                                         {
@@ -369,27 +369,25 @@ const Mainstage: FC = () => {
                                 </div>
 
                                 <div className="flex gap-3 items-center">
-                                    {profile?.user_thumbnail ===
-                                    "default_thumbnail.png" ? (
-                                        <div className="w-8 h-8 rounded-full bg-gray-200 flex items-center justify-center">
-                                            <PersonIcon
-                                                sx={{
-                                                    fontSize: 20,
-                                                    color: "gray",
-                                                }}
-                                            />
-                                        </div>
-                                    ) : (
-                                        <img
-                                            src={`${
-                                                import.meta.env.VITE_S3_URL
-                                            }/user/${user?.id}/${
-                                                profile?.user_thumbnail
-                                            }`}
-                                            alt={profile?.nickname || ""}
-                                            className="w-8 h-8 rounded-full object-cover"
-                                        />
-                                    )}
+                                    <img
+                                        src={
+                                            profile?.user_thumbnail ===
+                                            "default_thumbnail.png"
+                                                ? "/images/user/default_thumbnail.png"
+                                                : `${
+                                                      import.meta.env
+                                                          .VITE_S3_URL
+                                                  }/user/${user?.id}/${
+                                                      profile?.user_thumbnail
+                                                  }`
+                                        }
+                                        alt={profile?.nickname || ""}
+                                        className={`w-8 h-8 rounded-full object-cover ${
+                                            profile?.user_thumbnail ===
+                                                "default_thumbnail.png" &&
+                                            "bg-gray-100 p-1"
+                                        }`}
+                                    />
                                     <div className="flex-1 relative">
                                         <input
                                             type="text"
@@ -444,31 +442,31 @@ const Mainstage: FC = () => {
                                                 )
                                             }
                                         >
-                                            {like.profile.user_thumbnail ===
-                                            "default_thumbnail.png" ? (
-                                                <div className="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center">
-                                                    <PersonIcon
-                                                        sx={{
-                                                            fontSize: 24,
-                                                            color: "gray",
-                                                        }}
-                                                    />
-                                                </div>
-                                            ) : (
-                                                <img
-                                                    src={`${
-                                                        import.meta.env
-                                                            .VITE_S3_URL
-                                                    }/user/${
-                                                        like.profile.user_id
-                                                    }/${
-                                                        like.profile
-                                                            .user_thumbnail
-                                                    }`}
-                                                    alt={like.profile.nickname}
-                                                    className="w-10 h-10 rounded-full object-cover"
-                                                />
-                                            )}
+                                            <img
+                                                src={
+                                                    like.profile
+                                                        .user_thumbnail ===
+                                                    "default_thumbnail.png"
+                                                        ? "/images/user/default_thumbnail.png"
+                                                        : `${
+                                                              import.meta.env
+                                                                  .VITE_S3_URL
+                                                          }/user/${
+                                                              like.profile
+                                                                  .user_id
+                                                          }/${
+                                                              like.profile
+                                                                  .user_thumbnail
+                                                          }`
+                                                }
+                                                alt={like.profile.nickname}
+                                                className={`w-10 h-10 rounded-full object-cover ${
+                                                    like.profile
+                                                        .user_thumbnail ===
+                                                        "default_thumbnail.png" &&
+                                                    "bg-gray-100 p-2"
+                                                }`}
+                                            />
                                             <span className="font-medium">
                                                 {like.profile.nickname}
                                             </span>
