@@ -3,6 +3,7 @@ import api from "@/utils/axios";
 import S3Viewer from "@/components/preview/S3Viewer";
 import Item from "./Item";
 import { useAuth } from "@/utils/useAuth";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 interface Warehouse {
     id: bigint;
@@ -114,7 +115,10 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
                     {showItem ? (
                         <Item warehouse={selectedWarehouse} />
                     ) : (
-                        <div className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2 p-2">
+                        <div
+                            className="grid grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-1 sm:gap-2 p-2 overflow-y-auto max-h-[calc(100vh-12rem)]"
+                            style={{ marginBottom: `${MENU_BAR_HEIGHT}px` }}
+                        >
                             {warehouses.map((warehouse) => (
                                 <div
                                     key={warehouse.id}
