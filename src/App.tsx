@@ -12,6 +12,10 @@ import "@/App.css";
 import api from "@/utils/axios";
 import MenuBar from "./components/MenuBar";
 import ChangePassword from "./pages/auth/changePassword";
+import ReactGA from "react-ga4";
+
+// 初期化
+ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
 
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
@@ -47,6 +51,14 @@ const App = () => {
 
         getCsrfToken();
     }, []);
+
+    useEffect(() => {
+        // ページビューの送信
+        ReactGA.send({
+            hitType: "pageview",
+            page: location.pathname + location.search,
+        });
+    }, [location]);
 
     return (
         <div
