@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import api from "@/utils/axios";
 import S3Viewer from "@/components/preview/S3Viewer";
 import Item from "./Item";
+import { useAuth } from "@/utils/useAuth";
 
 interface Warehouse {
     id: bigint;
@@ -29,16 +30,18 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
     const [selectedWarehouse, setSelectedWarehouse] =
         useState<Warehouse | null>(null);
     const [showItem, setShowItem] = useState(false);
+    const { user } = useAuth();
 
     useEffect(() => {
         const fetchWarehouses = async () => {
+            if (!user) return;
             try {
-                const userId = 1;
                 const response = await api.get<Warehouse[]>(
-                    `/api/item/${userId}`
+                    `/api/item/${user.id}`
                 );
                 setWarehouses(response.data);
                 // デフォルトで最初のモデルを選択
+                console.log(response.data);
                 if (response.data.length > 0) {
                     setSelectedWarehouse(response.data[0]);
                 }
@@ -46,7 +49,7 @@ const WarehousePanel: React.FC<WarehousePanelProps> = ({
         };
 
         fetchWarehouses();
-    }, []);
+    }, [user]);
 
     const handleThumbnailClick = (warehouse: Warehouse) => {
         setSelectedWarehouse(warehouse);

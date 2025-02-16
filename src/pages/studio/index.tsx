@@ -256,6 +256,8 @@ const Studio: FC = () => {
                 }
             });
 
+            await api.put(`/api/room/update/${room_id}`, savedData);
+
             alert("保存が完了しました");
         } catch (error) {
             console.error("保存エラーの詳細:", error);
