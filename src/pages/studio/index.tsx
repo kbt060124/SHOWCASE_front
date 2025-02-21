@@ -258,7 +258,7 @@ const Studio: FC = () => {
 
             await api.put(`/api/room/update/${room_id}`, savedData);
 
-            alert("保存が完了しました");
+            alert("Save successful");
         } catch (error) {
             console.error("保存エラーの詳細:", error);
             if (error && typeof error === "object" && "response" in error) {
@@ -275,7 +275,7 @@ const Studio: FC = () => {
                     });
                 }
             }
-            alert("保存に失敗しました");
+            alert("Failed to save");
         } finally {
             setIsSaving(false);
         }
@@ -456,7 +456,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                Vertical Rotation
+                                                Horizontal Rotation
                                             </label>
                                             <input
                                                 type="range"
@@ -477,7 +477,7 @@ const Studio: FC = () => {
                                         </div>
                                         <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                                             <label className="text-sm font-medium">
-                                                Horizontal Rotation
+                                                Vertical Rotation
                                             </label>
                                             <input
                                                 type="range"

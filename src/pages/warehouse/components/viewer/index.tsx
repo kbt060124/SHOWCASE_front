@@ -70,12 +70,12 @@ const Viewer: React.FC<ViewerProps> = ({
             }
         } catch (error) {
             console.error("更新に失敗しました:", error);
-            alert("更新に失敗しました");
+            alert("Failed to update");
         }
     };
 
     const handleDelete = async () => {
-        if (!window.confirm("このアイテムを削除してもよろしいですか？")) {
+        if (!window.confirm("Are you sure you want to delete this item?")) {
             return;
         }
 
@@ -89,7 +89,7 @@ const Viewer: React.FC<ViewerProps> = ({
             }
         } catch (error) {
             console.error("削除に失敗しました:", error);
-            alert("削除に失敗しました");
+            alert("Failed to delete item");
         }
     };
 
