@@ -137,7 +137,7 @@ const Mainstage: FC = () => {
     // コメント削除処理
     const handleCommentDelete = async (commentId: number) => {
         try {
-            if (!window.confirm("このコメントを削除してもよろしいですか？")) {
+            if (!window.confirm("Are you sure you want to delete this comment?")) {
                 return;
             }
 
@@ -150,14 +150,14 @@ const Mainstage: FC = () => {
                     `/api/room/mainstage/${room_id}`
                 );
                 setRoomData(response.data.room);
-                alert("コメントを削除しました");
+                alert("Comment deleted");
             }
         } catch (error: any) {
             console.error("コメントの削除に失敗しました:", error);
             if (error.response?.status === 403) {
-                alert("このコメントを削除する権限がありません");
+                alert("Do not have the authority to delete this comment");
             } else {
-                alert("コメントの削除に失敗しました");
+                alert("Failed to delete comment");
             }
         }
     };

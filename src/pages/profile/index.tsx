@@ -330,6 +330,7 @@ const Profile = () => {
                                                         })
                                                     }
                                                     className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
+                                                    placeholder="Nickname"
                                                 />
                                             ) : (
                                                 user?.profile.nickname
@@ -369,7 +370,7 @@ const Profile = () => {
                                                         })
                                                     }
                                                     className="border-b border-gray-300 focus:border-blue-500 focus:outline-none mb-2 sm:mb-0"
-                                                    placeholder="姓"
+                                                    placeholder="Last Name"
                                                 />
                                                 <input
                                                     type="text"
@@ -382,7 +383,7 @@ const Profile = () => {
                                                         })
                                                     }
                                                     className="border-b border-gray-300 focus:border-blue-500 focus:outline-none"
-                                                    placeholder="名"
+                                                    placeholder="First Name"
                                                 />
                                             </div>
                                             <input
@@ -396,7 +397,7 @@ const Profile = () => {
                                                     })
                                                 }
                                                 className="border-b border-gray-300 focus:border-blue-500 focus:outline-none w-full"
-                                                placeholder="属性"
+                                                placeholder="Interests"
                                             />
                                             <textarea
                                                 value={editForm.introduction}
@@ -408,7 +409,7 @@ const Profile = () => {
                                                     })
                                                 }
                                                 className="w-full h-24 border border-gray-300 rounded-md p-2 focus:border-blue-500 focus:outline-none"
-                                                placeholder="自己紹介"
+                                                placeholder="About me"
                                             />
                                         </div>
                                     </>
@@ -434,13 +435,13 @@ const Profile = () => {
                                     onClick={handleUpdate}
                                     className="px-6 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 w-32"
                                 >
-                                    保存
+                                    Save
                                 </button>
                                 <button
                                     onClick={handleCancel}
                                     className="px-6 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 w-32"
                                 >
-                                    キャンセル
+                                    Cancel
                                 </button>
                             </div>
                         )}

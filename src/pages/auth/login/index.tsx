@@ -50,7 +50,7 @@ const Login = () => {
                     />
                 </div>
                 <p className="text-center text-gray-600 -mt-6">
-                    This is a placeholder this is a placeholder
+                    Welcome to your spatial design journey!
                 </p>
                 <div className="h-1"></div>
                 {error && (
@@ -89,7 +89,7 @@ const Login = () => {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between">
+                    {/* <div className="flex items-center justify-between">
                         <div className="flex items-center">
                             <input
                                 type="checkbox"
@@ -107,7 +107,7 @@ const Login = () => {
                                 Forgot Password?
                             </a>
                         </div>
-                    </div>
+                    </div> */}
 
                     <div>
                         <button

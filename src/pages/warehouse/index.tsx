@@ -69,7 +69,7 @@ const Warehouse = () => {
         if (!file) return;
 
         if (file.size > MAX_FILE_SIZE) {
-            alert("ファイルサイズが100MBを超えています");
+            alert("File size exceeds 100MB");
             return;
         }
 
