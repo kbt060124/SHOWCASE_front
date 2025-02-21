@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import Studio from "@/pages/studio";
 import Warehouse from "@/pages/warehouse";
@@ -13,6 +13,7 @@ import api from "@/utils/axios";
 import MenuBar from "./components/MenuBar";
 import ChangePassword from "./pages/auth/changePassword";
 import ReactGA from "react-ga4";
+import { PageTimeTracker, trackPageTransition } from "@/utils/analytics";
 
 // 初期化
 ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
@@ -38,6 +39,7 @@ const noNavPaths = ["/login", "/register", "/change-password"];
 const App = () => {
     const location = useLocation();
     const showNav = !noNavPaths.includes(location.pathname);
+    const timeTrackerRef = useRef<PageTimeTracker | null>(null);
 
     useEffect(() => {
         // CSRFトークンを取得
@@ -53,12 +55,35 @@ const App = () => {
     }, []);
 
     useEffect(() => {
+        const previousPath = sessionStorage.getItem("currentPath") || "";
+        const currentPath = location.pathname;
+
         // ページビューの送信
         ReactGA.send({
             hitType: "pageview",
-            page: location.pathname + location.search,
+            page: currentPath + location.search,
         });
+
+        // ページ遷移のトラッキング
+        if (previousPath !== currentPath) {
+            trackPageTransition(previousPath, currentPath);
+        }
+
+        // 現在のパスを保存
+        sessionStorage.setItem("currentPath", currentPath);
     }, [location]);
+
+    useEffect(() => {
+        // 新しいページのトラッカーを作成
+        timeTrackerRef.current = new PageTimeTracker(location.pathname);
+
+        // コンポーネントのアンマウント時にクリーンアップ
+        return () => {
+            if (timeTrackerRef.current) {
+                timeTrackerRef.current.cleanup();
+            }
+        };
+    }, [location.pathname]);
 
     return (
         <div
