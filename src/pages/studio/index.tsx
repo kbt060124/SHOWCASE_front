@@ -123,7 +123,6 @@ const Studio: FC = () => {
     const handleClickOutside = (e: React.MouseEvent) => {
         if (e.target === e.currentTarget) {
             setIsWarehousePanelOpen(false);
-            setIsEditMode(false);
         }
     };
 
@@ -385,7 +384,7 @@ const Studio: FC = () => {
                     <div className="absolute top-1 left-0 right-0 flex items-center justify-between px-4 z-[1100]">
                         <button
                             onClick={() => setIsEditMode(false)}
-                            className="p-1 hover:opacity-80 transition-opacity"
+                            className="p-2 hover:opacity-80 transition-opacity"
                             aria-label="編集モードを終了"
                         >
                             <CloseIcon />
@@ -397,7 +396,7 @@ const Studio: FC = () => {
                                 handleSave();
                             }}
                             disabled={isSaving}
-                            className="text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50 relative"
+                            className="px-1 py-3 text-[#11529A] hover:opacity-80 text-sm disabled:opacity-50 relative"
                         >
                             {isSaving ? "Saving..." : "Save"}
                         </button>
@@ -424,7 +423,6 @@ const Studio: FC = () => {
                 {isEditMode && (
                     <div
                         className="fixed inset-0 z-[1001]"
-                        onClick={handleClickOutside}
                     >
                         <div
                             className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-[1002]"
