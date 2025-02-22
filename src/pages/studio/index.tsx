@@ -258,6 +258,7 @@ const Studio: FC = () => {
             await api.put(`/api/room/update/${room_id}`, savedData);
 
             alert("Save successful");
+            setIsEditMode(false); 
         } catch (error) {
             console.error("保存エラーの詳細:", error);
             if (error && typeof error === "object" && "response" in error) {
