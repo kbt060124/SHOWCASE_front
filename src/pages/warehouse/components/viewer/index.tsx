@@ -66,7 +66,6 @@ const Viewer: React.FC<ViewerProps> = ({
             if (response.status === 200) {
                 onUpdate(response.data.item); // 更新されたデータを親コンポーネントに渡す
                 setIsEditMode(false);
-                onClose();
             }
         } catch (error) {
             console.error("更新に失敗しました:", error);
