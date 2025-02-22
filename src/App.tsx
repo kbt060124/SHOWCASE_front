@@ -38,7 +38,9 @@ const noNavPaths = ["/login", "/register", "/change-password"];
 
 const App = () => {
     const location = useLocation();
-    const showNav = !noNavPaths.includes(location.pathname);
+    const showNav = !noNavPaths.some((path) =>
+        location.pathname.startsWith(path)
+    );
     const timeTrackerRef = useRef<PageTimeTracker | null>(null);
 
     useEffect(() => {
