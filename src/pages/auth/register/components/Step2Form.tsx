@@ -120,7 +120,6 @@ export const Step2Form: React.FC<Step2FormProps> = ({
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                     <option value="other">Other</option>
-                    <option value="no_answer">No Answer</option>
                 </select>
             </div>
             <div>
