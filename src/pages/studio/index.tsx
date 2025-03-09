@@ -85,11 +85,11 @@ const Studio: FC = () => {
                     })
                     .catch((error) => {
                         console.error("Scene setup error:", error);
-                        setIsLoading(false);
+                        navigate("/error", { replace: true });
                     });
             }
         },
-        [room_id]
+        [room_id, navigate]
     );
 
     const handleModelSelect = (modelPath: string, itemId: bigint) => {
@@ -258,7 +258,7 @@ const Studio: FC = () => {
             await api.put(`/api/room/update/${room_id}`, savedData);
 
             alert("Save successful");
-            setIsEditMode(false); 
+            setIsEditMode(false);
         } catch (error) {
             console.error("保存エラーの詳細:", error);
             if (error && typeof error === "object" && "response" in error) {
@@ -422,9 +422,7 @@ const Studio: FC = () => {
                     )}
                 </div>
                 {isEditMode && (
-                    <div
-                        className="fixed inset-0 z-[1001]"
-                    >
+                    <div className="fixed inset-0 z-[1001]">
                         <div
                             className="absolute bottom-0 left-0 right-0 bg-white/90 backdrop-blur-sm shadow-lg z-[1002]"
                             style={{ bottom: `${MENU_BAR_HEIGHT}px` }}
