@@ -14,7 +14,7 @@ import MenuBar from "./components/MenuBar";
 import ChangePassword from "./pages/auth/changePassword";
 import ReactGA from "react-ga4";
 import { PageTimeTracker, trackPageTransition } from "@/utils/analytics";
-
+import Create3D from "./pages/create-3d";
 // 初期化
 ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
 
@@ -138,6 +138,14 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <Mainstage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/create-3d"
+                        element={
+                            <ProtectedRoute>
+                                <Create3D />
                             </ProtectedRoute>
                         }
                     />
