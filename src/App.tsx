@@ -14,6 +14,7 @@ import MenuBar from "./components/MenuBar";
 import ChangePassword from "./pages/auth/changePassword";
 import ReactGA from "react-ga4";
 import { PageTimeTracker, trackPageTransition } from "@/utils/analytics";
+import Error from "@/pages/error";
 
 // 初期化
 ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
@@ -142,6 +143,7 @@ const App = () => {
                         }
                     />
                     <Route path="/visit" element={<Visit />} />
+                    <Route path="/error" element={<Error />} />
                 </Routes>
             </div>
             {showNav && <MenuBar />}
