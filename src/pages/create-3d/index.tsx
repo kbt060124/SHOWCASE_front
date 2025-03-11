@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import api from "@/utils/axios";
 
 const Create3D: React.FC = () => {
-    const [selectedImage, setSelectedImage] = useState<File | null>(null);
+    const [selectedImages, setSelectedImages] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
     const [taskId, setTaskId] = useState<string>("");
     const [subscriptionKey, setSubscriptionKey] = useState<string>("");
@@ -12,19 +12,38 @@ const Create3D: React.FC = () => {
     >([]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files[0]) {
-            setSelectedImage(e.target.files[0]);
+        if (e.target.files) {
+            const files = Array.from(e.target.files);
+            if (files.length > 5) {
+                alert("画像は最大5枚までアップロードできます");
+                return;
+            }
+            setSelectedImages(files);
         }
     };
 
+    const removeImage = (index: number) => {
+        setSelectedImages((prev) => prev.filter((_, i) => i !== index));
+    };
+
     const handleSubmit = async () => {
-        if (!selectedImage) return;
+        if (selectedImages.length === 0) {
+            alert("画像を1枚以上選択してください");
+            return;
+        }
+
+        if (selectedImages.length > 5) {
+            alert("画像は最大5枚までアップロードできます");
+            return;
+        }
 
         setLoading(true);
         setDownloadUrls([]);
         try {
             const formData = new FormData();
-            formData.append("images", selectedImage, selectedImage.name);
+            selectedImages.forEach((image) => {
+                formData.append("images[]", image);
+            });
             formData.append("tier", "Sketch");
 
             const response = await api.post("/api/item/create-3d", formData, {
@@ -36,7 +55,6 @@ const Create3D: React.FC = () => {
             if (response.data.taskId && response.data.subscriptionKey) {
                 setTaskId(response.data.taskId);
                 setSubscriptionKey(response.data.subscriptionKey);
-                // ステータスチェックを開始
                 checkStatus(
                     response.data.taskId,
                     response.data.subscriptionKey
@@ -179,11 +197,34 @@ const Create3D: React.FC = () => {
                     type="file"
                     accept="image/*"
                     onChange={handleImageChange}
+                    multiple
                     className="mb-2"
                 />
+                <div className="my-4">
+                    <p className="text-sm text-gray-600 mb-2">
+                        選択された画像: {selectedImages.length}枚 (最大5枚まで)
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                        {selectedImages.map((image, index) => (
+                            <div key={index} className="relative">
+                                <img
+                                    src={URL.createObjectURL(image)}
+                                    alt={`Preview ${index + 1}`}
+                                    className="w-24 h-24 object-cover rounded"
+                                />
+                                <button
+                                    onClick={() => removeImage(index)}
+                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                >
+                                    ×
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                </div>
                 <button
                     onClick={handleSubmit}
-                    disabled={!selectedImage || loading}
+                    disabled={selectedImages.length === 0 || loading}
                     className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
                 >
                     {loading ? "生成中..." : "3Dモデルを生成"}
