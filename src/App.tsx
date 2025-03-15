@@ -22,13 +22,14 @@ ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, loading } = useAuth();
+    const location = useLocation();
 
     if (loading) {
         return <div>Loading...</div>;
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     return <>{children}</>;
@@ -126,23 +127,16 @@ const App = () => {
                             </ProtectedRoute>
                         }
                     />
+                    <Route path="/profile/:user_id" element={<Profile />} />
+                    <Route path="/mainstage/:room_id" element={<Mainstage />} />
                     <Route
-                        path="/profile/:user_id"
+                        path="/visit"
                         element={
                             <ProtectedRoute>
-                                <Profile />
+                                <Visit />
                             </ProtectedRoute>
                         }
                     />
-                    <Route
-                        path="/mainstage/:room_id"
-                        element={
-                            <ProtectedRoute>
-                                <Mainstage />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route path="/visit" element={<Visit />} />
                     <Route path="/error" element={<Error />} />
                 </Routes>
             </div>

@@ -436,7 +436,8 @@ export const studioSceneSetup = (
         setModelRotationY: (rotation: number) => void;
         setModelHeight: (height: number) => void;
         setDisplayTop: (top: number) => void;
-    }
+    },
+    endpoint: "studio" | "mainstage" = "studio" // デフォルトは'studio'
 ): Promise<void> => {
     const { roomSize } = setupCommonScene(scene);
     setupRoom(scene, roomSize);
@@ -444,7 +445,7 @@ export const studioSceneSetup = (
     loadCabinetModel(scene, modelPath, roomSize);
 
     return api
-        .get(`/api/room/studio/${room_id}`)
+        .get(`/api/room/${endpoint}/${room_id}`)
         .then((response) => {
             const items = [...response.data.room.items];
 
