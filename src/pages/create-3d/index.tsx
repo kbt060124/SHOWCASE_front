@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import api from "@/utils/axios";
+import PreviewModal from "@/components/preview/PreviewModal";
 
 const Create3D: React.FC = () => {
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -10,6 +11,8 @@ const Create3D: React.FC = () => {
     const [downloadUrls, setDownloadUrls] = useState<
         { url: string; name: string; path: string }[]
     >([]);
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [previewFilename, setPreviewFilename] = useState("");
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -213,27 +216,56 @@ const Create3D: React.FC = () => {
                                 key={index}
                                 className="p-4 border rounded-lg bg-gray-50"
                             >
-                                <p className="text-lg font-medium">
-                                    {file.name}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    保存場所: {file.path}
-                                </p>
-                                {file.url && (
-                                    <a
-                                        href={file.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-blue-500 hover:text-blue-700"
-                                    >
-                                        ファイルを表示
-                                    </a>
-                                )}
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className="text-lg font-medium mb-1">
+                                            {file.name}
+                                        </p>
+                                        <p className="text-sm text-gray-600">
+                                            保存場所: {file.path}
+                                        </p>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <button
+                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+                                            onClick={() => {
+                                                const filename = file.path
+                                                    .split("/")
+                                                    .pop();
+                                                if (filename) {
+                                                    setPreviewFilename(
+                                                        filename
+                                                    );
+                                                    setIsPreviewOpen(true);
+                                                }
+                                            }}
+                                        >
+                                            プレビュー
+                                        </button>
+                                        {file.url && (
+                                            <a
+                                                href={file.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                                            >
+                                                表示
+                                            </a>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             )}
+
+            {/* プレビューモーダル */}
+            <PreviewModal
+                isOpen={isPreviewOpen}
+                onClose={() => setIsPreviewOpen(false)}
+                filename={previewFilename}
+            />
         </div>
     );
 };
