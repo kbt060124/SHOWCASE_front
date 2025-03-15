@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useAuth } from "../../../utils/useAuth";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, useLocation, Link } from "react-router-dom";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import api from "@/utils/axios";
 
@@ -10,9 +10,21 @@ const Login = () => {
     const [showPassword, setShowPassword] = useState(false);
     const { login, loading, error, isAuthenticated, user } = useAuth();
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
         if (isAuthenticated) {
+            const from = location.state?.from?.pathname || null;
+
+            if (
+                from &&
+                (from.startsWith("/mainstage/") || from.startsWith("/profile/"))
+            ) {
+                navigate(from, { replace: true });
+                return;
+            }
+
+            // デフォルトの遷移処理
             const checkProfileAndRedirect = async () => {
                 try {
                     const { data } = await api.get(`/api/room/${user?.id}`);
@@ -28,7 +40,7 @@ const Login = () => {
             };
             checkProfileAndRedirect();
         }
-    }, [isAuthenticated, navigate, user]);
+    }, [isAuthenticated, navigate, location.state, user]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();

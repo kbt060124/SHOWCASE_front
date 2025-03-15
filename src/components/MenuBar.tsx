@@ -34,6 +34,23 @@ const MenuBar = () => {
     }, [user?.id]);
 
     const handleNavigation = (path: string) => {
+        // 未認証ユーザーの場合
+        if (!user) {
+            // 現在のパスがmainstageまたはprofileの場合のみ、戻り先として保存
+            if (
+                location.pathname.startsWith("/mainstage/") ||
+                location.pathname.startsWith("/profile/")
+            ) {
+                navigate("/login", {
+                    state: { from: { pathname: location.pathname } },
+                });
+            } else {
+                navigate("/login");
+            }
+            return;
+        }
+
+        // 認証済みユーザーの場合
         if (
             (path.includes("/studio/") || path.includes("/mainstage/")) &&
             !roomId
