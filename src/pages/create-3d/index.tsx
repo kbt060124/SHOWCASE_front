@@ -8,7 +8,7 @@ const Create3D: React.FC = () => {
     const [subscriptionKey, setSubscriptionKey] = useState<string>("");
     const [status, setStatus] = useState<string>("");
     const [downloadUrls, setDownloadUrls] = useState<
-        { url: string; name: string }[]
+        { url: string; name: string; path: string }[]
     >([]);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -124,7 +124,7 @@ const Create3D: React.FC = () => {
             if (response.data.files && response.data.files.length > 0) {
                 setDownloadUrls(response.data.files);
                 setStatus(
-                    "生成が完了しました！ダウンロードリンクが利用可能です。"
+                    "生成が完了しました！ファイルがサーバーに保存されました。"
                 );
             } else {
                 // エラーメッセージがある場合は表示
@@ -133,7 +133,7 @@ const Create3D: React.FC = () => {
                     : response.data.error;
                 setStatus(
                     errorMessage ||
-                        "生成は完了しましたが、ダウンロード可能なファイルが見つかりません。"
+                        "生成は完了しましたが、ファイルが見つかりません。"
                 );
 
                 // まだ生成中の場合は再度チェック
@@ -151,40 +151,6 @@ const Create3D: React.FC = () => {
 
             // 5秒後に再試行
             setTimeout(() => handleDownload(taskId), 5000);
-        }
-    };
-
-    const downloadFile = async (url: string, filename: string) => {
-        try {
-            setStatus("ファイルをダウンロード中...");
-            const response = await api.post(
-                "/api/item/proxy-download",
-                {
-                    url: url,
-                    filename: filename,
-                },
-                {
-                    responseType: "blob",
-                }
-            );
-
-            const blob = new Blob([response.data], {
-                type: "application/octet-stream",
-            });
-            const downloadUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = downloadUrl;
-            link.download = filename;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            window.URL.revokeObjectURL(downloadUrl);
-            setStatus("ダウンロードが完了しました！");
-        } catch (error) {
-            console.error("File download error:", error);
-            setStatus(
-                "ファイルのダウンロード中にエラーが発生しました。再試行してください。"
-            );
         }
     };
 
@@ -240,18 +206,30 @@ const Create3D: React.FC = () => {
 
             {downloadUrls.length > 0 && (
                 <div className="mt-4">
-                    <h2 className="text-xl mb-2">ダウンロード</h2>
+                    <h2 className="text-xl mb-2">保存されたファイル</h2>
                     <div className="flex flex-col gap-2">
                         {downloadUrls.map((file, index) => (
-                            <button
+                            <div
                                 key={index}
-                                onClick={() =>
-                                    downloadFile(file.url, file.name)
-                                }
-                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+                                className="p-4 border rounded-lg bg-gray-50"
                             >
-                                {file.name}をダウンロード
-                            </button>
+                                <p className="text-lg font-medium">
+                                    {file.name}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    保存場所: {file.path}
+                                </p>
+                                {file.url && (
+                                    <a
+                                        href={file.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-blue-500 hover:text-blue-700"
+                                    >
+                                        ファイルを表示
+                                    </a>
+                                )}
+                            </div>
                         ))}
                     </div>
                 </div>
