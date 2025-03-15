@@ -1,5 +1,5 @@
 import React from "react";
-import ModelPreview from "./ModelPreview";
+import GenerateViewer from "@/components/preview/GenerateViewer";
 
 interface PreviewModalProps {
     isOpen: boolean;
@@ -34,7 +34,7 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
 
             {/* コンテンツ部分 */}
             <div className="flex-grow overflow-auto p-4">
-                <ModelPreview filename={filename} />
+                <GenerateViewer filename={filename} />
             </div>
         </div>
     );

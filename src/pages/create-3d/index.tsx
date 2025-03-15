@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import api from "@/utils/axios";
-import PreviewModal from "@/components/preview/PreviewModal";
+import PreviewModal from "@/pages/create-3d/components/PreviewModal";
 
 const Create3D: React.FC = () => {
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
     const [loading, setLoading] = useState(false);
-    const [taskId, setTaskId] = useState<string>("");
-    const [subscriptionKey, setSubscriptionKey] = useState<string>("");
     const [status, setStatus] = useState<string>("");
     const [downloadUrls, setDownloadUrls] = useState<
         { url: string; name: string; path: string }[]
@@ -56,8 +54,6 @@ const Create3D: React.FC = () => {
             });
 
             if (response.data.taskId && response.data.subscriptionKey) {
-                setTaskId(response.data.taskId);
-                setSubscriptionKey(response.data.subscriptionKey);
                 checkStatus(
                     response.data.taskId,
                     response.data.subscriptionKey

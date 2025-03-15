@@ -5,11 +5,11 @@ import "@babylonjs/loaders/glTF";
 import { setupUploadScene } from "../../utils/sceneSetup";
 import api from "@/utils/axios";
 
-interface ModelPreviewProps {
+interface GenerateViewerProps {
     filename: string;
 }
 
-const ModelPreview: React.FC<ModelPreviewProps> = ({ filename }) => {
+const GenerateViewer: React.FC<GenerateViewerProps> = ({ filename }) => {
     const [modelData, setModelData] = useState<ArrayBuffer | null>(null);
     const [error, setError] = useState<string | null>(null);
     const sceneRef = useRef<Scene | null>(null);
@@ -88,4 +88,4 @@ const ModelPreview: React.FC<ModelPreviewProps> = ({ filename }) => {
     );
 };
 
-export default ModelPreview;
+export default GenerateViewer;
