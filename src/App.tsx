@@ -37,7 +37,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 // メニューバーを表示しないパスのリスト
-const noNavPaths = ["/login", "/register", "/change-password"];
+const noNavPaths = ["/login", "/register", "/change-password", "/create-3d"];
 
 const App = () => {
     const location = useLocation();
