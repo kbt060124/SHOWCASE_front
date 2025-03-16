@@ -10,8 +10,8 @@ const Create3D: React.FC = () => {
     const [downloadUrls, setDownloadUrls] = useState<
         { url: string; name: string; path: string }[]
     >([]);
-    const [isPreviewOpen, setIsPreviewOpen] = useState(true);
-    const [previewFilename, setPreviewFilename] = useState("f9924e19-ca57-4f1a-a214-89fb952e5aa8_model.glb");
+    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+    const [previewFilename, setPreviewFilename] = useState("");
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
