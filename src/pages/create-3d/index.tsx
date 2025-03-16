@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import api from "@/utils/axios";
 import PreviewModal from "@/pages/create-3d/components/PreviewModal";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 const Create3D: React.FC = () => {
     const [selectedImages, setSelectedImages] = useState<File[]>([]);
@@ -154,109 +155,143 @@ const Create3D: React.FC = () => {
     };
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl mb-4">3Dモデル生成</h1>
+        <div
+            className="flex flex-col items-center justify-center min-h-screen bg-white p-4"
+            style={{
+                paddingBottom: `calc(${MENU_BAR_HEIGHT}px + 1rem)`,
+            }}
+        >
+            <div className="w-full max-w-md">
+                <h1 className="text-2xl font-bold text-center mb-2">
+                    Generate
+                </h1>
+                <h2 className="text-2xl font-bold text-center mb-8">
+                    3D Models from Images
+                </h2>
 
-            <div className="mb-4">
-                <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    multiple
-                    className="mb-2"
-                />
-                <div className="my-4">
-                    <p className="text-sm text-gray-600 mb-2">
-                        選択された画像: {selectedImages.length}枚 (最大5枚まで)
-                    </p>
-                    <div className="flex flex-wrap gap-2">
-                        {selectedImages.map((image, index) => (
-                            <div key={index} className="relative">
-                                <img
-                                    src={URL.createObjectURL(image)}
-                                    alt={`Preview ${index + 1}`}
-                                    className="w-24 h-24 object-cover rounded"
-                                />
-                                <button
-                                    onClick={() => removeImage(index)}
-                                    className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                <div className="flex justify-center items-center space-x-4 mb-8">
+                    <img
+                        src="/images/image_black.png"
+                        alt="Image icon"
+                        className="w-16 h-16"
+                    />
+                    <span className="text-3xl">→</span>
+                    <img
+                        src="/images/3dMode_black.png"
+                        alt="3D Model icon"
+                        className="w-16 h-16"
+                    />
+                </div>
+
+                <div className="relative">
+                    <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleImageChange}
+                        multiple
+                        className="hidden"
+                        id="image-upload"
+                    />
+                    <label htmlFor="image-upload">
+                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            <img
+                                src="/images/add_KCGradation.png"
+                                alt="Upload icon"
+                                className="w-10 h-10 mb-3"
+                            />
+                            <p className="mb-2 text-sm text-gray-500">
+                                Upload Images (Max 5)
+                            </p>
+                        </div>
+                    </label>
+                </div>
+
+                {selectedImages.length > 0 && (
+                    <div className="mt-4">
+                        <div
+                            className="grid"
+                            style={{
+                                gridTemplateColumns: `repeat(${selectedImages.length}, 1fr)`,
+                                gap: "0.5rem",
+                            }}
+                        >
+                            {selectedImages.map((image, index) => (
+                                <div
+                                    key={index}
+                                    className="relative aspect-square"
                                 >
-                                    ×
-                                </button>
-                            </div>
-                        ))}
+                                    <img
+                                        src={URL.createObjectURL(image)}
+                                        alt={`Preview ${index + 1}`}
+                                        className="w-full h-full object-cover rounded-lg"
+                                    />
+                                    <button
+                                        onClick={() => removeImage(index)}
+                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                    >
+                                        ×
+                                    </button>
+                                </div>
+                            ))}
+                        </div>
+
+                        <button
+                            onClick={handleSubmit}
+                            disabled={loading}
+                            className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-colors"
+                        >
+                            {loading ? "生成中..." : "3Dモデルを生成"}
+                        </button>
                     </div>
-                </div>
-                <button
-                    onClick={handleSubmit}
-                    disabled={selectedImages.length === 0 || loading}
-                    className="bg-blue-500 text-white px-4 py-2 rounded disabled:bg-gray-400"
-                >
-                    {loading ? "生成中..." : "3Dモデルを生成"}
-                </button>
-            </div>
+                )}
 
-            {status && (
-                <div className="mt-4">
-                    <h2 className="text-xl mb-2">ステータス</h2>
-                    <p>{status}</p>
-                </div>
-            )}
+                {status && (
+                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                        <p className="text-sm text-gray-600">{status}</p>
+                    </div>
+                )}
 
-            {downloadUrls.length > 0 && (
-                <div className="mt-4">
-                    <h2 className="text-xl mb-2">保存されたファイル</h2>
-                    <div className="flex flex-col gap-2">
-                        {downloadUrls.map((file, index) => (
-                            <div
-                                key={index}
-                                className="p-4 border rounded-lg bg-gray-50"
-                            >
-                                <div className="flex items-center justify-between">
-                                    <div>
-                                        <p className="text-lg font-medium mb-1">
+                {downloadUrls.length > 0 && (
+                    <div className="mt-4">
+                        <h2 className="text-lg font-semibold mb-2">
+                            生成されたファイル
+                        </h2>
+                        <div className="space-y-2">
+                            {downloadUrls.map((file, index) => (
+                                <div
+                                    key={index}
+                                    className="p-4 border rounded-lg bg-gray-50"
+                                >
+                                    <div className="flex items-center justify-between">
+                                        <p className="text-sm font-medium">
                                             {file.name}
                                         </p>
-                                        <p className="text-sm text-gray-600">
-                                            保存場所: {file.path}
-                                        </p>
-                                    </div>
-                                    <div className="flex gap-2">
-                                        <button
-                                            className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
-                                            onClick={() => {
-                                                const filename = file.path
-                                                    .split("/")
-                                                    .pop();
-                                                if (filename) {
-                                                    setPreviewFilename(
-                                                        filename
-                                                    );
-                                                    setIsPreviewOpen(true);
-                                                }
-                                            }}
-                                        >
-                                            プレビュー
-                                        </button>
-                                        {file.url && (
-                                            <a
-                                                href={file.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                                className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 transition-colors"
+                                        <div className="flex gap-2">
+                                            <button
+                                                className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                                                onClick={() => {
+                                                    const filename = file.path
+                                                        .split("/")
+                                                        .pop();
+                                                    if (filename) {
+                                                        setPreviewFilename(
+                                                            filename
+                                                        );
+                                                        setIsPreviewOpen(true);
+                                                    }
+                                                }}
                                             >
-                                                表示
-                                            </a>
-                                        )}
+                                                プレビュー
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
-            )}
+                )}
+            </div>
 
-            {/* プレビューモーダル */}
             <PreviewModal
                 isOpen={isPreviewOpen}
                 onClose={() => setIsPreviewOpen(false)}
