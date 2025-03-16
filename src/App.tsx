@@ -14,6 +14,7 @@ import MenuBar from "./components/MenuBar";
 import ChangePassword from "./pages/auth/changePassword";
 import ReactGA from "react-ga4";
 import { PageTimeTracker, trackPageTransition } from "@/utils/analytics";
+import Create3D from "./pages/create-3d";
 import Error from "@/pages/error";
 
 // 初期化
@@ -36,7 +37,7 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 };
 
 // メニューバーを表示しないパスのリスト
-const noNavPaths = ["/login", "/register", "/change-password"];
+const noNavPaths = ["/login", "/register", "/change-password", "/create-3d"];
 
 const App = () => {
     const location = useLocation();
@@ -134,6 +135,14 @@ const App = () => {
                         element={
                             <ProtectedRoute>
                                 <Visit />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/create-3d"
+                        element={
+                            <ProtectedRoute>
+                                <Create3D />
                             </ProtectedRoute>
                         }
                     />
