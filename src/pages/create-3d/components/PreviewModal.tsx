@@ -21,20 +21,35 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
         >
             {/* ヘッダー部分 */}
             <div className="h-12 min-h-[48px] flex items-center px-4 border-b relative">
-                <button
-                    onClick={onClose}
-                    className="text-2xl font-bold absolute left-4"
-                >
-                    &#x3C;
-                </button>
                 <h1 className="text-lg font-bold flex-1 text-center">
-                    プレビュー
+                    PREVIEW
                 </h1>
             </div>
-
             {/* コンテンツ部分 */}
-            <div className="flex-grow overflow-auto p-4">
+            <div className="flex-grow flex flex-col sm:flex-row gap-3 sm:gap-4 overflow-auto">
                 <GenerateViewer filename={filename} />
+                <div className="flex justify-center gap-16 p-4 mt-12">
+                    <div className="flex flex-col items-center">
+                        <button onClick={onClose}>
+                            <img
+                                src="/images/regenerate.png"
+                                alt="Try Again"
+                                className="w-12 h-12"
+                            />
+                        </button>
+                        <span className="text-sm text-gray-600">Try Again</span>
+                    </div>
+                    <div className="flex flex-col items-center">
+                        <button>
+                            <img
+                                src="/images/accept.png"
+                                alt="Accept"
+                                className="w-12 h-12"
+                            />
+                        </button>
+                        <span className="text-sm text-gray-600">Accept</span>
+                    </div>
+                </div>
             </div>
         </div>
     );

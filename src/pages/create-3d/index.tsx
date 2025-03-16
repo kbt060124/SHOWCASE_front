@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import api from "@/utils/axios";
 import PreviewModal from "@/pages/create-3d/components/PreviewModal";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
@@ -10,8 +10,8 @@ const Create3D: React.FC = () => {
     const [downloadUrls, setDownloadUrls] = useState<
         { url: string; name: string; path: string }[]
     >([]);
-    const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-    const [previewFilename, setPreviewFilename] = useState("");
+    const [isPreviewOpen, setIsPreviewOpen] = useState(true);
+    const [previewFilename, setPreviewFilename] = useState("f9924e19-ca57-4f1a-a214-89fb952e5aa8_model.glb");
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -150,6 +150,17 @@ const Create3D: React.FC = () => {
         }
     };
 
+    // PreviewModalを自動的に表示するための副作用を追加
+    useEffect(() => {
+        if (downloadUrls.length > 0) {
+            const filename = downloadUrls[0].path.split("/").pop();
+            if (filename) {
+                setPreviewFilename(filename);
+                setIsPreviewOpen(true);
+            }
+        }
+    }, [downloadUrls]);
+
     return (
         <div
             className="flex flex-col items-center justify-center min-h-screen bg-white p-4"
@@ -267,49 +278,6 @@ const Create3D: React.FC = () => {
                     {status && (
                         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                             <p className="text-sm text-gray-600">{status}</p>
-                        </div>
-                    )}
-
-                    {downloadUrls.length > 0 && (
-                        <div className="mt-4">
-                            <h2 className="text-lg font-semibold mb-2">
-                                生成されたファイル
-                            </h2>
-                            <div className="space-y-2">
-                                {downloadUrls.map((file, index) => (
-                                    <div
-                                        key={index}
-                                        className="p-4 border rounded-lg bg-gray-50"
-                                    >
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-sm font-medium">
-                                                {file.name}
-                                            </p>
-                                            <div className="flex gap-2">
-                                                <button
-                                                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                                                    onClick={() => {
-                                                        const filename =
-                                                            file.path
-                                                                .split("/")
-                                                                .pop();
-                                                        if (filename) {
-                                                            setPreviewFilename(
-                                                                filename
-                                                            );
-                                                            setIsPreviewOpen(
-                                                                true
-                                                            );
-                                                        }
-                                                    }}
-                                                >
-                                                    プレビュー
-                                                </button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
                         </div>
                     )}
                 </div>
