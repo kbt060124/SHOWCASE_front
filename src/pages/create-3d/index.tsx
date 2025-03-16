@@ -63,11 +63,31 @@ const Create3D: React.FC = () => {
         } catch (error) {
             console.error("Error:", error);
             setStatus("エラーが発生しました");
-        } finally {
             setLoading(false);
         }
     };
 
+    // ステータスに応じたメッセージを返す関数を修正
+    const getStatusMessage = (status: string) => {
+        switch (status) {
+            case "Generating":
+                return "3D model is being generated";
+            case "Queued":
+                return "3D model generation is queued";
+            case "Processing":
+                return "3D model is being generated";
+            case "Done":
+                return "3D model has been stored on the server";
+            case "Failed":
+                return "Failed to generate 3D model";
+            case "Unknown":
+                return "Status is unknown";
+            default:
+                return status;
+        }
+    };
+
+    // checkStatus関数の修正
     const checkStatus = async (taskId: string, subscriptionKey: string) => {
         try {
             const response = await api.post("/api/item/check-status", {
@@ -75,27 +95,30 @@ const Create3D: React.FC = () => {
                 taskId: taskId,
             });
 
+            // レスポンスの内容を確認するログを追加
+            console.log("Status response:", response.data);
+
             // エラーレスポンスの場合
             if (response.data.error) {
-                setStatus(`エラー: ${response.data.message}`);
+                setStatus(response.data.error);
+                setLoading(false);
                 return;
             }
 
             // ステータスが取得できた場合
             if (response.data.status) {
-                setStatus(
-                    `ステータス: ${response.data.status}${
-                        response.data.message
-                            ? ` - ${response.data.message}`
-                            : ""
-                    }`
-                );
+                // 受け取ったステータスを確認するログを追加
+                console.log("Received status:", response.data.status);
+                setStatus(response.data.status);
 
                 // タスクが完了していない場合は5秒後に再度チェック
                 if (
                     response.data.status !== "Done" &&
                     response.data.status !== "Failed" &&
-                    response.data.status !== "Unknown"
+                    response.data.status !== "Unknown" &&
+                    ["Generating", "Queued", "Processing"].includes(
+                        response.data.status
+                    )
                 ) {
                     setTimeout(
                         () => checkStatus(taskId, subscriptionKey),
@@ -110,58 +133,22 @@ const Create3D: React.FC = () => {
                     response.data.downloadUrls
                 ) {
                     setDownloadUrls(response.data.downloadUrls);
-                    setStatus(
-                        "生成が完了しました！ファイルがサーバーに保存されました。"
-                    );
+                    setLoading(false);
+                    return;
+                }
+
+                // Done状態だがダウンロードURLがない場合
+                if (response.data.status === "Done") {
+                    setLoading(false);
                     return;
                 }
             }
         } catch (error) {
             console.error("Status check error:", error);
-            setStatus("ステータスチェックでエラーが発生しました");
-            // エラー時も再試行
+            setStatus("Unknown");
             setTimeout(() => checkStatus(taskId, subscriptionKey), 5000);
         }
     };
-
-    // const handleDownload = async (taskId: string) => {
-    //     try {
-    //         const response = await api.post("/api/item/download-model", {
-    //             taskId: taskId,
-    //         });
-
-    //         if (response.data.files && response.data.files.length > 0) {
-    //             setDownloadUrls(response.data.files);
-    //             setStatus(
-    //                 "生成が完了しました！ファイルがサーバーに保存されました。"
-    //             );
-    //         } else {
-    //             // エラーメッセージがある場合は表示
-    //             const errorMessage = response.data.message
-    //                 ? `${response.data.error} (${response.data.message})`
-    //                 : response.data.error;
-    //             setStatus(
-    //                 errorMessage ||
-    //                     "生成は完了しましたが、ファイルが見つかりません。"
-    //             );
-
-    //             // まだ生成中の場合は再度チェック
-    //             if (
-    //                 response.data.status &&
-    //                 response.data.status !== "Done" &&
-    //                 response.data.status !== "Failed"
-    //             ) {
-    //                 setTimeout(() => handleDownload(taskId), 5000);
-    //             }
-    //         }
-    //     } catch (error) {
-    //         console.error("Download error:", error);
-    //         setStatus("ダウンロードの準備中にエラーが発生しました");
-
-    //         // 5秒後に再試行
-    //         setTimeout(() => handleDownload(taskId), 5000);
-    //     }
-    // };
 
     return (
         <div
@@ -170,136 +157,163 @@ const Create3D: React.FC = () => {
                 paddingBottom: `calc(${MENU_BAR_HEIGHT}px + 1rem)`,
             }}
         >
-            <div className="w-full max-w-md">
-                <h1 className="text-2xl font-bold text-center mb-2">
-                    Generate
-                </h1>
-                <h2 className="text-2xl font-bold text-center mb-8">
-                    3D Models from Images
-                </h2>
-
-                <div className="flex justify-center items-center space-x-4 mb-8">
-                    <img
-                        src="/images/image_black.png"
-                        alt="Image icon"
-                        className="w-16 h-16"
-                    />
-                    <span className="text-3xl">→</span>
-                    <img
-                        src="/images/3dMode_black.png"
-                        alt="3D Model icon"
-                        className="w-16 h-16"
-                    />
-                </div>
-
-                <div className="relative">
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handleImageChange}
-                        multiple
-                        className="hidden"
-                        id="image-upload"
-                    />
-                    <label htmlFor="image-upload">
-                        <div className="flex flex-col items-center justify-center pt-5 pb-6">
-                            <img
-                                src="/images/add_KCGradation.png"
-                                alt="Upload icon"
-                                className="w-10 h-10 mb-3"
-                            />
-                            <p className="mb-2 text-sm text-gray-500">
-                                Upload Images (Max 5)
+            {loading ? (
+                <div className="flex flex-col items-center justify-center w-full max-w-md">
+                    <h1 className="text-2xl font-bold text-center mb-8">
+                        Generating 3D Model...
+                    </h1>
+                    <div className="flex flex-col items-center justify-center mb-8">
+                        <img
+                            src="/images/generating_black.png"
+                            alt="Generating icon"
+                            className="w-16 h-16 mb-8"
+                        />
+                        <p className="text-center text-gray-600 mb-4">
+                            One Moment Please
+                        </p>
+                        {status && (
+                            <p className="text-sm text-gray-600">
+                                {getStatusMessage(status)}
                             </p>
-                        </div>
-                    </label>
+                        )}
+                    </div>
                 </div>
+            ) : (
+                // 通常の表示（既存のコンテンツ）
+                <div className="w-full max-w-md">
+                    <h1 className="text-2xl font-bold text-center mb-2">
+                        Generate
+                    </h1>
+                    <h2 className="text-2xl font-bold text-center mb-8">
+                        3D Models from Images
+                    </h2>
 
-                {selectedImages.length > 0 && (
-                    <div className="mt-4">
-                        <div
-                            className="grid"
-                            style={{
-                                gridTemplateColumns: `repeat(${selectedImages.length}, 1fr)`,
-                                gap: "0.5rem",
-                            }}
-                        >
-                            {selectedImages.map((image, index) => (
-                                <div
-                                    key={index}
-                                    className="relative aspect-square"
-                                >
-                                    <img
-                                        src={URL.createObjectURL(image)}
-                                        alt={`Preview ${index + 1}`}
-                                        className="w-full h-full object-cover rounded-lg"
-                                    />
-                                    <button
-                                        onClick={() => removeImage(index)}
-                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    <div className="flex justify-center items-center space-x-4 mb-8">
+                        <img
+                            src="/images/image_black.png"
+                            alt="Image icon"
+                            className="w-16 h-16"
+                        />
+                        <span className="text-3xl">→</span>
+                        <img
+                            src="/images/3dMode_black.png"
+                            alt="3D Model icon"
+                            className="w-16 h-16"
+                        />
+                    </div>
+
+                    <div className="relative">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handleImageChange}
+                            multiple
+                            className="hidden"
+                            id="image-upload"
+                        />
+                        <label htmlFor="image-upload">
+                            <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                <img
+                                    src="/images/add_KCGradation.png"
+                                    alt="Upload icon"
+                                    className="w-10 h-10 mb-3"
+                                />
+                                <p className="mb-2 text-sm text-gray-500">
+                                    Upload Images (Max 5)
+                                </p>
+                            </div>
+                        </label>
+                    </div>
+
+                    {selectedImages.length > 0 && (
+                        <div className="mt-4">
+                            <div
+                                className="grid"
+                                style={{
+                                    gridTemplateColumns: `repeat(${selectedImages.length}, 1fr)`,
+                                    gap: "0.5rem",
+                                }}
+                            >
+                                {selectedImages.map((image, index) => (
+                                    <div
+                                        key={index}
+                                        className="relative aspect-square"
                                     >
-                                        ×
-                                    </button>
-                                </div>
-                            ))}
+                                        <img
+                                            src={URL.createObjectURL(image)}
+                                            alt={`Preview ${index + 1}`}
+                                            className="w-full h-full object-cover rounded-lg"
+                                        />
+                                        <button
+                                            onClick={() => removeImage(index)}
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                onClick={handleSubmit}
+                                disabled={loading}
+                                className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-colors"
+                            >
+                                {loading ? "生成中..." : "3Dモデルを生成"}
+                            </button>
                         </div>
+                    )}
 
-                        <button
-                            onClick={handleSubmit}
-                            disabled={loading}
-                            className="mt-4 w-full bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:bg-gray-400 transition-colors"
-                        >
-                            {loading ? "生成中..." : "3Dモデルを生成"}
-                        </button>
-                    </div>
-                )}
+                    {status && (
+                        <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+                            <p className="text-sm text-gray-600">{status}</p>
+                        </div>
+                    )}
 
-                {status && (
-                    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-                        <p className="text-sm text-gray-600">{status}</p>
-                    </div>
-                )}
-
-                {downloadUrls.length > 0 && (
-                    <div className="mt-4">
-                        <h2 className="text-lg font-semibold mb-2">
-                            生成されたファイル
-                        </h2>
-                        <div className="space-y-2">
-                            {downloadUrls.map((file, index) => (
-                                <div
-                                    key={index}
-                                    className="p-4 border rounded-lg bg-gray-50"
-                                >
-                                    <div className="flex items-center justify-between">
-                                        <p className="text-sm font-medium">
-                                            {file.name}
-                                        </p>
-                                        <div className="flex gap-2">
-                                            <button
-                                                className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                                                onClick={() => {
-                                                    const filename = file.path
-                                                        .split("/")
-                                                        .pop();
-                                                    if (filename) {
-                                                        setPreviewFilename(
-                                                            filename
-                                                        );
-                                                        setIsPreviewOpen(true);
-                                                    }
-                                                }}
-                                            >
-                                                プレビュー
-                                            </button>
+                    {downloadUrls.length > 0 && (
+                        <div className="mt-4">
+                            <h2 className="text-lg font-semibold mb-2">
+                                生成されたファイル
+                            </h2>
+                            <div className="space-y-2">
+                                {downloadUrls.map((file, index) => (
+                                    <div
+                                        key={index}
+                                        className="p-4 border rounded-lg bg-gray-50"
+                                    >
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-sm font-medium">
+                                                {file.name}
+                                            </p>
+                                            <div className="flex gap-2">
+                                                <button
+                                                    className="px-3 py-1 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                                                    onClick={() => {
+                                                        const filename =
+                                                            file.path
+                                                                .split("/")
+                                                                .pop();
+                                                        if (filename) {
+                                                            setPreviewFilename(
+                                                                filename
+                                                            );
+                                                            setIsPreviewOpen(
+                                                                true
+                                                            );
+                                                        }
+                                                    }}
+                                                >
+                                                    プレビュー
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            ))}
+                                ))}
+                            </div>
                         </div>
-                    </div>
-                )}
-            </div>
+                    )}
+                </div>
+            )}
 
             <PreviewModal
                 isOpen={isPreviewOpen}
