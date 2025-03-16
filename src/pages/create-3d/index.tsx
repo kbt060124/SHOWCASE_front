@@ -80,7 +80,7 @@ const Create3D: React.FC = () => {
             case "Queued":
                 return "3D model generation is queued";
             case "Processing":
-                return "3D model is being generated ...";
+                return "3d model is being stored on the server ...";
             case "Done":
                 return "3D model has been stored on the server";
             case "Failed":
