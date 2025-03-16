@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import { useAuth } from "@/utils/useAuth";
+import api from "@/utils/axios";
 
 interface UploadFormData {
     name: string;
@@ -7,15 +9,17 @@ interface UploadFormData {
 }
 
 interface StoreProps {
-    initialName: string;
     onSubmit: (data: UploadFormData) => void;
     thumbnail: File | null;
+    filename: string;
 }
 
-const Store: React.FC<StoreProps> = ({ initialName, onSubmit, thumbnail }) => {
-    const [name, setName] = React.useState(initialName);
+const Store: React.FC<StoreProps> = ({ onSubmit, thumbnail, filename }) => {
+    const { user } = useAuth();
+    const [name, setName] = React.useState("GenerateModel");
     const [memo, setMemo] = React.useState("");
     const [thumbnailUrl, setThumbnailUrl] = React.useState<string | null>(null);
+    const [error, setError] = React.useState<string | null>(null);
 
     useEffect(() => {
         if (thumbnail) {
@@ -27,14 +31,80 @@ const Store: React.FC<StoreProps> = ({ initialName, onSubmit, thumbnail }) => {
         }
     }, [thumbnail]);
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        onSubmit({ name, memo, thumbnail });
+        if (!user) return;
+
+        // バリデーションチェック
+        if (!name.trim()) {
+            setError("名前を入力してください");
+            return;
+        }
+        if (!thumbnail) {
+            setError("サムネイルを選択してください");
+            return;
+        }
+
+        setError(null);
+
+        try {
+            const formData = new FormData();
+            formData.append("filename", filename);
+            formData.append("user_id", user.id.toString());
+            formData.append("name", name);
+            formData.append("memo", memo);
+            if (thumbnail) {
+                formData.append("thumbnail", thumbnail);
+            }
+
+            // CSRFトークンを取得
+            await api.get("/sanctum/csrf-cookie");
+
+            // X-XSRF-TOKENヘッダーを設定
+            const token = getCookie("XSRF-TOKEN");
+            if (!token) {
+                throw new Error("CSRFトークンが取得できませんでした");
+            }
+
+            const response = await api.post(
+                "/api/item/rodin-upload",
+                formData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                        Accept: "application/json",
+                        "X-XSRF-TOKEN": decodeURIComponent(token),
+                    },
+                }
+            );
+
+            if (response.data.item) {
+                onSubmit({ name, memo, thumbnail });
+            }
+        } catch (error) {
+            console.error("アップロードエラー:", error);
+            setError("アップロードに失敗しました");
+        }
+    };
+
+    // getCookie関数の追加
+    const getCookie = (name: string): string => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            return parts.pop()?.split(";").shift() || "";
+        }
+        return "";
     };
 
     return (
         <div className="w-full sm:w-72 lg:w-80 p-3 sm:p-4 rounded-lg shrink-0">
             <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                {error && (
+                    <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
+                        {error}
+                    </div>
+                )}
                 <div>
                     <h3 className="font-semibold text-gray-700">Thumbnail</h3>
                     {thumbnailUrl ? (
