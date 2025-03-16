@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import api from "@/utils/axios";
-import PreviewModal from "@/pages/create-3d/components/PreviewModal";
+import PreviewModal from "@/pages/create-3d/components";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 const Create3D: React.FC = () => {
