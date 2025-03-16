@@ -436,28 +436,40 @@ export const studioSceneSetup = (
         setModelRotationY: (rotation: number) => void;
         setModelHeight: (height: number) => void;
         setDisplayTop: (top: number) => void;
-    }
+    },
+    endpoint: "studio" | "mainstage" = "studio" // デフォルトは'studio'
 ): Promise<void> => {
     const { roomSize } = setupCommonScene(scene);
     setupRoom(scene, roomSize);
 
     loadCabinetModel(scene, modelPath, roomSize);
 
-    return api.get(`/api/room/studio/${room_id}`).then((response) => {
-        const items = [...response.data.room.items];
+    return api
+        .get(`/api/room/${endpoint}/${room_id}`)
+        .then((response) => {
+            const items = [...response.data.room.items];
 
-        if (items.length > 0) {
-            const cabinetParts = findCabinetAndDisplayPart(scene);
-            if (!cabinetParts) return;
+            if (items.length > 0) {
+                const cabinetParts = findCabinetAndDisplayPart(scene);
+                if (!cabinetParts) return;
 
-            // 各アイテムに対してモデルをロード
-            const loadPromises = items.map((item) =>
-                loadItemModel(scene, item, cabinetParts.displayPart, setters)
-            );
+                // 各アイテムに対してモデルをロード
+                const loadPromises = items.map((item) =>
+                    loadItemModel(
+                        scene,
+                        item,
+                        cabinetParts.displayPart,
+                        setters
+                    )
+                );
 
-            return Promise.all(loadPromises).then(() => {});
-        }
-    });
+                return Promise.all(loadPromises).then(() => {});
+            }
+        })
+        .catch((error) => {
+            console.error("部屋の読み込みに失敗しました:", error);
+            throw error;
+        });
 };
 
 // アイテムの入れ替え処理

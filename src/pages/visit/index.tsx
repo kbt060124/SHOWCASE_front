@@ -3,6 +3,7 @@ import api from "@/utils/axios";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAuth } from "@/utils/useAuth";
 import { useNavigate } from "react-router-dom";
+import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
 interface SearchResult {
     id: number;
@@ -20,17 +21,25 @@ const Visit = () => {
     const { user } = useAuth();
     const navigate = useNavigate();
     const [backgroundImages, setBackgroundImages] = useState<string[]>([]);
+    const [allProfiles, setAllProfiles] = useState<SearchResult[]>([]);
     const searchBarRef = useRef<HTMLDivElement>(null);
     const [searchBarHeight, setSearchBarHeight] = useState(0);
 
     useEffect(() => {
-        // 背景画像の配列を作成（8枚の画像を繰り返し）
-        const images = Array.from(
-            { length: 18 },
-            (_, i) => `/images/room/coming_soon${(i % 8) + 1}.png`
-        );
-        setBackgroundImages(images);
-    }, []);
+        const fetchAllProfiles = async () => {
+            try {
+                const response = await api.get("/api/profile/searchAll");
+                const filteredProfiles = response.data.users.filter(
+                    (profile: SearchResult) => profile.id !== user?.id
+                );
+                setAllProfiles(filteredProfiles);
+            } catch (error) {
+                console.error("ユーザー取得に失敗しました:", error);
+                setAllProfiles([]);
+            }
+        };
+        fetchAllProfiles();
+    }, [user?.id]);
 
     useEffect(() => {
         const delayDebounceFn = setTimeout(() => {
@@ -87,24 +96,64 @@ const Visit = () => {
                 </div>
             </div>
 
-            {/* 背景画像グリッド */}
-            <div className="grid grid-cols-3 gap-1 p-1">
-                {backgroundImages.map((image, index) => (
-                    <div key={index} className="aspect-square">
-                        <img
-                            src={image}
-                            alt={`Background ${index + 1}`}
-                            className="w-full h-full object-cover"
-                        />
+            {/* メインコンテンツエリア */}
+            <div
+                className="max-w-7xl mx-auto px-6 py-4"
+                style={{ paddingBottom: `${MENU_BAR_HEIGHT}px` }}
+            >
+                {/* プロフィール一覧 */}
+                {allProfiles.map((profile) => (
+                    <div key={profile.id}>
+                        <a
+                            href={`/profile/${profile.id}`}
+                            onClick={(e) => {
+                                e.preventDefault();
+                                navigate(`/profile/${profile.id}`, {
+                                    state: { fromVisit: true },
+                                });
+                            }}
+                            className="block py-2"
+                        >
+                            <div className="flex items-center space-x-4">
+                                <img
+                                    src={
+                                        profile.profile?.user_thumbnail ===
+                                        "default_thumbnail.png"
+                                            ? "/images/user/default_thumbnail.png"
+                                            : `${
+                                                  import.meta.env.VITE_S3_URL
+                                              }/user/${profile.id}/${
+                                                  profile.profile
+                                                      ?.user_thumbnail
+                                              }`
+                                    }
+                                    alt={`${profile.profile?.nickname}のサムネイル`}
+                                    className={`w-16 h-16 rounded-full object-cover ${
+                                        profile.profile?.user_thumbnail ===
+                                            "default_thumbnail.png" &&
+                                        "bg-gray-100 p-2"
+                                    }`}
+                                />
+                                <div>
+                                    <div className="font-medium text-gray-900">
+                                        {profile.profile?.nickname}
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                        <div className="border-b border-gray-200"></div>
                     </div>
                 ))}
             </div>
 
-            {/* 検索結果 */}
+            {/* 検索結果オーバーレイ */}
             {searchResults.length > 0 && (
                 <div
-                    className="absolute left-0 right-0 bg-white z-20"
-                    style={{ top: searchBarHeight }}
+                    className="absolute left-0 right-0 bg-[#F8F8F8] shadow-lg"
+                    style={{
+                        top: searchBarHeight,
+                        height: "auto",
+                    }}
                 >
                     <div className="max-w-7xl mx-auto px-6 py-4">
                         {searchResults.map((result, index) => (

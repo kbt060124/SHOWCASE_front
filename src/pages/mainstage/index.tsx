@@ -81,7 +81,13 @@ const Mainstage: FC = () => {
         (scene: Scene) => {
             sceneRef.current = scene;
             if (room_id) {
-                studioSceneSetup(scene, "/models/display_cabinet.glb", room_id)
+                studioSceneSetup(
+                    scene,
+                    "/models/display_cabinet.glb",
+                    room_id,
+                    undefined,
+                    "mainstage"
+                )
                     .then(() => {
                         setIsLoading(false);
                     })
@@ -97,7 +103,12 @@ const Mainstage: FC = () => {
     // いいね処理
     const handleLike = async (isLiked: boolean) => {
         try {
-            if (!user) return;
+            if (!user) {
+                navigate("/login", {
+                    state: { from: { pathname: location.pathname } },
+                });
+                return;
+            }
             // 自分の投稿の場合は、いいねの表示切り替えのみ行う
             if (user.id === roomData?.user_id) {
                 setIsLikeModalOpen(true);
@@ -123,6 +134,12 @@ const Mainstage: FC = () => {
     // コメント投稿処理
     const handleCommentSubmit = async (roomId: number) => {
         try {
+            if (!user) {
+                navigate("/login", {
+                    state: { from: { pathname: location.pathname } },
+                });
+                return;
+            }
             await api.post(`/api/room/comment/store/${roomId}`, {
                 comment: newComment,
             });
@@ -137,7 +154,9 @@ const Mainstage: FC = () => {
     // コメント削除処理
     const handleCommentDelete = async (commentId: number) => {
         try {
-            if (!window.confirm("Are you sure you want to delete this comment?")) {
+            if (
+                !window.confirm("Are you sure you want to delete this comment?")
+            ) {
                 return;
             }
 

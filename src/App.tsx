@@ -15,19 +15,22 @@ import ChangePassword from "./pages/auth/changePassword";
 import ReactGA from "react-ga4";
 import { PageTimeTracker, trackPageTransition } from "@/utils/analytics";
 import Create3D from "./pages/create-3d";
+import Error from "@/pages/error";
+
 // 初期化
 ReactGA.initialize(import.meta.env.VITE_GA_MEASUREMENT_ID);
 
 // 認証が必要なルートを保護するためのコンポーネント
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
     const { isAuthenticated, loading } = useAuth();
+    const location = useLocation();
 
     if (loading) {
         return <div>Loading...</div>;
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
+        return <Navigate to="/login" state={{ from: location }} replace />;
     }
 
     return <>{children}</>;
@@ -125,19 +128,13 @@ const App = () => {
                             </ProtectedRoute>
                         }
                     />
+                    <Route path="/profile/:user_id" element={<Profile />} />
+                    <Route path="/mainstage/:room_id" element={<Mainstage />} />
                     <Route
-                        path="/profile/:user_id"
+                        path="/visit"
                         element={
                             <ProtectedRoute>
-                                <Profile />
-                            </ProtectedRoute>
-                        }
-                    />
-                    <Route
-                        path="/mainstage/:room_id"
-                        element={
-                            <ProtectedRoute>
-                                <Mainstage />
+                                <Visit />
                             </ProtectedRoute>
                         }
                     />
@@ -149,7 +146,7 @@ const App = () => {
                             </ProtectedRoute>
                         }
                     />
-                    <Route path="/visit" element={<Visit />} />
+                    <Route path="/error" element={<Error />} />
                 </Routes>
             </div>
             {showNav && <MenuBar />}
