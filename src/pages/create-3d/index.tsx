@@ -72,6 +72,7 @@ const Create3D: React.FC = () => {
         try {
             const response = await api.post("/api/item/check-status", {
                 subscriptionKey: subscriptionKey,
+                taskId: taskId,
             });
 
             // エラーレスポンスの場合
@@ -100,59 +101,67 @@ const Create3D: React.FC = () => {
                         () => checkStatus(taskId, subscriptionKey),
                         5000
                     );
+                    return;
                 }
 
-                // タスクが完了した場合の処理
-                if (response.data.status === "Done") {
-                    await handleDownload(taskId);
+                // タスクが完了し、かつダウンロードURLが含まれている場合
+                if (
+                    response.data.status === "Done" &&
+                    response.data.downloadUrls
+                ) {
+                    setDownloadUrls(response.data.downloadUrls);
+                    setStatus(
+                        "生成が完了しました！ファイルがサーバーに保存されました。"
+                    );
+                    return;
                 }
-            } else {
-                setStatus("ステータスが不明です");
             }
         } catch (error) {
             console.error("Status check error:", error);
             setStatus("ステータスチェックでエラーが発生しました");
+            // エラー時も再試行
+            setTimeout(() => checkStatus(taskId, subscriptionKey), 5000);
         }
     };
 
-    const handleDownload = async (taskId: string) => {
-        try {
-            const response = await api.post("/api/item/download-model", {
-                taskId: taskId,
-            });
+    // const handleDownload = async (taskId: string) => {
+    //     try {
+    //         const response = await api.post("/api/item/download-model", {
+    //             taskId: taskId,
+    //         });
 
-            if (response.data.files && response.data.files.length > 0) {
-                setDownloadUrls(response.data.files);
-                setStatus(
-                    "生成が完了しました！ファイルがサーバーに保存されました。"
-                );
-            } else {
-                // エラーメッセージがある場合は表示
-                const errorMessage = response.data.message
-                    ? `${response.data.error} (${response.data.message})`
-                    : response.data.error;
-                setStatus(
-                    errorMessage ||
-                        "生成は完了しましたが、ファイルが見つかりません。"
-                );
+    //         if (response.data.files && response.data.files.length > 0) {
+    //             setDownloadUrls(response.data.files);
+    //             setStatus(
+    //                 "生成が完了しました！ファイルがサーバーに保存されました。"
+    //             );
+    //         } else {
+    //             // エラーメッセージがある場合は表示
+    //             const errorMessage = response.data.message
+    //                 ? `${response.data.error} (${response.data.message})`
+    //                 : response.data.error;
+    //             setStatus(
+    //                 errorMessage ||
+    //                     "生成は完了しましたが、ファイルが見つかりません。"
+    //             );
 
-                // まだ生成中の場合は再度チェック
-                if (
-                    response.data.status &&
-                    response.data.status !== "Done" &&
-                    response.data.status !== "Failed"
-                ) {
-                    setTimeout(() => handleDownload(taskId), 5000);
-                }
-            }
-        } catch (error) {
-            console.error("Download error:", error);
-            setStatus("ダウンロードの準備中にエラーが発生しました");
+    //             // まだ生成中の場合は再度チェック
+    //             if (
+    //                 response.data.status &&
+    //                 response.data.status !== "Done" &&
+    //                 response.data.status !== "Failed"
+    //             ) {
+    //                 setTimeout(() => handleDownload(taskId), 5000);
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.error("Download error:", error);
+    //         setStatus("ダウンロードの準備中にエラーが発生しました");
 
-            // 5秒後に再試行
-            setTimeout(() => handleDownload(taskId), 5000);
-        }
-    };
+    //         // 5秒後に再試行
+    //         setTimeout(() => handleDownload(taskId), 5000);
+    //     }
+    // };
 
     return (
         <div
