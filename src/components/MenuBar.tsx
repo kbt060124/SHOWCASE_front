@@ -6,6 +6,12 @@ import { useEffect, useState } from "react";
 
 export const MENU_BAR_HEIGHT = 56;
 
+const labelStyle = {
+    fontFamily: "Open Sans",
+    fontWeight: 900,
+    fontSize: "10px",
+} as const;
+
 const MenuBar = () => {
     const location = useLocation();
     const navigate = useNavigate();
@@ -91,51 +97,66 @@ const MenuBar = () => {
                 <BottomNavigationAction
                     value={`/mainstage/${roomId}`}
                     icon={
-                        <img
-                            src="/icons/mainstage_black.png"
-                            alt="Mainstage"
-                            style={{ width: 24, height: 24 }}
-                        />
+                        <div className="flex flex-col items-center">
+                            <img
+                                src="/icons/mainstage_black.png"
+                                alt="Mainstage"
+                                style={{ width: 32, height: 32 }}
+                            />
+                            <span style={labelStyle}>Display</span>
+                        </div>
                     }
                 />
                 <BottomNavigationAction
                     value="/warehouse"
                     icon={
-                        <img
-                            src="/icons/Warehouse_black.png"
-                            alt="Warehouse"
-                            style={{ width: 24, height: 24 }}
-                        />
+                        <div className="flex flex-col items-center">
+                            <img
+                                src="/icons/Warehouse_black.png"
+                                alt="Warehouse"
+                                style={{ width: 32, height: 32 }}
+                            />
+                            <span style={labelStyle}>Collection</span>
+                        </div>
                     }
                 />
                 <BottomNavigationAction
                     value={`/studio/${roomId}`}
                     icon={
-                        <img
-                            src="/icons/Studio_black.png"
-                            alt="Studio"
-                            style={{ width: 24, height: 24 }}
-                        />
+                        <div className="flex flex-col items-center">
+                            <img
+                                src="/icons/Studio_black.png"
+                                alt="Studio"
+                                style={{ width: 32, height: 32 }}
+                            />
+                            <span style={labelStyle}>Decorate</span>
+                        </div>
                     }
                 />
                 <BottomNavigationAction
                     value="/visit"
                     icon={
-                        <img
-                            src="/icons/Visit_black.png"
-                            alt="Visit"
-                            style={{ width: 24, height: 24 }}
-                        />
+                        <div className="flex flex-col items-center">
+                            <img
+                                src="/icons/Visit_black.png"
+                                alt="Visit"
+                                style={{ width: 32, height: 32 }}
+                            />
+                            <span style={labelStyle}>Explore</span>
+                        </div>
                     }
                 />
                 <BottomNavigationAction
                     value={`/profile/${user?.id}`}
                     icon={
-                        <img
-                            src="/icons/Profile_black.png"
-                            alt="Profile"
-                            style={{ width: 24, height: 24 }}
-                        />
+                        <div className="flex flex-col items-center">
+                            <img
+                                src="/icons/Profile_black.png"
+                                alt="Profile"
+                                style={{ width: 32, height: 32 }}
+                            />
+                            <span style={labelStyle}>Profile</span>
+                        </div>
                     }
                 />
             </BottomNavigation>
