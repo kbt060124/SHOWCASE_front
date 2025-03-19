@@ -46,24 +46,55 @@ const Create3D: React.FC = () => {
 
         setLoading(true);
         setDownloadUrls([]);
+        setStatus("Start");
         try {
-            const formData = new FormData();
+            // 1. 背景削除処理
+            const removeBackgroundFormData = new FormData();
             selectedImages.forEach((image) => {
-                formData.append("images[]", image);
+                removeBackgroundFormData.append("images[]", image);
             });
-            formData.append("tier", "Sketch");
 
-            const response = await api.post("/api/item/create-3d", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
+            const removeBackgroundResponse = await api.post(
+                "/api/item/remove-background",
+                removeBackgroundFormData,
+                {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                }
+            );
+
+            if (!removeBackgroundResponse.data.processed_images) {
+                throw new Error("背景削除処理に失敗しました");
+            }
+
+            setStatus(removeBackgroundResponse.data.status);
+
+            // 2. 3Dモデル生成処理
+            const create3DResponse = await api.post(
+                "/api/item/create-3d",
+                {
+                    filenames: removeBackgroundResponse.data.processed_images,
+                    tier: "Sketch",
                 },
-            });
+                {
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                }
+            );
 
-            if (response.data.taskId && response.data.subscriptionKey) {
+            // 3. ステータスチェック開始
+            if (
+                create3DResponse.data.taskId &&
+                create3DResponse.data.subscriptionKey
+            ) {
                 checkStatus(
-                    response.data.taskId,
-                    response.data.subscriptionKey
+                    create3DResponse.data.taskId,
+                    create3DResponse.data.subscriptionKey
                 );
+            } else {
+                throw new Error("3Dモデル生成の開始に失敗しました");
             }
         } catch (error) {
             console.error("Error:", error);
@@ -75,6 +106,10 @@ const Create3D: React.FC = () => {
     // ステータスに応じたメッセージを返す関数を修正
     const getStatusMessage = (status: string) => {
         switch (status) {
+            case "Start":
+                return "Starting background removal...";
+            case "Removed":
+                return "Starting 3D model generation...";
             case "Generating":
                 return "3D model is being generated ...";
             case "Queued":
