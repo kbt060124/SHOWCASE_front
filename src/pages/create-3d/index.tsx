@@ -107,17 +107,19 @@ const Create3D: React.FC = () => {
     const getStatusMessage = (status: string) => {
         switch (status) {
             case "Start":
-                return "Starting background removal...";
+                return "Starting background removal";
             case "Removed":
-                return "Starting 3D model generation...";
+                return "Starting 3D model generation";
             case "Generating":
-                return "3D model is being generated ...";
+                return "3D model is being generated";
             case "Queued":
                 return "3D model generation is queued";
             case "Processing":
-                return "3d model is being stored on the server ...";
+                return "3d model is being stored on the server";
             case "Done":
                 return "3D model has been stored on the server";
+            case "Waiting":
+                return "The task of others is being executed";
             case "Failed":
                 return "Failed to generate 3D model";
             case "Unknown":
