@@ -20,7 +20,6 @@ const Visit = () => {
     const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
     const { user } = useAuth();
     const navigate = useNavigate();
-    const [backgroundImages, setBackgroundImages] = useState<string[]>([]);
     const [allProfiles, setAllProfiles] = useState<SearchResult[]>([]);
     const searchBarRef = useRef<HTMLDivElement>(null);
     const [searchBarHeight, setSearchBarHeight] = useState(0);
