@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import GenerateViewer from "@/components/preview/GenerateViewer";
 import Store from "./Store";
 import { useNavigate } from "react-router-dom";
+import api from "@/utils/axios";
 
 interface PreviewModalProps {
     isOpen: boolean;
@@ -74,7 +75,25 @@ const PreviewModal: React.FC<PreviewModalProps> = ({
                 ) : (
                     <div className="flex justify-center gap-16 p-4 mt-12">
                         <div className="flex flex-col items-center">
-                            <button onClick={onClose}>
+                            <button
+                                onClick={async () => {
+                                    try {
+                                        // GLBファイルを削除
+                                        await api.post(
+                                            "/api/item/delete-generated-model",
+                                            {
+                                                filename: filename,
+                                            }
+                                        );
+                                        onClose();
+                                    } catch (error) {
+                                        console.error(
+                                            "GLBファイルの削除に失敗しました:",
+                                            error
+                                        );
+                                    }
+                                }}
+                            >
                                 <img
                                     src="/images/regenerate.png"
                                     alt="Try Again"
