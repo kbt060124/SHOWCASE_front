@@ -97,7 +97,6 @@ const Create3D: React.FC = () => {
                 throw new Error("3Dモデル生成の開始に失敗しました");
             }
         } catch (error) {
-            console.error("Error:", error);
             setStatus("エラーが発生しました");
             setLoading(false);
         }
@@ -137,8 +136,6 @@ const Create3D: React.FC = () => {
                 taskId: taskId,
             });
 
-            // レスポンスの内容を確認するログを追加
-            console.log("Status response:", response.data);
 
             // エラーレスポンスの場合
             if (response.data.error) {
@@ -149,8 +146,6 @@ const Create3D: React.FC = () => {
 
             // ステータスが取得できた場合
             if (response.data.status) {
-                // 受け取ったステータスを確認するログを追加
-                console.log("Received status:", response.data.status);
                 setStatus(response.data.status);
 
                 // タスクが完了していない場合は5秒後に再度チェック
@@ -186,7 +181,6 @@ const Create3D: React.FC = () => {
                 }
             }
         } catch (error) {
-            console.error("Status check error:", error);
             setStatus("Unknown");
             setTimeout(() => checkStatus(taskId, subscriptionKey), 5000);
         }
