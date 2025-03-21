@@ -14,6 +14,8 @@ const Create3D: React.FC = () => {
     >([]);
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewFilename, setPreviewFilename] = useState("");
+    const [error, setError] = useState<string | null>(null);
+    // const [waitingCount, setWaitingCount] = useState(0);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -21,7 +23,7 @@ const Create3D: React.FC = () => {
             const totalImages = selectedImages.length + files.length;
 
             if (totalImages > 5) {
-                alert("画像は最大5枚までアップロードできます");
+                alert("You can upload up to 5 images");
                 return;
             }
 
@@ -35,18 +37,21 @@ const Create3D: React.FC = () => {
 
     const handleSubmit = async () => {
         if (selectedImages.length === 0) {
-            alert("画像を1枚以上選択してください");
+            alert("Please select at least one image");
             return;
         }
 
         if (selectedImages.length > 5) {
-            alert("画像は最大5枚までアップロードできます");
+            alert("You can upload up to 5 images");
             return;
         }
 
         setLoading(true);
         setDownloadUrls([]);
         setStatus("Start");
+        setError(null);
+        // setWaitingCount(0);
+
         try {
             // 1. 背景削除処理
             const removeBackgroundFormData = new FormData();
@@ -64,8 +69,10 @@ const Create3D: React.FC = () => {
                 }
             );
 
-            if (!removeBackgroundResponse.data.processed_images) {
-                throw new Error("背景削除処理に失敗しました");
+            if (removeBackgroundResponse.data.error) {
+                setError(removeBackgroundResponse.data.error);
+                setLoading(false);
+                return;
             }
 
             setStatus(removeBackgroundResponse.data.status);
@@ -94,10 +101,27 @@ const Create3D: React.FC = () => {
                     create3DResponse.data.subscriptionKey
                 );
             } else {
-                throw new Error("3Dモデル生成の開始に失敗しました");
+                throw new Error("Failed to generate. Please try again");
             }
-        } catch (error) {
-            setStatus("エラーが発生しました");
+        } catch (error: any) {
+            console.error("Error:", error);
+
+            if (error.response) {
+                // サーバーからのエラーレスポンス
+                setError(
+                    error.response.data?.error ||
+                        "Failed to generate. Please try again"
+                );
+            } else if (error.request) {
+                // リクエストは送信されたがレスポンスが受信されなかった
+                setError("No response from server");
+            } else {
+                // その他のエラー
+                setError(
+                    error.message || "Failed to generate. Please try again"
+                );
+            }
+
             setLoading(false);
         }
     };
@@ -106,21 +130,21 @@ const Create3D: React.FC = () => {
     const getStatusMessage = (status: string) => {
         switch (status) {
             case "Start":
-                return "Starting background removal";
+                return "Step 1 of 3 - Removing Background";
             case "Removed":
-                return "Starting 3D model generation";
+                return "Step 2 of 3 - Generating 3D Model";
             case "Generating":
-                return "3D model is being generated";
+                return "Step 2 of 3 - Generating 3D Model";
             case "Queued":
-                return "3D model generation is queued";
+                return "Step 2 of 3 - Generating 3D Model";
             case "Processing":
-                return "3d model is being stored on the server";
+                return "Step 3 of 3 - Almost there! Finalizing";
             case "Done":
-                return "3D model has been stored on the server";
+                return "Step 3 of 3 - Almost there! Finalizing";
             case "Waiting":
-                return "The task of others is being executed";
+                return "Everyone is generating! Please hold";
             case "Failed":
-                return "Failed to generate 3D model";
+                return "Failed to generate. Please try again";
             case "Unknown":
                 return "Status is unknown";
             default:
@@ -139,7 +163,7 @@ const Create3D: React.FC = () => {
 
             // エラーレスポンスの場合
             if (response.data.error) {
-                setStatus(response.data.error);
+                setError(response.data.error);
                 setLoading(false);
                 return;
             }
@@ -148,12 +172,32 @@ const Create3D: React.FC = () => {
             if (response.data.status) {
                 setStatus(response.data.status);
 
+                // Waitingステータスのカウント処理(制限を設けるときは復活)
+                // if (response.data.status === "Waiting") {
+                //     setWaitingCount(prev => prev + 1);
+                //     if (waitingCount >= 12) { // 13回目でエラー
+                //         setError("Failed to generate. Please try again");
+                //         setLoading(false);
+                //         setWaitingCount(0);
+                //         return;
+                //     }
+                // } else {
+                //     setWaitingCount(0); // Waiting以外のステータスの場合はカウントをリセット
+                // }
+                
+                // Failedの場合はエラーを設定
+                if (response.data.status === "Failed") {
+                    setError("Failed to generate. Please try again");
+                    setLoading(false);
+                    return;
+                }
+
                 // タスクが完了していない場合は5秒後に再度チェック
                 if (
                     response.data.status !== "Done" &&
                     response.data.status !== "Failed" &&
                     response.data.status !== "Unknown" &&
-                    ["Generating", "Queued", "Processing"].includes(
+                    ["Generating", "Queued", "Processing", "Waiting"].includes(
                         response.data.status
                     )
                 ) {
@@ -180,9 +224,23 @@ const Create3D: React.FC = () => {
                     return;
                 }
             }
-        } catch (error) {
+        } catch (error: any) {
+            console.error("Status check error:", error);
             setStatus("Unknown");
             setTimeout(() => checkStatus(taskId, subscriptionKey), 5000);
+            if (error.response) {
+                setError(
+                    error.response.data?.error ||
+                        "An error occurred while checking status"
+                );
+            } else if (error.request) {
+                setError("No response from server");
+            } else {
+                setError(
+                    error.message || "An error occurred while checking status"
+                );
+            }
+            setLoading(false);
         }
     };
 
@@ -197,6 +255,12 @@ const Create3D: React.FC = () => {
         }
     }, [downloadUrls]);
 
+    // 戻るボタンのハンドラーを追加
+    const handleBack = () => {
+        setError(null);
+        setLoading(false);
+    };
+
     return (
         <div
             className="flex flex-col items-center justify-center min-h-screen bg-white p-4"
@@ -204,15 +268,23 @@ const Create3D: React.FC = () => {
                 paddingBottom: `calc(${MENU_BAR_HEIGHT}px + 1rem)`,
             }}
         >
-            {!loading && (
+            {/* 戻るボタンの条件を変更 */}
+            {!loading && !error ? (
                 <button
                     onClick={() => navigate("/warehouse")}
                     className="absolute left-4 top-4 text-2xl font-bold"
                 >
                     &#x3C;
                 </button>
-            )}
-            {loading ? (
+            ) : error ? (
+                <button
+                    onClick={handleBack}
+                    className="absolute left-4 top-4 text-2xl font-bold"
+                >
+                    &#x3C;
+                </button>
+            ) : null}
+            {loading || error ? (
                 <div className="flex flex-col items-center justify-center w-full max-w-md">
                     <h1 className="text-2xl font-bold text-center mb-8">
                         Generating 3D Model...
@@ -226,10 +298,14 @@ const Create3D: React.FC = () => {
                         <p className="text-center text-gray-600 mb-4">
                             One Moment Please
                         </p>
-                        {status && (
-                            <p className="text-sm text-gray-600">
-                                {getStatusMessage(status)}
-                            </p>
+                        {error ? (
+                            <p className="text-sm text-[#8C252B]">{error}</p>
+                        ) : (
+                            status && (
+                                <p className="text-sm text-[#11529A]">
+                                    {getStatusMessage(status)}
+                                </p>
+                            )
                         )}
                     </div>
                 </div>
@@ -347,3 +423,4 @@ const Create3D: React.FC = () => {
 };
 
 export default Create3D;
+
