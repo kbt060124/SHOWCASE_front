@@ -164,7 +164,7 @@ const Warehouse = () => {
                 ))}
             </div>
 
-            {/* <label
+            <label
                 className="fixed cursor-pointer"
                 style={{
                     bottom: `${MENU_BAR_HEIGHT + 16}px`,
@@ -177,7 +177,7 @@ const Warehouse = () => {
                     alt="生成"
                     className="w-12 h-12 hover:opacity-80 transition-opacity"
                 />
-            </label> */}
+            </label>
 
             <label
                 className="fixed cursor-pointer"
