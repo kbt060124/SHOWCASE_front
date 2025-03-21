@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import Upload from "@/pages/warehouse/components/upload";
 import Viewer from "@/pages/warehouse/components/viewer";
 import { useAuth } from "@/utils/useAuth";
@@ -35,7 +35,7 @@ const Warehouse = () => {
     const { user } = useAuth();
     const [uploadFile, setUploadFile] = useState<File | null>(null);
     const [isUploadPreviewOpen, setIsUploadPreviewOpen] = useState(false);
-    // const navigate = useNavigate();
+    const navigate = useNavigate();
 
     const MAX_FILE_SIZE = 100 * 1024 * 1024; // 100MB in bytes
 
@@ -164,7 +164,7 @@ const Warehouse = () => {
                 ))}
             </div>
 
-            <label
+            {/* <label
                 className="fixed cursor-pointer"
                 style={{
                     bottom: `${MENU_BAR_HEIGHT + 16}px`,
@@ -177,7 +177,7 @@ const Warehouse = () => {
                     alt="生成"
                     className="w-12 h-12 hover:opacity-80 transition-opacity"
                 />
-            </label>
+            </label> */}
 
             <label
                 className="fixed cursor-pointer"
