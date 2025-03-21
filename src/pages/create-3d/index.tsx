@@ -160,8 +160,6 @@ const Create3D: React.FC = () => {
                 taskId: taskId,
             });
 
-            // レスポンスの内容を確認するログを追加
-            console.log("Status response:", response.data);
 
             // エラーレスポンスの場合
             if (response.data.error) {
@@ -172,8 +170,6 @@ const Create3D: React.FC = () => {
 
             // ステータスが取得できた場合
             if (response.data.status) {
-                // 受け取ったステータスを確認するログを追加
-                console.log("Received status:", response.data.status);
                 setStatus(response.data.status);
 
                 // Waitingステータスのカウント処理(制限を設けるときは復活)
