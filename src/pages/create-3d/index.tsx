@@ -15,7 +15,7 @@ const Create3D: React.FC = () => {
     const [isPreviewOpen, setIsPreviewOpen] = useState(false);
     const [previewFilename, setPreviewFilename] = useState("");
     const [error, setError] = useState<string | null>(null);
-    const [waitingCount, setWaitingCount] = useState(0);
+    // const [waitingCount, setWaitingCount] = useState(0);
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files) {
@@ -50,7 +50,7 @@ const Create3D: React.FC = () => {
         setDownloadUrls([]);
         setStatus("Start");
         setError(null);
-        setWaitingCount(0);
+        // setWaitingCount(0);
 
         try {
             // 1. 背景削除処理
@@ -176,18 +176,18 @@ const Create3D: React.FC = () => {
                 console.log("Received status:", response.data.status);
                 setStatus(response.data.status);
 
-                // Waitingステータスのカウント処理
-                if (response.data.status === "Waiting") {
-                    setWaitingCount(prev => prev + 1);
-                    if (waitingCount >= 12) { // 13回目でエラー
-                        setError("Failed to generate. Please try again");
-                        setLoading(false);
-                        setWaitingCount(0);
-                        return;
-                    }
-                } else {
-                    setWaitingCount(0); // Waiting以外のステータスの場合はカウントをリセット
-                }
+                // Waitingステータスのカウント処理(制限を設けるときは復活)
+                // if (response.data.status === "Waiting") {
+                //     setWaitingCount(prev => prev + 1);
+                //     if (waitingCount >= 12) { // 13回目でエラー
+                //         setError("Failed to generate. Please try again");
+                //         setLoading(false);
+                //         setWaitingCount(0);
+                //         return;
+                //     }
+                // } else {
+                //     setWaitingCount(0); // Waiting以外のステータスの場合はカウントをリセット
+                // }
                 
                 // Failedの場合はエラーを設定
                 if (response.data.status === "Failed") {
