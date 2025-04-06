@@ -90,6 +90,13 @@ const App = () => {
         };
     }, [location.pathname]);
 
+    const LandingRedirect = () => {
+        useEffect(() => {
+          window.location.href = 'https://kukancase-48978328.hubspotpagebuilder.com/ja-jp/kukancase-0';
+        }, []);
+        return null;
+      };
+
     return (
         <div
             style={{
@@ -102,10 +109,7 @@ const App = () => {
                 {" "}
                 {/* メインコンテンツエリア */}
                 <Routes>
-                    <Route
-                        path="/"
-                        element={<Navigate to="/warehouse" replace />}
-                    />
+                    <Route path="/" element={<LandingRedirect />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     <Route
