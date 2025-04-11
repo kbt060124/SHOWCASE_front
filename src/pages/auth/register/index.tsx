@@ -40,38 +40,44 @@ const Register = () => {
 
     const validateStep1 = () => {
         if (!email.trim()) {
-            return "メールアドレスを入力してください";
+            return "Please enter your email address";
         }
         if (!password) {
-            return "パスワードを入力してください";
+            return "Please enter your password";
         }
         if (!passwordConfirmation) {
-            return "パスワード（確認）を入力してください";
+            return "Please confirm your password";
         }
         if (password !== passwordConfirmation) {
-            return "パスワードが一致しません";
+            return "Passwords do not match";
         }
         // メールアドレスの形式チェック
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return "有効なメールアドレスを入力してください";
+            return "Please enter a valid email address";
         }
         // パスワードの最小文字数チェック
         if (password.length < 8) {
-            return "パスワードは8文字以上で入力してください";
+            return "Password must be at least 8 characters long";
         }
         return null;
     };
 
     const validateStep2 = () => {
         if (!username.trim()) {
-            return "ユーザー名を入力してください";
+            return "Please enter your username";
+        }
+        if (!lastName.trim()) {
+            return "Please enter your last name";
+        }
+        if (!firstName.trim()) {
+            return "Please enter your first name";
         }
         if (!dateOfBirth) {
-            return "生年月日を入力してください";
+            return "Please enter your date of birth";
         }
         if (!gender) {
-            return "性別を選択してください";
+            return "Please select your gender";
         }
         return null;
     };
@@ -82,19 +88,19 @@ const Register = () => {
             profileData
         );
         if (response.status !== 201) {
-            throw new Error("プロフィールの作成に失敗しました");
+            throw new Error("Failed to create profile");
         }
     };
 
     const createAndGetRoom = async (userId: number) => {
         const { data } = await api.post("api/room/create");
         if (!data.room) {
-            throw new Error("ルームの作成に失敗しました");
+            throw new Error("Failed to create room");
         }
 
         const roomResponse = await api.get(`/api/room/${userId}`);
         if (!roomResponse.data.rooms) {
-            throw new Error("ルーム情報の取得に失敗しました");
+            throw new Error("Failed to get room information");
         }
         return roomResponse.data.rooms[0].id;
     };
@@ -108,7 +114,7 @@ const Register = () => {
 
         if (!registerResult?.success || !registerResult.user) {
             throw new Error(
-                "ユーザー登録に失敗しました。詳細: " +
+                "User registration failed. Details: " +
                     JSON.stringify(registerResult)
             );
         }
@@ -150,7 +156,7 @@ const Register = () => {
             setError(
                 error.response?.data?.message ||
                     error.message ||
-                    "アカウントの作成に失敗しました"
+                    "Failed to create account"
             );
         }
     };
