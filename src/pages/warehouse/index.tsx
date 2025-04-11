@@ -6,6 +6,7 @@ import { useAuth } from "@/utils/useAuth";
 import api from "@/utils/axios";
 import { MENU_BAR_HEIGHT } from "@/components/MenuBar";
 
+//デプロイ
 interface Warehouse {
     id: bigint;
     name: string;
